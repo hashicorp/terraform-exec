@@ -15,6 +15,10 @@ Currently supported Terraform commands:
 * init
 * show
 
+### Installation
+Navigate to your Golang project in the Terminal, then retrieve the package.
+`go get github.com/kmoe/terraform-exec`
+
 ### Example
 
 
