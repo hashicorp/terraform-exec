@@ -16,7 +16,7 @@ Currently supported Terraform commands:
 * show
 
 ### Installation
-Navigate to your Golang project in the Terminal, then retrieve the package.
+Navigate the the Golang project that this package will be used in. This package can be installed using the Go package manager.
 `go get github.com/kmoe/terraform-exec`
 
 ### Example
