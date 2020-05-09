@@ -24,8 +24,11 @@ import (
     
 func main() {
     workingDir := "/path/to/working/dir"
+    cfg := tfexec.Config{
+        WorkingDir: workingDir,
+    }
 
-    state, err := tfexec.Show(workingDir)
+    state, err := cfg.Show()
     if err != nil {
         panic(err)
     }
