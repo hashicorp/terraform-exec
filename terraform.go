@@ -11,8 +11,12 @@ import (
 	tfjson "github.com/hashicorp/terraform-json"
 )
 
-func Init(workingDir string, args ...string) error {
-	initCmd := InitCmd(workingDir, args...)
+type Config struct {
+	WorkingDir string
+}
+
+func (c *Config) Init(args ...string) error {
+	initCmd := InitCmd(c.WorkingDir, args...)
 
 	var errBuf strings.Builder
 	initCmd.Stderr = &errBuf
@@ -25,13 +29,13 @@ func Init(workingDir string, args ...string) error {
 	return nil
 }
 
-func Show(workingDir string, args ...string) (*tfjson.State, error) {
+func (c *Config) Show(args ...string) (*tfjson.State, error) {
 	var ret tfjson.State
 
 	var errBuf strings.Builder
 	var outBuf bytes.Buffer
 
-	showCmd := ShowCmd(workingDir, args...)
+	showCmd := ShowCmd(c.WorkingDir, args...)
 
 	showCmd.Stderr = &errBuf
 	showCmd.Stdout = &outBuf
@@ -57,13 +61,13 @@ func Show(workingDir string, args ...string) (*tfjson.State, error) {
 	return &ret, nil
 }
 
-func ProvidersSchema(workingDir string, args ...string) (*tfjson.ProviderSchemas, error) {
+func (c *Config) ProvidersSchema(args ...string) (*tfjson.ProviderSchemas, error) {
 	var ret tfjson.ProviderSchemas
 
 	var errBuf strings.Builder
 	var outBuf bytes.Buffer
 
-	schemaCmd := ProvidersSchemaCmd(workingDir, args...)
+	schemaCmd := ProvidersSchemaCmd(c.WorkingDir, args...)
 
 	schemaCmd.Stderr = &errBuf
 	schemaCmd.Stdout = &outBuf

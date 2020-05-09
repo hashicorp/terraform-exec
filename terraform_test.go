@@ -22,6 +22,10 @@ func TestShow(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
+	cfg := Config{
+		WorkingDir: td,
+	}
+
 	// copy state and config files into test dir
 	err := copyFile(filepath.Join(testFixtureDir, testTerraformStateFileName), filepath.Join(td, testTerraformStateFileName))
 	if err != nil {
@@ -52,12 +56,12 @@ func TestShow(t *testing.T) {
 		},
 	}
 
-	err = Init(td)
+	err = cfg.Init()
 	if err != nil {
 		t.Fatalf("error running Init in test directory: %s", err)
 	}
 
-	actual, err := Show(td)
+	actual, err := cfg.Show()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -71,6 +75,10 @@ func TestShow_errInitRequired(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
+	cfg := Config{
+		WorkingDir: td,
+	}
+
 	err := copyFile(filepath.Join(testFixtureDir, testTerraformStateFileName), filepath.Join(td, testTerraformStateFileName))
 
 	// This test will break if the error output of `terraform init`
@@ -78,7 +86,7 @@ func TestShow_errInitRequired(t *testing.T) {
 	// man's canary for significant changes to Terraform CLI.
 	expected := "Error: Could not satisfy plugin requirements"
 
-	_, err = Show(td)
+	_, err = cfg.Show()
 	if err == nil {
 		t.Fatal("expected Show to error, but it did not")
 	} else {
