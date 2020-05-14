@@ -22,12 +22,13 @@ func TestShow(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
-	cfg := Config{
-		WorkingDir: td,
+	tf, err := NewTerraform(td, "")
+	if err != nil {
+		t.Fatal(err)
 	}
 
 	// copy state and config files into test dir
-	err := copyFile(filepath.Join(testFixtureDir, testTerraformStateFileName), filepath.Join(td, testTerraformStateFileName))
+	err = copyFile(filepath.Join(testFixtureDir, testTerraformStateFileName), filepath.Join(td, testTerraformStateFileName))
 	if err != nil {
 		t.Fatalf("error copying state file into test dir: %s", err)
 	}
@@ -56,12 +57,12 @@ func TestShow(t *testing.T) {
 		},
 	}
 
-	err = cfg.Init()
+	err = tf.Init()
 	if err != nil {
 		t.Fatalf("error running Init in test directory: %s", err)
 	}
 
-	actual, err := cfg.Show()
+	actual, err := tf.Show()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -75,18 +76,19 @@ func TestShow_errInitRequired(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
-	cfg := Config{
-		WorkingDir: td,
+	tf, err := NewTerraform(td, "")
+	if err != nil {
+		t.Fatal(err)
 	}
 
-	err := copyFile(filepath.Join(testFixtureDir, testTerraformStateFileName), filepath.Join(td, testTerraformStateFileName))
+	err = copyFile(filepath.Join(testFixtureDir, testTerraformStateFileName), filepath.Join(td, testTerraformStateFileName))
 
 	// This test will break if the error output of `terraform init`
 	// changes significantly. We tolerate this brittleness as a poor
 	// man's canary for significant changes to Terraform CLI.
 	expected := "Error: Could not satisfy plugin requirements"
 
-	_, err = cfg.Show()
+	_, err = tf.Show()
 	if err == nil {
 		t.Fatal("expected Show to error, but it did not")
 	} else {

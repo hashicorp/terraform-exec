@@ -5,7 +5,7 @@ import (
 	"os/exec"
 )
 
-func buildTerraformCmd(workingDir string, args ...string) exec.Cmd {
+func (t *Terraform) buildTerraformCmd(args ...string) exec.Cmd {
 	allArgs := []string{"terraform"}
 	allArgs = append(allArgs, args...)
 	allArgs = append(allArgs, "-no-color")
@@ -19,30 +19,30 @@ func buildTerraformCmd(workingDir string, args ...string) exec.Cmd {
 	env = append(env, "TF_INPUT=0")
 
 	return exec.Cmd{
-		Path: FindTerraform(),
-		Env:  env,
+		Path: t.execPath,
+		Env:  t.Env,
 		Args: allArgs,
-		Dir:  workingDir,
+		Dir:  t.workingDir,
 	}
 }
 
-func InitCmd(workingDir string, args ...string) exec.Cmd {
+func (t *Terraform) InitCmd(args ...string) exec.Cmd {
 	allArgs := []string{"init"}
 	allArgs = append(allArgs, args...)
 
-	return buildTerraformCmd(workingDir, allArgs...)
+	return t.buildTerraformCmd(allArgs...)
 }
 
-func ShowCmd(workingDir string, args ...string) exec.Cmd {
+func (t *Terraform) ShowCmd(args ...string) exec.Cmd {
 	allArgs := []string{"show", "-json"}
 	allArgs = append(allArgs, args...)
 
-	return buildTerraformCmd(workingDir, allArgs...)
+	return t.buildTerraformCmd(allArgs...)
 }
 
-func ProvidersSchemaCmd(workingDir string, args ...string) exec.Cmd {
+func (t *Terraform) ProvidersSchemaCmd(args ...string) exec.Cmd {
 	allArgs := []string{"providers", "schema", "-json"}
 	allArgs = append(allArgs, args...)
 
-	return buildTerraformCmd(workingDir, allArgs...)
+	return t.buildTerraformCmd(allArgs...)
 }
