@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 
 	tfjson "github.com/hashicorp/terraform-json"
@@ -15,7 +16,10 @@ import (
 type Terraform struct {
 	execPath   string
 	workingDir string
-	Env        []string
+
+	// Log each Terraform command with fmt.Println. For use in tests and debugging.
+	echo bool
+	Env  []string
 }
 
 // NewTerraform returns a Terraform struct with default values for all fields.
@@ -46,6 +50,157 @@ func NewTerraform(workingDir string, execPath string) (*Terraform, error) {
 		workingDir: workingDir,
 		Env:        passthroughEnv,
 	}, nil
+}
+
+type applyConfig struct {
+	Backup    string
+	DirOrPlan string
+	Lock      bool
+
+	// LockTimeout must be a string with time unit, e.g. '10s'
+	LockTimeout string
+	Parallelism int
+	Refresh     bool
+	State       string
+	StateOut    string
+	Targets     []string
+
+	// Vars: each var must be supplied as a single string, e.g. 'foo=bar'
+	Vars    []string
+	VarFile string
+}
+
+var defaultApplyOptions = applyConfig{
+	Lock:        true,
+	Parallelism: 10,
+	Refresh:     true,
+}
+
+type ApplyOption interface {
+	configureApply(*applyConfig)
+}
+
+type ParallelismOption struct {
+	parallelism int
+}
+
+type BackupOption struct {
+	backup string
+}
+
+type TargetOption struct {
+	target string
+}
+
+func (opt *ParallelismOption) configureApply(conf *applyConfig) {
+	conf.Parallelism = opt.parallelism
+}
+
+func (opt *BackupOption) configureApply(conf *applyConfig) {
+	conf.Backup = opt.backup
+}
+
+func (opt *TargetOption) configureApply(conf *applyConfig) {
+	conf.Targets = append(conf.Targets, opt.target)
+}
+
+func Parallelism(n int) *ParallelismOption {
+	return &ParallelismOption{n}
+}
+
+func Backup(path string) *BackupOption {
+	return &BackupOption{path}
+}
+
+func Target(resource string) *TargetOption {
+	return &TargetOption{resource}
+}
+
+func (t *Terraform) Apply(opts ...ApplyOption) error {
+	c := &defaultApplyOptions
+
+	for _, o := range opts {
+		o.configureApply(c)
+	}
+
+	args := []string{}
+
+	// string args: only pass if set
+	if c.Backup != "" {
+		args = append(args, "-backup="+c.Backup)
+	}
+	if c.LockTimeout != "" {
+		args = append(args, "-lock-timeout="+c.LockTimeout)
+	}
+	if c.State != "" {
+		args = append(args, "-state="+c.State)
+	}
+	if c.StateOut != "" {
+		args = append(args, "-state-out="+c.StateOut)
+	}
+	if c.VarFile != "" {
+		args = append(args, "-var-file="+c.VarFile)
+	}
+
+	// boolean and numerical args: always pass
+	args = append(args, "-lock="+strconv.FormatBool(c.Lock))
+
+	args = append(args, "-parallelism="+fmt.Sprint(c.Parallelism))
+	args = append(args, "-refresh="+strconv.FormatBool(c.Refresh))
+
+	// string slice args: pass as separate args
+	if c.Targets != nil {
+		for _, ta := range c.Targets {
+			args = append(args, "-target="+ta)
+		}
+	}
+
+	if c.Vars != nil {
+		for _, v := range c.Vars {
+			args = append(args, "-var '"+v+"'")
+		}
+	}
+
+	applyCmd := t.ApplyCmd(args...)
+
+	if t.echo {
+		fmt.Println(applyCmd.String())
+	}
+
+	var errBuf strings.Builder
+	applyCmd.Stderr = &errBuf
+
+	err := applyCmd.Run()
+	if err != nil {
+		return errors.New(errBuf.String())
+	}
+
+	return nil
+}
+
+type planConfig struct {
+	Destroy     bool
+	Lock        bool
+	LockTimeout string
+	Out         string
+	Parallelism int
+	Refresh     bool
+	State       string
+	Targets     []string
+	Vars        []string
+	VarFile     string
+}
+
+type PlanOption interface {
+	configurePlan(*planConfig)
+}
+
+func (opt *ParallelismOption) configurePlan(conf *planConfig) {
+	conf.Parallelism = opt.parallelism
+}
+
+func (t *Terraform) Plan(opts ...PlanOption) error {
+	return nil
 }
 
 func (t *Terraform) Init(args ...string) error {

@@ -33,6 +33,13 @@ func (t *Terraform) InitCmd(args ...string) exec.Cmd {
 	return t.buildTerraformCmd(allArgs...)
 }
 
+func (t *Terraform) ApplyCmd(args ...string) exec.Cmd {
+	allArgs := []string{"apply", "-auto-approve", "-input=false"}
+	allArgs = append(allArgs, args...)
+
+	return t.buildTerraformCmd(allArgs...)
+}
+
 func (t *Terraform) ShowCmd(args ...string) exec.Cmd {
 	allArgs := []string{"show", "-json"}
 	allArgs = append(allArgs, args...)

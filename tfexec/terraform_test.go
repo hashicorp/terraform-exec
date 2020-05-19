@@ -86,6 +86,7 @@ func TestShow_errInitRequired(t *testing.T) {
 	// This test will break if the error output of `terraform init`
 	// changes significantly. We tolerate this brittleness as a poor
 	// man's canary for significant changes to Terraform CLI.
+	// FIXME: Parse this in the actual command and return ErrNoInit
 	expected := "Error: Could not satisfy plugin requirements"
 
 	_, err = tf.Show()
@@ -97,6 +98,33 @@ func TestShow_errInitRequired(t *testing.T) {
 		}
 	}
 
+}
+
+func TestApply(t *testing.T) {
+	td := testTempDir(t)
+	defer os.RemoveAll(td)
+
+	tf, err := NewTerraform(td, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tf.echo = true
+
+	err = copyFile(filepath.Join(testFixtureDir, testConfigFileName), filepath.Join(td, testConfigFileName))
+	if err != nil {
+		t.Fatalf("error copying config file into test dir: %s", err)
+	}
+
+	err = tf.Init()
+	if err != nil {
+		t.Fatalf("error running Init in test directory: %s", err)
+	}
+
+	err = tf.Apply()
+	if err != nil {
+		t.Fatalf("error running Apply: %s", err)
+	}
 }
 
 func testTempDir(t *testing.T) string {
