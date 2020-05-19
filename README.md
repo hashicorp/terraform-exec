@@ -8,9 +8,9 @@ This is not an official HashiCorp project.
 
 ## Usage
 
-Top-level Terraform commands each have their own function, which will return either `error` or `(T, error)`, where `T` is a `terraform-json` type.
+The `Terraform` struct must be initialised with `NewTerraform(workingDir, execPath)`. 
 
-Convenience functions are provided for obtaining a raw `exec.Cmd` or command-line `string` for each supported Terraform command.
+Top-level Terraform commands each have their own function, which will return either `error` or `(T, error)`, where `T` is a `terraform-json` type.
 
 
 ### Example
@@ -20,41 +20,35 @@ Convenience functions are provided for obtaining a raw `exec.Cmd` or command-lin
 package main
 
 import (
-    tfexec "github.com/kmoe/terraform-exec"
+    "github.com/kmoe/terraform-exec/tfexec"
     
 func main() {
     workingDir := "/path/to/working/dir"
-    cfg := tfexec.Config{
-        WorkingDir: workingDir,
-    }
-
-    state, err := cfg.Show()
+    tf, err := tfexec.NewTerraform(workingDir)
     if err != nil {
         panic(err)
     }
-    
+
+    state, err := tf.Init()
+    if err != nil {
+        panic(err)
+    }
+
     fmt.Println(state.FormatVersion) // "0.1"
 )
 ```
 
 
-### `Init(workingDir string, args ...string) error`
+### `(tf *Terraform) Init(opts ...InitOpts) (*tfjson.State, error)`
 
-Runs `terraform init` in the given directory.
+Runs `terraform init`.
 
-### `Show(workingDir string, args ...string) (*tfjson.State, error)`
+### `(tf *Terraform) Show(opts ...ShowOpts) (*tfjson.State, error)`
 
 Returns the output of `terraform show -json`, represented as `tfjson.State`.
-
 
 ### `exec.Cmd` functions 
 
 #### `InitCmd(workingDir string, args ...string) exec.Cmd`
 
 #### `ShowCmd(workingDir string, args ...string) exec.Cmd`
-
-### `string` functions
-
-#### `InitString(args ...string) string`
-
-#### `ShowString(args ...string) string`
