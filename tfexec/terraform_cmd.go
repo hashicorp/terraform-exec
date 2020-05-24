@@ -1,16 +1,15 @@
 package tfexec
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
 	"strconv"
 )
 
-func (t *Terraform) buildTerraformCmd(args ...string) exec.Cmd {
-	allArgs := []string{"terraform"}
-	allArgs = append(allArgs, args...)
-	allArgs = append(allArgs, "-no-color")
+func (t *Terraform) buildTerraformCmd(ctx context.Context, args ...string) *exec.Cmd {
+	allArgs := append(args, "-no-color")
 
 	var env []string
 	for _, e := range os.Environ() {
@@ -20,22 +19,21 @@ func (t *Terraform) buildTerraformCmd(args ...string) exec.Cmd {
 	env = append(env, "TF_LOG=") // so logging can't pollute our stderr output
 	env = append(env, "TF_INPUT=0")
 
-	return exec.Cmd{
-		Path: t.execPath,
-		Env:  t.Env,
-		Args: allArgs,
-		Dir:  t.workingDir,
-	}
+	cmd := exec.CommandContext(ctx, t.execPath, allArgs...)
+	cmd.Env = t.Env
+	cmd.Dir = t.workingDir
+
+	return cmd
 }
 
-func (t *Terraform) InitCmd(args ...string) exec.Cmd {
+func (t *Terraform) InitCmd(ctx context.Context, args ...string) *exec.Cmd {
 	allArgs := []string{"init"}
 	allArgs = append(allArgs, args...)
 
-	return t.buildTerraformCmd(allArgs...)
+	return t.buildTerraformCmd(ctx, allArgs...)
 }
 
-func (t *Terraform) ApplyCmd(opts ...ApplyOption) exec.Cmd {
+func (t *Terraform) ApplyCmd(ctx context.Context, opts ...ApplyOption) *exec.Cmd {
 	c := &defaultApplyOptions
 
 	for _, o := range opts {
@@ -80,19 +78,19 @@ func (t *Terraform) ApplyCmd(opts ...ApplyOption) exec.Cmd {
 		}
 	}
 
-	return t.buildTerraformCmd(args...)
+	return t.buildTerraformCmd(ctx, args...)
 }
 
-func (t *Terraform) ShowCmd(args ...string) exec.Cmd {
+func (t *Terraform) ShowCmd(ctx context.Context, args ...string) *exec.Cmd {
 	allArgs := []string{"show", "-json"}
 	allArgs = append(allArgs, args...)
 
-	return t.buildTerraformCmd(allArgs...)
+	return t.buildTerraformCmd(ctx, allArgs...)
 }
 
-func (t *Terraform) ProvidersSchemaCmd(args ...string) exec.Cmd {
+func (t *Terraform) ProvidersSchemaCmd(ctx context.Context, args ...string) *exec.Cmd {
 	allArgs := []string{"providers", "schema", "-json"}
 	allArgs = append(allArgs, args...)
 
-	return t.buildTerraformCmd(allArgs...)
+	return t.buildTerraformCmd(ctx, allArgs...)
 }

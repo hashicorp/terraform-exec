@@ -2,6 +2,7 @@ package tfexec
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -196,8 +197,8 @@ func Var(assignment string) *VarOption {
 	return &VarOption{assignment}
 }
 
-func (t *Terraform) Apply(opts ...ApplyOption) error {
-	applyCmd := t.ApplyCmd(opts...)
+func (t *Terraform) Apply(ctx context.Context, opts ...ApplyOption) error {
+	applyCmd := t.ApplyCmd(ctx, opts...)
 
 	var errBuf strings.Builder
 	applyCmd.Stderr = &errBuf
@@ -231,12 +232,12 @@ func (opt *ParallelismOption) configurePlan(conf *planConfig) {
 	conf.Parallelism = opt.parallelism
 }
 
-func (t *Terraform) Plan(opts ...PlanOption) error {
+func (t *Terraform) Plan(ctx context.Context, opts ...PlanOption) error {
 	return nil
 }
 
-func (t *Terraform) Init(args ...string) error {
-	initCmd := t.InitCmd(args...)
+func (t *Terraform) Init(ctx context.Context, args ...string) error {
+	initCmd := t.InitCmd(ctx, args...)
 
 	var errBuf strings.Builder
 	initCmd.Stderr = &errBuf
@@ -249,13 +250,13 @@ func (t *Terraform) Init(args ...string) error {
 	return nil
 }
 
-func (t *Terraform) Show(args ...string) (*tfjson.State, error) {
+func (t *Terraform) Show(ctx context.Context, args ...string) (*tfjson.State, error) {
 	var ret tfjson.State
 
 	var errBuf strings.Builder
 	var outBuf bytes.Buffer
 
-	showCmd := t.ShowCmd(args...)
+	showCmd := t.ShowCmd(ctx, args...)
 
 	showCmd.Stderr = &errBuf
 	showCmd.Stdout = &outBuf
@@ -281,13 +282,13 @@ func (t *Terraform) Show(args ...string) (*tfjson.State, error) {
 	return &ret, nil
 }
 
-func (t *Terraform) ProvidersSchema(args ...string) (*tfjson.ProviderSchemas, error) {
+func (t *Terraform) ProvidersSchema(ctx context.Context, args ...string) (*tfjson.ProviderSchemas, error) {
 	var ret tfjson.ProviderSchemas
 
 	var errBuf strings.Builder
 	var outBuf bytes.Buffer
 
-	schemaCmd := t.ProvidersSchemaCmd(args...)
+	schemaCmd := t.ProvidersSchemaCmd(ctx, args...)
 
 	schemaCmd.Stderr = &errBuf
 	schemaCmd.Stdout = &outBuf

@@ -1,6 +1,7 @@
 package tfexec
 
 import (
+	"context"
 	"io"
 	"io/ioutil"
 	"os"
@@ -57,12 +58,12 @@ func TestShow(t *testing.T) {
 		},
 	}
 
-	err = tf.Init()
+	err = tf.Init(context.Background())
 	if err != nil {
 		t.Fatalf("error running Init in test directory: %s", err)
 	}
 
-	actual, err := tf.Show()
+	actual, err := tf.Show(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -89,7 +90,7 @@ func TestShow_errInitRequired(t *testing.T) {
 	// FIXME: Parse this in the actual command and return ErrNoInit
 	expected := "Error: Could not satisfy plugin requirements"
 
-	_, err = tf.Show()
+	_, err = tf.Show(context.Background())
 	if err == nil {
 		t.Fatal("expected Show to error, but it did not")
 	} else {
@@ -114,12 +115,12 @@ func TestApply(t *testing.T) {
 		t.Fatalf("error copying config file into test dir: %s", err)
 	}
 
-	err = tf.Init()
+	err = tf.Init(context.Background())
 	if err != nil {
 		t.Fatalf("error running Init in test directory: %s", err)
 	}
 
-	err = tf.Apply()
+	err = tf.Apply(context.Background())
 	if err != nil {
 		t.Fatalf("error running Apply: %s", err)
 	}
@@ -131,7 +132,7 @@ func TestApplyCmd(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	applyCmd := tf.ApplyCmd(Backup("testbackup"), LockTimeout("200s"), State("teststate"), StateOut("teststateout"), VarFile("testvarfile"), Lock(false), Parallelism(99), Refresh(false), Target("target1"), Target("target2"), Var("var1=foo"), Var("var2=bar"))
+	applyCmd := tf.ApplyCmd(context.Background(), Backup("testbackup"), LockTimeout("200s"), State("teststate"), StateOut("teststateout"), VarFile("testvarfile"), Lock(false), Parallelism(99), Refresh(false), Target("target1"), Target("target2"), Var("var1=foo"), Var("var2=bar"))
 
 	actual := strings.TrimPrefix(applyCmd.String(), applyCmd.Path+" ")
 
