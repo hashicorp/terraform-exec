@@ -109,8 +109,6 @@ func TestApply(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	tf.echo = true
-
 	err = copyFile(filepath.Join(testFixtureDir, testConfigFileName), filepath.Join(td, testConfigFileName))
 	if err != nil {
 		t.Fatalf("error copying config file into test dir: %s", err)
@@ -124,6 +122,23 @@ func TestApply(t *testing.T) {
 	err = tf.Apply()
 	if err != nil {
 		t.Fatalf("error running Apply: %s", err)
+	}
+}
+
+func TestApplyCmd(t *testing.T) {
+	tf, err := NewTerraform("/dev/null", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	applyCmd := tf.ApplyCmd(Backup("testbackup"), LockTimeout("200s"), State("teststate"), StateOut("teststateout"), VarFile("testvarfile"), Lock(false), Parallelism(99), Refresh(false), Target("target1"), Target("target2"), Var("var1=foo"), Var("var2=bar"))
+
+	actual := strings.TrimPrefix(applyCmd.String(), applyCmd.Path+" ")
+
+	expected := "apply -auto-approve -input=false -backup=testbackup -lock-timeout=200s -state=teststate -state-out=teststateout -var-file=testvarfile -lock=false -parallelism=99 -refresh=false -target=target1 -target=target2 -var 'var1=foo' -var 'var2=bar' -no-color"
+
+	if actual != expected {
+		t.Fatalf("expected arguments of ApplyCmd:\n%s\n actual arguments:\n%s\n", expected, actual)
 	}
 }
 

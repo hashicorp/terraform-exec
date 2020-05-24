@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
 
 	tfjson "github.com/hashicorp/terraform-json"
@@ -16,10 +15,7 @@ import (
 type Terraform struct {
 	execPath   string
 	workingDir string
-
-	// Log each Terraform command with fmt.Println. For use in tests and debugging.
-	echo bool
-	Env  []string
+	Env        []string
 }
 
 // NewTerraform returns a Terraform struct with default values for all fields.
@@ -92,6 +88,34 @@ type TargetOption struct {
 	target string
 }
 
+type LockTimeoutOption struct {
+	timeout string
+}
+
+type StateOption struct {
+	path string
+}
+
+type StateOutOption struct {
+	path string
+}
+
+type VarFileOption struct {
+	path string
+}
+
+type LockOption struct {
+	lock bool
+}
+
+type RefreshOption struct {
+	refresh bool
+}
+
+type VarOption struct {
+	assignment string
+}
+
 func (opt *ParallelismOption) configureApply(conf *applyConfig) {
 	conf.Parallelism = opt.parallelism
 }
@@ -102,6 +126,34 @@ func (opt *BackupOption) configureApply(conf *applyConfig) {
 
 func (opt *TargetOption) configureApply(conf *applyConfig) {
 	conf.Targets = append(conf.Targets, opt.target)
+}
+
+func (opt *LockTimeoutOption) configureApply(conf *applyConfig) {
+	conf.LockTimeout = opt.timeout
+}
+
+func (opt *StateOption) configureApply(conf *applyConfig) {
+	conf.State = opt.path
+}
+
+func (opt *StateOutOption) configureApply(conf *applyConfig) {
+	conf.StateOut = opt.path
+}
+
+func (opt *VarFileOption) configureApply(conf *applyConfig) {
+	conf.VarFile = opt.path
+}
+
+func (opt *LockOption) configureApply(conf *applyConfig) {
+	conf.Lock = opt.lock
+}
+
+func (opt *RefreshOption) configureApply(conf *applyConfig) {
+	conf.Refresh = opt.refresh
+}
+
+func (opt *VarOption) configureApply(conf *applyConfig) {
+	conf.Vars = append(conf.Vars, opt.assignment)
 }
 
 func Parallelism(n int) *ParallelismOption {
@@ -116,56 +168,36 @@ func Target(resource string) *TargetOption {
 	return &TargetOption{resource}
 }
 
+func LockTimeout(timeout string) *LockTimeoutOption {
+	return &LockTimeoutOption{timeout}
+}
+
+func State(path string) *StateOption {
+	return &StateOption{path}
+}
+
+func StateOut(path string) *StateOutOption {
+	return &StateOutOption{path}
+}
+
+func VarFile(path string) *VarFileOption {
+	return &VarFileOption{path}
+}
+
+func Lock(lock bool) *LockOption {
+	return &LockOption{lock}
+}
+
+func Refresh(refresh bool) *RefreshOption {
+	return &RefreshOption{refresh}
+}
+
+func Var(assignment string) *VarOption {
+	return &VarOption{assignment}
+}
+
 func (t *Terraform) Apply(opts ...ApplyOption) error {
-	c := &defaultApplyOptions
-
-	for _, o := range opts {
-		o.configureApply(c)
-	}
-
-	args := []string{}
-
-	// string args: only pass if set
-	if c.Backup != "" {
-		args = append(args, "-backup="+c.Backup)
-	}
-	if c.LockTimeout != "" {
-		args = append(args, "-lock-timeout="+c.LockTimeout)
-	}
-	if c.State != "" {
-		args = append(args, "-state="+c.State)
-	}
-	if c.StateOut != "" {
-		args = append(args, "-state-out="+c.StateOut)
-	}
-	if c.VarFile != "" {
-		args = append(args, "-var-file="+c.VarFile)
-	}
-
-	// boolean and numerical args: always pass
-	args = append(args, "-lock="+strconv.FormatBool(c.Lock))
-
-	args = append(args, "-parallelism="+fmt.Sprint(c.Parallelism))
-	args = append(args, "-refresh="+strconv.FormatBool(c.Refresh))
-
-	// string slice args: pass as separate args
-	if c.Targets != nil {
-		for _, ta := range c.Targets {
-			args = append(args, "-target="+ta)
-		}
-	}
-
-	if c.Vars != nil {
-		for _, v := range c.Vars {
-			args = append(args, "-var '"+v+"'")
-		}
-	}
-
-	applyCmd := t.ApplyCmd(args...)
-
-	if t.echo {
-		fmt.Println(applyCmd.String())
-	}
+	applyCmd := t.ApplyCmd(opts...)
 
 	var errBuf strings.Builder
 	applyCmd.Stderr = &errBuf
