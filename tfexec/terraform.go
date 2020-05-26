@@ -49,156 +49,169 @@ func NewTerraform(workingDir string, execPath string) (*Terraform, error) {
 	}, nil
 }
 
+type initConfig struct {
+	backend       bool
+	backendConfig []string
+	forceCopy     bool
+	fromModule    string
+	get           bool
+	getPlugins    bool
+	lock          bool
+	lockTimeout   string
+	pluginDir     []string
+	reconfigure   bool
+	upgrade       bool
+	verifyPlugins bool
+}
+
+var defaultInitOptions = initConfig{
+	backend:       true,
+	forceCopy:     false,
+	get:           true,
+	getPlugins:    true,
+	lock:          true,
+	lockTimeout:   "0s",
+	reconfigure:   false,
+	upgrade:       false,
+	verifyPlugins: true,
+}
+
+type InitOption interface {
+	configureInit(*initConfig)
+}
+
+func (opt *BackendOption) configureInit(conf *initConfig) {
+	conf.backend = opt.backend
+}
+
+func (opt *BackendConfigOption) configureInit(conf *initConfig) {
+	conf.backendConfig = append(conf.backendConfig, opt.path)
+}
+
+func (opt *FromModuleOption) configureInit(conf *initConfig) {
+	conf.fromModule = opt.source
+}
+
+func (opt *GetOption) configureInit(conf *initConfig) {
+	conf.get = opt.get
+}
+
+func (opt *GetPluginsOption) configureInit(conf *initConfig) {
+	conf.getPlugins = opt.getPlugins
+}
+
+func (opt *LockOption) configureInit(conf *initConfig) {
+	conf.lock = opt.lock
+}
+
+func (opt *LockTimeoutOption) configureInit(conf *initConfig) {
+	conf.lockTimeout = opt.timeout
+}
+
+func (opt *PluginDirOption) configureInit(conf *initConfig) {
+	conf.pluginDir = append(conf.pluginDir, opt.pluginDir)
+}
+
+func (opt *ReconfigureOption) configureInit(conf *initConfig) {
+	conf.reconfigure = opt.reconfigure
+}
+
+func (opt *UpgradeOption) configureInit(conf *initConfig) {
+	conf.upgrade = opt.upgrade
+}
+
+func (opt *VerifyPluginsOption) configureInit(conf *initConfig) {
+	conf.verifyPlugins = opt.verifyPlugins
+}
+
+func (t *Terraform) Init(ctx context.Context, opts ...InitOption) error {
+	initCmd := t.InitCmd(ctx, opts...)
+
+	var errBuf strings.Builder
+	initCmd.Stderr = &errBuf
+
+	err := initCmd.Run()
+	if err != nil {
+		return errors.New(errBuf.String())
+	}
+
+	return nil
+}
+
 type applyConfig struct {
-	Backup    string
-	DirOrPlan string
-	Lock      bool
+	backup    string
+	dirOrPlan string
+	lock      bool
 
 	// LockTimeout must be a string with time unit, e.g. '10s'
-	LockTimeout string
-	Parallelism int
-	Refresh     bool
-	State       string
-	StateOut    string
-	Targets     []string
+	lockTimeout string
+	parallelism int
+	refresh     bool
+	state       string
+	stateOut    string
+	targets     []string
 
 	// Vars: each var must be supplied as a single string, e.g. 'foo=bar'
-	Vars    []string
-	VarFile string
+	vars    []string
+	varFile string
 }
 
 var defaultApplyOptions = applyConfig{
-	Lock:        true,
-	Parallelism: 10,
-	Refresh:     true,
+	lock:        true,
+	parallelism: 10,
+	refresh:     true,
 }
 
 type ApplyOption interface {
 	configureApply(*applyConfig)
 }
 
-type ParallelismOption struct {
-	parallelism int
-}
-
-type BackupOption struct {
-	backup string
-}
-
-type TargetOption struct {
-	target string
-}
-
-type LockTimeoutOption struct {
-	timeout string
-}
-
-type StateOption struct {
-	path string
-}
-
-type StateOutOption struct {
-	path string
-}
-
-type VarFileOption struct {
-	path string
-}
-
-type LockOption struct {
-	lock bool
-}
-
-type RefreshOption struct {
-	refresh bool
-}
-
-type VarOption struct {
-	assignment string
-}
-
 func (opt *ParallelismOption) configureApply(conf *applyConfig) {
-	conf.Parallelism = opt.parallelism
+	conf.parallelism = opt.parallelism
 }
 
 func (opt *BackupOption) configureApply(conf *applyConfig) {
-	conf.Backup = opt.backup
+	conf.backup = opt.backup
 }
 
 func (opt *TargetOption) configureApply(conf *applyConfig) {
-	conf.Targets = append(conf.Targets, opt.target)
+	conf.targets = append(conf.targets, opt.target)
 }
 
 func (opt *LockTimeoutOption) configureApply(conf *applyConfig) {
-	conf.LockTimeout = opt.timeout
+	conf.lockTimeout = opt.timeout
 }
 
 func (opt *StateOption) configureApply(conf *applyConfig) {
-	conf.State = opt.path
+	conf.state = opt.path
 }
 
 func (opt *StateOutOption) configureApply(conf *applyConfig) {
-	conf.StateOut = opt.path
+	conf.stateOut = opt.path
 }
 
 func (opt *VarFileOption) configureApply(conf *applyConfig) {
-	conf.VarFile = opt.path
+	conf.varFile = opt.path
 }
 
 func (opt *LockOption) configureApply(conf *applyConfig) {
-	conf.Lock = opt.lock
+	conf.lock = opt.lock
 }
 
 func (opt *RefreshOption) configureApply(conf *applyConfig) {
-	conf.Refresh = opt.refresh
+	conf.refresh = opt.refresh
 }
 
 func (opt *VarOption) configureApply(conf *applyConfig) {
-	conf.Vars = append(conf.Vars, opt.assignment)
+	conf.vars = append(conf.vars, opt.assignment)
 }
 
-func Parallelism(n int) *ParallelismOption {
-	return &ParallelismOption{n}
+func (opt *DirOrPlanOption) configureApply(conf *applyConfig) {
+	conf.dirOrPlan = opt.path
 }
 
-func Backup(path string) *BackupOption {
-	return &BackupOption{path}
-}
-
-func Target(resource string) *TargetOption {
-	return &TargetOption{resource}
-}
-
-func LockTimeout(timeout string) *LockTimeoutOption {
-	return &LockTimeoutOption{timeout}
-}
-
-func State(path string) *StateOption {
-	return &StateOption{path}
-}
-
-func StateOut(path string) *StateOutOption {
-	return &StateOutOption{path}
-}
-
-func VarFile(path string) *VarFileOption {
-	return &VarFileOption{path}
-}
-
-func Lock(lock bool) *LockOption {
-	return &LockOption{lock}
-}
-
-func Refresh(refresh bool) *RefreshOption {
-	return &RefreshOption{refresh}
-}
-
-func Var(assignment string) *VarOption {
-	return &VarOption{assignment}
-}
-
-func (t *Terraform) Apply(ctx context.Context, opts ...ApplyOption) error {
-	applyCmd := t.ApplyCmd(ctx, opts...)
+func (tf *Terraform) Apply(ctx context.Context, opts ...ApplyOption) error {
+	applyCmd := tf.ApplyCmd(ctx, opts...)
 
 	var errBuf strings.Builder
 	applyCmd.Stderr = &errBuf
@@ -211,38 +224,159 @@ func (t *Terraform) Apply(ctx context.Context, opts ...ApplyOption) error {
 	return nil
 }
 
+type destroyConfig struct {
+	backup string
+	lock   bool
+
+	// LockTimeout must be a string with time unit, e.g. '10s'
+	lockTimeout string
+	parallelism int
+	refresh     bool
+	state       string
+	stateOut    string
+	targets     []string
+
+	// Vars: each var must be supplied as a single string, e.g. 'foo=bar'
+	vars    []string
+	varFile string
+}
+
+var defaultDestroyOptions = destroyConfig{
+	lock:        true,
+	parallelism: 10,
+	refresh:     true,
+}
+
+type DestroyOption interface {
+	configureDestroy(*destroyConfig)
+}
+
+func (opt *ParallelismOption) configureDestroy(conf *destroyConfig) {
+	conf.parallelism = opt.parallelism
+}
+
+func (opt *BackupOption) configureDestroy(conf *destroyConfig) {
+	conf.backup = opt.backup
+}
+
+func (opt *TargetOption) configureDestroy(conf *destroyConfig) {
+	conf.targets = append(conf.targets, opt.target)
+}
+
+func (opt *LockTimeoutOption) configureDestroy(conf *destroyConfig) {
+	conf.lockTimeout = opt.timeout
+}
+
+func (opt *StateOption) configureDestroy(conf *destroyConfig) {
+	conf.state = opt.path
+}
+
+func (opt *StateOutOption) configureDestroy(conf *destroyConfig) {
+	conf.stateOut = opt.path
+}
+
+func (opt *VarFileOption) configureDestroy(conf *destroyConfig) {
+	conf.varFile = opt.path
+}
+
+func (opt *LockOption) configureDestroy(conf *destroyConfig) {
+	conf.lock = opt.lock
+}
+
+func (opt *RefreshOption) configureDestroy(conf *destroyConfig) {
+	conf.refresh = opt.refresh
+}
+
+func (opt *VarOption) configureDestroy(conf *destroyConfig) {
+	conf.vars = append(conf.vars, opt.assignment)
+}
+
+func (tf *Terraform) Destroy(ctx context.Context, opts ...DestroyOption) error {
+	destroyCmd := tf.DestroyCmd(ctx, opts...)
+
+	var errBuf strings.Builder
+	destroyCmd.Stderr = &errBuf
+
+	err := destroyCmd.Run()
+	if err != nil {
+		return errors.New(errBuf.String())
+	}
+
+	return nil
+}
+
 type planConfig struct {
-	Destroy     bool
-	Lock        bool
-	LockTimeout string
-	Out         string
-	Parallelism int
-	Refresh     bool
-	State       string
-	Targets     []string
-	Vars        []string
-	VarFile     string
+	destroy     bool
+	lock        bool
+	lockTimeout string
+	out         string
+	parallelism int
+	refresh     bool
+	state       string
+	targets     []string
+	vars        []string
+	varFile     string
+}
+
+var defaultPlanOptions = planConfig{
+	destroy:     false,
+	lock:        true,
+	lockTimeout: "0s",
+	parallelism: 10,
+	refresh:     true,
 }
 
 type PlanOption interface {
 	configurePlan(*planConfig)
 }
 
+func (opt *VarFileOption) configurePlan(conf *planConfig) {
+	conf.varFile = opt.path
+}
+
+func (opt *VarOption) configurePlan(conf *planConfig) {
+	conf.vars = append(conf.vars, opt.assignment)
+}
+
+func (opt *TargetOption) configurePlan(conf *planConfig) {
+	conf.targets = append(conf.targets, opt.target)
+}
+
+func (opt *StateOption) configurePlan(conf *planConfig) {
+	conf.state = opt.path
+}
+
+func (opt *RefreshOption) configurePlan(conf *planConfig) {
+	conf.refresh = opt.refresh
+}
+
 func (opt *ParallelismOption) configurePlan(conf *planConfig) {
-	conf.Parallelism = opt.parallelism
+	conf.parallelism = opt.parallelism
 }
 
-func (t *Terraform) Plan(ctx context.Context, opts ...PlanOption) error {
-	return nil
+func (opt *OutOption) configurePlan(conf *planConfig) {
+	conf.out = opt.path
 }
 
-func (t *Terraform) Init(ctx context.Context, args ...string) error {
-	initCmd := t.InitCmd(ctx, args...)
+func (opt *LockTimeoutOption) configurePlan(conf *planConfig) {
+	conf.lockTimeout = opt.timeout
+}
+
+func (opt *LockOption) configurePlan(conf *planConfig) {
+	conf.lock = opt.lock
+}
+
+func (opt *DestroyFlagOption) configurePlan(conf *planConfig) {
+	conf.destroy = opt.destroy
+}
+
+func (tf *Terraform) Plan(ctx context.Context, opts ...PlanOption) error {
+	planCmd := tf.PlanCmd(ctx, opts...)
 
 	var errBuf strings.Builder
-	initCmd.Stderr = &errBuf
+	planCmd.Stderr = &errBuf
 
-	err := initCmd.Run()
+	err := planCmd.Run()
 	if err != nil {
 		return errors.New(errBuf.String())
 	}
