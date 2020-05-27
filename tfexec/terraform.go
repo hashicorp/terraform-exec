@@ -453,6 +453,49 @@ func (opt *VarFileOption) configureImport(conf *importConfig) {
 	conf.varFile = opt.path
 }
 
+type outputConfig struct {
+	outputName string
+	state      string
+	json       bool
+}
+
+var defaultOutputOptions = outputConfig{
+	json: false,
+}
+
+type OutputOption interface {
+	configureOutput(*outputConfig)
+}
+
+func (opt *OutputNameOption) configureOutput(conf *outputConfig) {
+	conf.outputName = opt.name
+}
+
+func (opt *StateOption) configureOutput(conf *outputConfig) {
+	conf.state = opt.path
+}
+
+func (opt *JsonOption) configureOutput(conf *outputConfig) {
+	conf.json = opt.json
+}
+
+func (tf *Terraform) Output(ctx context.Context, opts ...OutputOption) (string, error) {
+	outputCmd := tf.OutputCmd(ctx, opts...)
+
+	var errBuf strings.Builder
+	var outBuf bytes.Buffer
+
+	outputCmd.Stderr = &errBuf
+	outputCmd.Stdout = &outBuf
+
+	err := outputCmd.Run()
+	if err != nil {
+		return "", err
+	}
+
+	return outBuf.String(), nil
+}
+
 func (t *Terraform) Show(ctx context.Context, args ...string) (*tfjson.State, error) {
 	var ret tfjson.State
 

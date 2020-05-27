@@ -105,6 +105,14 @@ func Id(id string) *IdOption {
 	return &IdOption{id}
 }
 
+type JsonOption struct {
+	json bool
+}
+
+func Json(json bool) *JsonOption {
+	return &JsonOption{json}
+}
+
 type LockOption struct {
 	lock bool
 }
@@ -127,6 +135,14 @@ type OutOption struct {
 
 func Out(path string) *OutOption {
 	return &OutOption{path}
+}
+
+type OutputNameOption struct {
+	name string
+}
+
+func OutputName(name string) *OutputNameOption {
+	return &OutputNameOption{name}
 }
 
 type ParallelismOption struct {

@@ -261,6 +261,33 @@ func (tf *Terraform) ImportCmd(ctx context.Context, opts ...ImportOption) *exec.
 	return tf.buildTerraformCmd(ctx, args...)
 }
 
+func (tf *Terraform) OutputCmd(ctx context.Context, opts ...OutputOption) *exec.Cmd {
+	c := defaultOutputOptions
+
+	for _, o := range opts {
+		o.configureOutput(&c)
+	}
+
+	args := []string{"output", "-no-color"}
+
+	// string opts: only pass if set
+	if c.state != "" {
+		args = append(args, "-state="+c.state)
+	}
+
+	// unary flags: pass if true
+	if c.json {
+		args = append(args, "-json")
+	}
+
+	// string argument: pass if set
+	if c.outputName != "" {
+		args = append(args, c.outputName)
+	}
+
+	return tf.buildTerraformCmd(ctx, args...)
+}
+
 func (t *Terraform) ShowCmd(ctx context.Context, args ...string) *exec.Cmd {
 	allArgs := []string{"show", "-json", "-no-color"}
 	allArgs = append(allArgs, args...)

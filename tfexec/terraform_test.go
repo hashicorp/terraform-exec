@@ -144,6 +144,38 @@ func TestImportCmd(t *testing.T) {
 	}
 }
 
+func TestOutputCmd(t *testing.T) {
+	tf, err := NewTerraform("/dev/null", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// defaults
+	outputCmd := tf.OutputCmd(context.Background())
+
+	actual := strings.TrimPrefix(outputCmd.String(), outputCmd.Path+" ")
+
+	expected := "output -no-color"
+
+	if actual != expected {
+		t.Fatalf("expected default arguments of OutputCmd:\n%s\n actual arguments:\n%s\n", expected, actual)
+	}
+
+	// override all defaults
+	outputCmd = tf.OutputCmd(context.Background(),
+		State("teststate"),
+		OutputName("foo"),
+		Json(true))
+
+	actual = strings.TrimPrefix(outputCmd.String(), outputCmd.Path+" ")
+
+	expected = "output -no-color -state=teststate -json foo"
+
+	if actual != expected {
+		t.Fatalf("expected arguments of ImportCmd:\n%s\n actual arguments:\n%s\n", expected, actual)
+	}
+}
+
 func TestShow(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
