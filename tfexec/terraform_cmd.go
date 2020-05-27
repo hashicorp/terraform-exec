@@ -214,6 +214,53 @@ func (tf *Terraform) PlanCmd(ctx context.Context, opts ...PlanOption) *exec.Cmd 
 	return tf.buildTerraformCmd(ctx, args...)
 }
 
+func (tf *Terraform) ImportCmd(ctx context.Context, opts ...ImportOption) *exec.Cmd {
+	c := defaultImportOptions
+
+	for _, o := range opts {
+		o.configureImport(&c)
+	}
+
+	args := []string{"import", "-no-color", "-input=false"}
+
+	// string opts: only pass if set
+	if c.backup != "" {
+		args = append(args, "-backup="+c.backup)
+	}
+	if c.config != "" {
+		args = append(args, "-config"+c.config)
+	}
+	if c.lockTimeout != "" {
+		args = append(args, "-lock-timeout="+c.lockTimeout)
+	}
+	if c.state != "" {
+		args = append(args, "-state="+c.state)
+	}
+	if c.stateOut != "" {
+		args = append(args, "-state-out="+c.stateOut)
+	}
+	if c.varFile != "" {
+		args = append(args, "-var-file="+c.varFile)
+	}
+
+	// boolean and numerical opts: always pass
+	args = append(args, "-lock="+strconv.FormatBool(c.lock))
+
+	// unary flags: pass if true
+	if c.allowMissingConfig {
+		args = append(args, "-allow-missing-config")
+	}
+
+	// string slice opts: split into separate args
+	if c.vars != nil {
+		for _, v := range c.vars {
+			args = append(args, "-var '"+v+"'")
+		}
+	}
+
+	return tf.buildTerraformCmd(ctx, args...)
+}
+
 func (t *Terraform) ShowCmd(ctx context.Context, args ...string) *exec.Cmd {
 	allArgs := []string{"show", "-json", "-no-color"}
 	allArgs = append(allArgs, args...)

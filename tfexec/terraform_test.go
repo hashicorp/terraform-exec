@@ -73,7 +73,74 @@ func TestPlanCmd(t *testing.T) {
 	expected = "plan -no-color -input=false -lock-timeout=22s -out=whale -state=marvin -var-file=trillian -lock=false -parallelism=42 -refresh=false -destroy -target=zaphod -target=beeblebrox -var 'android=paranoid' -var 'brain_size=planet'"
 
 	if actual != expected {
-		t.Fatalf("expected arguments of InitCmd:\n%s\n actual arguments:\n%s\n", expected, actual)
+		t.Fatalf("expected arguments of PlanCmd:\n%s\n actual arguments:\n%s\n", expected, actual)
+	}
+}
+
+func TestDestroyCmd(t *testing.T) {
+	tf, err := NewTerraform("/dev/null", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// defaults
+	destroyCmd := tf.DestroyCmd(context.Background())
+
+	actual := strings.TrimPrefix(destroyCmd.String(), destroyCmd.Path+" ")
+
+	expected := "destroy -no-color -auto-approve -lock-timeout=0s -lock=true -parallelism=10 -refresh=true"
+
+	if actual != expected {
+		t.Fatalf("expected default arguments of DestroyCmd:\n%s\n actual arguments:\n%s\n", expected, actual)
+	}
+
+	// override all defaults
+	destroyCmd = tf.DestroyCmd(context.Background(), Backup("testbackup"), LockTimeout("200s"), State("teststate"), StateOut("teststateout"), VarFile("testvarfile"), Lock(false), Parallelism(99), Refresh(false), Target("target1"), Target("target2"), Var("var1=foo"), Var("var2=bar"))
+
+	actual = strings.TrimPrefix(destroyCmd.String(), destroyCmd.Path+" ")
+
+	expected = "destroy -no-color -auto-approve -backup=testbackup -lock-timeout=200s -state=teststate -state-out=teststateout -var-file=testvarfile -lock=false -parallelism=99 -refresh=false -target=target1 -target=target2 -var 'var1=foo' -var 'var2=bar'"
+
+	if actual != expected {
+		t.Fatalf("expected arguments of DestroyCmd:\n%s\n actual arguments:\n%s\n", expected, actual)
+	}
+}
+
+func TestImportCmd(t *testing.T) {
+	tf, err := NewTerraform("/dev/null", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// defaults
+	importCmd := tf.ImportCmd(context.Background())
+
+	actual := strings.TrimPrefix(importCmd.String(), importCmd.Path+" ")
+
+	expected := "import -no-color -input=false -lock-timeout=0s -lock=true"
+
+	if actual != expected {
+		t.Fatalf("expected default arguments of ImportCmd:\n%s\n actual arguments:\n%s\n", expected, actual)
+	}
+
+	// override all defaults
+	importCmd = tf.ImportCmd(context.Background(),
+		Backup("testbackup"),
+		LockTimeout("200s"),
+		State("teststate"),
+		StateOut("teststateout"),
+		VarFile("testvarfile"),
+		Lock(false),
+		Var("var1=foo"),
+		Var("var2=bar"),
+		AllowMissingConfig(true))
+
+	actual = strings.TrimPrefix(importCmd.String(), importCmd.Path+" ")
+
+	expected = "import -no-color -input=false -backup=testbackup -lock-timeout=200s -state=teststate -state-out=teststateout -var-file=testvarfile -lock=false -allow-missing-config -var 'var1=foo' -var 'var2=bar'"
+
+	if actual != expected {
+		t.Fatalf("expected arguments of ImportCmd:\n%s\n actual arguments:\n%s\n", expected, actual)
 	}
 }
 

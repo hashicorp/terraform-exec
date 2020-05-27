@@ -1,5 +1,21 @@
 package tfexec
 
+type AddrOption struct {
+	addr string
+}
+
+func Addr(addr string) *AddrOption {
+	return &AddrOption{addr}
+}
+
+type AllowMissingConfigOption struct {
+	allowMissingConfig bool
+}
+
+func AllowMissingConfig(allowMissingConfig bool) *AllowMissingConfigOption {
+	return &AllowMissingConfigOption{allowMissingConfig}
+}
+
 type BackendOption struct {
 	backend bool
 }
@@ -17,11 +33,19 @@ func BackendConfig(backendConfig string) *BackendConfigOption {
 }
 
 type BackupOption struct {
-	backup string
+	path string
 }
 
 func Backup(path string) *BackupOption {
 	return &BackupOption{path}
+}
+
+type ConfigOption struct {
+	path string
+}
+
+func Config(path string) *ConfigOption {
+	return &ConfigOption{path}
 }
 
 type DirOrPlanOption struct {
@@ -71,6 +95,14 @@ type GetPluginsOption struct {
 
 func GetPlugins(getPlugins bool) *GetPluginsOption {
 	return &GetPluginsOption{getPlugins}
+}
+
+type IdOption struct {
+	id string
+}
+
+func Id(id string) *IdOption {
+	return &IdOption{id}
 }
 
 type LockOption struct {

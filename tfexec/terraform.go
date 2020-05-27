@@ -171,7 +171,7 @@ func (opt *ParallelismOption) configureApply(conf *applyConfig) {
 }
 
 func (opt *BackupOption) configureApply(conf *applyConfig) {
-	conf.backup = opt.backup
+	conf.backup = opt.path
 }
 
 func (opt *TargetOption) configureApply(conf *applyConfig) {
@@ -243,6 +243,7 @@ type destroyConfig struct {
 
 var defaultDestroyOptions = destroyConfig{
 	lock:        true,
+	lockTimeout: "0s",
 	parallelism: 10,
 	refresh:     true,
 }
@@ -256,7 +257,7 @@ func (opt *ParallelismOption) configureDestroy(conf *destroyConfig) {
 }
 
 func (opt *BackupOption) configureDestroy(conf *destroyConfig) {
-	conf.backup = opt.backup
+	conf.backup = opt.path
 }
 
 func (opt *TargetOption) configureDestroy(conf *destroyConfig) {
@@ -382,6 +383,74 @@ func (tf *Terraform) Plan(ctx context.Context, opts ...PlanOption) error {
 	}
 
 	return nil
+}
+
+type importConfig struct {
+	addr               string
+	id                 string
+	backup             string
+	config             string
+	allowMissingConfig bool
+	lock               bool
+	lockTimeout        string
+	state              string
+	stateOut           string
+	vars               []string
+	varFile            string
+}
+
+var defaultImportOptions = importConfig{
+	allowMissingConfig: false,
+	lock:               true,
+	lockTimeout:        "0s",
+}
+
+type ImportOption interface {
+	configureImport(*importConfig)
+}
+
+func (opt *AddrOption) configureImport(conf *importConfig) {
+	conf.addr = opt.addr
+}
+
+func (opt *IdOption) configureImport(conf *importConfig) {
+	conf.id = opt.id
+}
+
+func (opt *BackupOption) configureImport(conf *importConfig) {
+	conf.backup = opt.path
+}
+
+func (opt *ConfigOption) configureImport(conf *importConfig) {
+	conf.config = opt.path
+}
+
+func (opt *AllowMissingConfigOption) configureImport(conf *importConfig) {
+	conf.allowMissingConfig = opt.allowMissingConfig
+}
+
+func (opt *LockOption) configureImport(conf *importConfig) {
+	conf.lock = opt.lock
+}
+
+func (opt *LockTimeoutOption) configureImport(conf *importConfig) {
+	conf.lockTimeout = opt.timeout
+}
+
+func (opt *StateOption) configureImport(conf *importConfig) {
+	conf.state = opt.path
+}
+
+func (opt *StateOutOption) configureImport(conf *importConfig) {
+	conf.stateOut = opt.path
+}
+
+func (opt *VarOption) configureImport(conf *importConfig) {
+	conf.vars = append(conf.vars, opt.assignment)
+}
+
+func (opt *VarFileOption) configureImport(conf *importConfig) {
+	conf.varFile = opt.path
 }
 
 func (t *Terraform) Show(ctx context.Context, args ...string) (*tfjson.State, error) {
