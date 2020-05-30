@@ -502,13 +502,13 @@ func (tf *Terraform) Output(ctx context.Context, opts ...OutputOption) (map[stri
 	return outputs, nil
 }
 
-func (t *Terraform) Show(ctx context.Context, args ...string) (*tfjson.State, error) {
+func (tf *Terraform) StateShow(ctx context.Context) (*tfjson.State, error) {
 	var ret tfjson.State
 
 	var errBuf strings.Builder
 	var outBuf bytes.Buffer
 
-	showCmd := t.ShowCmd(ctx, args...)
+	showCmd := tf.StateShowCmd(ctx)
 
 	showCmd.Stderr = &errBuf
 	showCmd.Stdout = &outBuf
@@ -534,13 +534,13 @@ func (t *Terraform) Show(ctx context.Context, args ...string) (*tfjson.State, er
 	return &ret, nil
 }
 
-func (t *Terraform) ProvidersSchema(ctx context.Context, args ...string) (*tfjson.ProviderSchemas, error) {
+func (tf *Terraform) ProvidersSchema(ctx context.Context) (*tfjson.ProviderSchemas, error) {
 	var ret tfjson.ProviderSchemas
 
 	var errBuf strings.Builder
 	var outBuf bytes.Buffer
 
-	schemaCmd := t.ProvidersSchemaCmd(ctx, args...)
+	schemaCmd := tf.ProvidersSchemaCmd(ctx)
 
 	schemaCmd.Stderr = &errBuf
 	schemaCmd.Stdout = &outBuf

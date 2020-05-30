@@ -278,11 +278,11 @@ func (tf *Terraform) OutputCmd(ctx context.Context, opts ...OutputOption) *exec.
 	return tf.buildTerraformCmd(ctx, args...)
 }
 
-func (t *Terraform) ShowCmd(ctx context.Context, args ...string) *exec.Cmd {
+func (tf *Terraform) StateShowCmd(ctx context.Context, args ...string) *exec.Cmd {
 	allArgs := []string{"show", "-json", "-no-color"}
 	allArgs = append(allArgs, args...)
 
-	return t.buildTerraformCmd(ctx, allArgs...)
+	return tf.buildTerraformCmd(ctx, allArgs...)
 }
 
 func (t *Terraform) ProvidersSchemaCmd(ctx context.Context, args ...string) *exec.Cmd {

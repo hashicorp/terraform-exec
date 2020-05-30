@@ -77,6 +77,23 @@ func TestPlanCmd(t *testing.T) {
 	}
 }
 
+func TestApplyCmd(t *testing.T) {
+	tf, err := NewTerraform("/dev/null", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	applyCmd := tf.ApplyCmd(context.Background(), Backup("testbackup"), LockTimeout("200s"), State("teststate"), StateOut("teststateout"), VarFile("testvarfile"), Lock(false), Parallelism(99), Refresh(false), Target("target1"), Target("target2"), Var("var1=foo"), Var("var2=bar"), DirOrPlan("testfile"))
+
+	actual := strings.TrimPrefix(applyCmd.String(), applyCmd.Path+" ")
+
+	expected := "apply -no-color -auto-approve -input=false -backup=testbackup -lock-timeout=200s -state=teststate -state-out=teststateout -var-file=testvarfile -lock=false -parallelism=99 -refresh=false -target=target1 -target=target2 -var 'var1=foo' -var 'var2=bar' testfile"
+
+	if actual != expected {
+		t.Fatalf("expected arguments of ApplyCmd:\n%s\n actual arguments:\n%s\n", expected, actual)
+	}
+}
+
 func TestDestroyCmd(t *testing.T) {
 	tf, err := NewTerraform("/dev/null", "")
 	if err != nil {
@@ -174,7 +191,43 @@ func TestOutputCmd(t *testing.T) {
 	}
 }
 
-func TestShow(t *testing.T) {
+func TestStateShowCmd(t *testing.T) {
+	tf, err := NewTerraform("/dev/null", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// defaults
+	showCmd := tf.StateShowCmd(context.Background())
+
+	actual := strings.TrimPrefix(showCmd.String(), showCmd.Path+" ")
+
+	expected := "show -json -no-color"
+
+	if actual != expected {
+		t.Fatalf("expected default arguments of ShowCmd:\n%s\n actual arguments:\n%s\n", expected, actual)
+	}
+}
+
+func TestProvidersSchemaCmd(t *testing.T) {
+	tf, err := NewTerraform("/dev/null", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// defaults
+	schemaCmd := tf.ProvidersSchemaCmd(context.Background())
+
+	actual := strings.TrimPrefix(schemaCmd.String(), schemaCmd.Path+" ")
+
+	expected := "providers schema -json -no-color"
+
+	if actual != expected {
+		t.Fatalf("expected default arguments of ProvidersSchemaCmd:\n%s\n actual arguments:\n%s\n", expected, actual)
+	}
+}
+
+func TestStateShow(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
@@ -218,7 +271,7 @@ func TestShow(t *testing.T) {
 		t.Fatalf("error running Init in test directory: %s", err)
 	}
 
-	actual, err := tf.Show(context.Background())
+	actual, err := tf.StateShow(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -245,7 +298,7 @@ func TestShow_errInitRequired(t *testing.T) {
 	// FIXME: Parse this in the actual command and return ErrNoInit
 	expected := "Error: Could not satisfy plugin requirements"
 
-	_, err = tf.Show(context.Background())
+	_, err = tf.StateShow(context.Background())
 	if err == nil {
 		t.Fatal("expected Show to error, but it did not")
 	} else {
@@ -278,23 +331,6 @@ func TestApply(t *testing.T) {
 	err = tf.Apply(context.Background())
 	if err != nil {
 		t.Fatalf("error running Apply: %s", err)
-	}
-}
-
-func TestApplyCmd(t *testing.T) {
-	tf, err := NewTerraform("/dev/null", "")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	applyCmd := tf.ApplyCmd(context.Background(), Backup("testbackup"), LockTimeout("200s"), State("teststate"), StateOut("teststateout"), VarFile("testvarfile"), Lock(false), Parallelism(99), Refresh(false), Target("target1"), Target("target2"), Var("var1=foo"), Var("var2=bar"), DirOrPlan("testfile"))
-
-	actual := strings.TrimPrefix(applyCmd.String(), applyCmd.Path+" ")
-
-	expected := "apply -no-color -auto-approve -input=false -backup=testbackup -lock-timeout=200s -state=teststate -state-out=teststateout -var-file=testvarfile -lock=false -parallelism=99 -refresh=false -target=target1 -target=target2 -var 'var1=foo' -var 'var2=bar' testfile"
-
-	if actual != expected {
-		t.Fatalf("expected arguments of ApplyCmd:\n%s\n actual arguments:\n%s\n", expected, actual)
 	}
 }
 
