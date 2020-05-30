@@ -268,21 +268,11 @@ func (tf *Terraform) OutputCmd(ctx context.Context, opts ...OutputOption) *exec.
 		o.configureOutput(&c)
 	}
 
-	args := []string{"output", "-no-color"}
+	args := []string{"output", "-no-color", "-json"}
 
 	// string opts: only pass if set
 	if c.state != "" {
 		args = append(args, "-state="+c.state)
-	}
-
-	// unary flags: pass if true
-	if c.json {
-		args = append(args, "-json")
-	}
-
-	// string argument: pass if set
-	if c.outputName != "" {
-		args = append(args, c.outputName)
 	}
 
 	return tf.buildTerraformCmd(ctx, args...)

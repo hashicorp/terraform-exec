@@ -454,32 +454,31 @@ func (opt *VarFileOption) configureImport(conf *importConfig) {
 }
 
 type outputConfig struct {
-	outputName string
-	state      string
-	json       bool
+	state string
+	json  bool
 }
 
-var defaultOutputOptions = outputConfig{
-	json: false,
-}
+var defaultOutputOptions = outputConfig{}
 
 type OutputOption interface {
 	configureOutput(*outputConfig)
-}
-
-func (opt *OutputNameOption) configureOutput(conf *outputConfig) {
-	conf.outputName = opt.name
 }
 
 func (opt *StateOption) configureOutput(conf *outputConfig) {
 	conf.state = opt.path
 }
 
-func (opt *JsonOption) configureOutput(conf *outputConfig) {
-	conf.json = opt.json
+// OutputMeta represents the JSON output of 'terraform output -json',
+// which resembles state format version 3 due to a historical accident.
+// Please see hashicorp/terraform/command/output.go.
+// TODO KEM: Should this type be in terraform-json?
+type OutputMeta struct {
+	Sensitive bool            `json:"sensitive"`
+	Type      json.RawMessage `json:"type"`
+	Value     json.RawMessage `json:"value"`
 }
 
-func (tf *Terraform) Output(ctx context.Context, opts ...OutputOption) (string, error) {
+func (tf *Terraform) Output(ctx context.Context, opts ...OutputOption) (map[string]OutputMeta, error) {
 	outputCmd := tf.OutputCmd(ctx, opts...)
 
 	var errBuf strings.Builder
@@ -488,12 +487,19 @@ func (tf *Terraform) Output(ctx context.Context, opts ...OutputOption) (string, 
 	outputCmd.Stderr = &errBuf
 	outputCmd.Stdout = &outBuf
 
+	outputs := map[string]OutputMeta{}
+
 	err := outputCmd.Run()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return outBuf.String(), nil
+	err = json.Unmarshal(outBuf.Bytes(), outputs)
+	if err != nil {
+		return nil, err
+	}
+
+	return outputs, nil
 }
 
 func (t *Terraform) Show(ctx context.Context, args ...string) (*tfjson.State, error) {

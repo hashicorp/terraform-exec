@@ -155,7 +155,7 @@ func TestOutputCmd(t *testing.T) {
 
 	actual := strings.TrimPrefix(outputCmd.String(), outputCmd.Path+" ")
 
-	expected := "output -no-color"
+	expected := "output -no-color -json"
 
 	if actual != expected {
 		t.Fatalf("expected default arguments of OutputCmd:\n%s\n actual arguments:\n%s\n", expected, actual)
@@ -163,13 +163,11 @@ func TestOutputCmd(t *testing.T) {
 
 	// override all defaults
 	outputCmd = tf.OutputCmd(context.Background(),
-		State("teststate"),
-		OutputName("foo"),
-		Json(true))
+		State("teststate"))
 
 	actual = strings.TrimPrefix(outputCmd.String(), outputCmd.Path+" ")
 
-	expected = "output -no-color -state=teststate -json foo"
+	expected = "output -no-color -json -state=teststate"
 
 	if actual != expected {
 		t.Fatalf("expected arguments of ImportCmd:\n%s\n actual arguments:\n%s\n", expected, actual)
