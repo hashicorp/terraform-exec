@@ -62,10 +62,9 @@ func (tf *Terraform) SetEnv(env map[string]string) {
 	var tfenv []string
 
 	// always propagate CHECKPOINT_DISABLE env var unless it is
-	// explicitly overridden
-	c := os.Getenv("CHECKPOINT_DISABLE")
-	if c != "" {
-		tfenv = append(tfenv, "CHECKPOINT_DISABLE="+c)
+	// explicitly overridden with tf.SetEnv
+	if _, ok := env["CHECKPOINT_DISABLE"]; !ok {
+		env["CHECKPOINT_DISABLE"] = os.Getenv("CHECKPOINT_DISABLE")
 	}
 
 	for k, v := range env {

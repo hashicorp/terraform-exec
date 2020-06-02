@@ -19,6 +19,43 @@ const testConfigFileName = "main.tf"
 const testStateJsonFileName = "state.json"
 const testTerraformStateFileName = "terraform.tfstate"
 
+func TestCheckpointDisablePropagation(t *testing.T) {
+	td := testTempDir(t)
+	defer os.RemoveAll(td)
+
+	tf, err := NewTerraform(td, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// case 1: env var is set in environment and not overridden
+	os.Setenv("CHECKPOINT_DISABLE", "1")
+	defer os.Unsetenv("CHECKPOINT_DISABLE")
+	tf.SetEnv(map[string]string{
+		"FOOBAR": "1",
+	})
+	initCmd := tf.InitCmd(context.Background())
+	expected := []string{"FOOBAR=1", "CHECKPOINT_DISABLE=1", "TF_LOG="}
+	actual := initCmd.Env
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Fatalf("expected command env to be %s, but it was %s", expected, actual)
+	}
+
+	// case 2: env var is set in environment and overridden with SetEnv
+	tf.SetEnv(map[string]string{
+		"CHECKPOINT_DISABLE": "",
+		"FOOBAR":             "1",
+	})
+	initCmd = tf.InitCmd(context.Background())
+	expected = []string{"CHECKPOINT_DISABLE=", "FOOBAR=1", "TF_LOG="}
+	actual = initCmd.Env
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Fatalf("expected command env to be %s, but it was %s", expected, actual)
+	}
+}
+
 func TestInitCmd(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
