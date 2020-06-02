@@ -4,10 +4,8 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
-	"os/exec"
 	"strings"
 
 	tfjson "github.com/hashicorp/terraform-json"
@@ -36,7 +34,7 @@ func NewTerraform(workingDir string, execPath string, env map[string]string) (*T
 	if execPath == "" {
 		execPath, err = FindTerraform()
 		if err != nil {
-			return nil, err
+			return nil, &ErrNoSuitableBinary{err: err}
 		}
 
 	}
@@ -48,7 +46,7 @@ func NewTerraform(workingDir string, execPath string, env map[string]string) (*T
 
 	execVersion, err := tf.version()
 	if err != nil {
-		return nil, fmt.Errorf("error running 'terraform version': %s", err)
+		return nil, &ErrNoSuitableBinary{err: fmt.Errorf("error running 'terraform version': %s", err)}
 	}
 
 	tf.execVersion = execVersion
@@ -91,10 +89,6 @@ func (tf *Terraform) version() (string, error) {
 		fmt.Println(errBuf.String())
 		return "", fmt.Errorf("%s, %s", err, errBuf.String())
 	}
-
-	// fmt.Println(outBuf.String())
-
-	// parse it
 
 	return outBuf.String(), nil
 }
@@ -182,7 +176,7 @@ func (t *Terraform) Init(ctx context.Context, opts ...InitOption) error {
 
 	err := initCmd.Run()
 	if err != nil {
-		return errors.New(errBuf.String())
+		return parseError(errBuf.String())
 	}
 
 	return nil
@@ -268,7 +262,7 @@ func (tf *Terraform) Apply(ctx context.Context, opts ...ApplyOption) error {
 
 	err := applyCmd.Run()
 	if err != nil {
-		return errors.New(errBuf.String())
+		return parseError(errBuf.String())
 	}
 
 	return nil
@@ -350,7 +344,7 @@ func (tf *Terraform) Destroy(ctx context.Context, opts ...DestroyOption) error {
 
 	err := destroyCmd.Run()
 	if err != nil {
-		return errors.New(errBuf.String())
+		return parseError(errBuf.String())
 	}
 
 	return nil
@@ -429,7 +423,7 @@ func (tf *Terraform) Plan(ctx context.Context, opts ...PlanOption) error {
 
 	err := planCmd.Run()
 	if err != nil {
-		return errors.New(errBuf.String())
+		return parseError(errBuf.String())
 	}
 
 	return nil
@@ -541,7 +535,7 @@ func (tf *Terraform) Output(ctx context.Context, opts ...OutputOption) (map[stri
 
 	err := outputCmd.Run()
 	if err != nil {
-		return nil, err
+		return nil, parseError(err.Error())
 	}
 
 	err = json.Unmarshal(outBuf.Bytes(), outputs)
@@ -565,10 +559,7 @@ func (tf *Terraform) StateShow(ctx context.Context) (*tfjson.State, error) {
 
 	err := showCmd.Run()
 	if err != nil {
-		if tErr, ok := err.(*exec.ExitError); ok {
-			err = fmt.Errorf("terraform failed: %s\n\nstderr:\n%s", tErr.ProcessState.String(), errBuf.String())
-		}
-		return nil, err
+		return nil, parseError(errBuf.String())
 	}
 
 	err = json.Unmarshal(outBuf.Bytes(), &ret)
@@ -597,10 +588,7 @@ func (tf *Terraform) ProvidersSchema(ctx context.Context) (*tfjson.ProviderSchem
 
 	err := schemaCmd.Run()
 	if err != nil {
-		if tErr, ok := err.(*exec.ExitError); ok {
-			err = fmt.Errorf("terraform failed: %s\n\nstderr:\n%s", tErr.ProcessState.String(), errBuf.String())
-		}
-		return nil, err
+		return nil, parseError(errBuf.String())
 	}
 
 	err = json.Unmarshal(outBuf.Bytes(), ret)

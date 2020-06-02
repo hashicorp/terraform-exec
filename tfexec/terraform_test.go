@@ -316,18 +316,12 @@ func TestShow_errInitRequired(t *testing.T) {
 
 	err = copyFile(filepath.Join(testFixtureDir, testTerraformStateFileName), filepath.Join(td, testTerraformStateFileName))
 
-	// This test will break if the error output of `terraform init`
-	// changes significantly. We tolerate this brittleness as a poor
-	// man's canary for significant changes to Terraform CLI.
-	// FIXME: Parse this in the actual command and return ErrNoInit
-	expected := "Error: Could not satisfy plugin requirements"
-
 	_, err = tf.StateShow(context.Background())
 	if err == nil {
 		t.Fatal("expected Show to error, but it did not")
 	} else {
-		if !strings.Contains(err.Error(), expected) {
-			t.Fatalf("expected error %s to contain %s", err, expected)
+		if _, ok := err.(*ErrNoInit); !ok {
+			t.Fatalf("expected error %s to be ErrNoInit", err)
 		}
 	}
 
