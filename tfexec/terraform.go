@@ -14,15 +14,16 @@ import (
 )
 
 type Terraform struct {
-	execPath   string
-	workingDir string
-	Env        []string
+	execPath    string
+	workingDir  string
+	execVersion string
+	env         []string
 }
 
 // NewTerraform returns a Terraform struct with default values for all fields.
 // If a blank execPath is supplied, NewTerraform will attempt to locate an
 // appropriate binary on the system PATH.
-func NewTerraform(workingDir string, execPath string) (*Terraform, error) {
+func NewTerraform(workingDir string, execPath string, env map[string]string) (*Terraform, error) {
 	var err error
 	if workingDir == "" {
 		return nil, fmt.Errorf("Terraform cannot be initialised with empty workdir")
@@ -37,16 +38,65 @@ func NewTerraform(workingDir string, execPath string) (*Terraform, error) {
 		if err != nil {
 			return nil, err
 		}
+
 	}
-	// TODO for maximum helpfulness, check execPath looks like a terraform binary
-
-	passthroughEnv := os.Environ()
-
-	return &Terraform{
+	tf := Terraform{
 		execPath:   execPath,
 		workingDir: workingDir,
-		Env:        passthroughEnv,
-	}, nil
+		env:        getTerraformEnv(env),
+	}
+
+	execVersion, err := tf.version()
+	if err != nil {
+		return nil, fmt.Errorf("error running 'terraform version': %s", err)
+	}
+
+	tf.execVersion = execVersion
+
+	return &tf, nil
+}
+
+func getTerraformEnv(env map[string]string) []string {
+	var ret []string
+
+	if env == nil {
+		for _, e := range os.Environ() {
+			ret = append(ret, e)
+		}
+	}
+
+	// always propagate CHECKPOINT_DISABLE env var unless it is
+	// explicitly overridden
+	c := os.Getenv("CHECKPOINT_DISABLE")
+	if c != "" {
+		ret = append(ret, "CHECKPOINT_DISABLE="+c)
+	}
+
+	for k, v := range env {
+		ret = append(ret, k+"="+v)
+	}
+
+	return ret
+}
+
+func (tf *Terraform) version() (string, error) {
+	versionCmd := tf.buildTerraformCmd(context.Background(), "version")
+	var errBuf strings.Builder
+	var outBuf bytes.Buffer
+	versionCmd.Stderr = &errBuf
+	versionCmd.Stdout = &outBuf
+
+	err := versionCmd.Run()
+	if err != nil {
+		fmt.Println(errBuf.String())
+		return "", fmt.Errorf("%s, %s", err, errBuf.String())
+	}
+
+	// fmt.Println(outBuf.String())
+
+	// parse it
+
+	return outBuf.String(), nil
 }
 
 type initConfig struct {

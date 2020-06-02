@@ -20,7 +20,10 @@ const testStateJsonFileName = "state.json"
 const testTerraformStateFileName = "terraform.tfstate"
 
 func TestInitCmd(t *testing.T) {
-	tf, err := NewTerraform("/dev/null", "")
+	td := testTempDir(t)
+	defer os.RemoveAll(td)
+
+	tf, err := NewTerraform(td, "", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -49,7 +52,10 @@ func TestInitCmd(t *testing.T) {
 }
 
 func TestPlanCmd(t *testing.T) {
-	tf, err := NewTerraform("/dev/null", "")
+	td := testTempDir(t)
+	defer os.RemoveAll(td)
+
+	tf, err := NewTerraform(td, "", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -78,7 +84,10 @@ func TestPlanCmd(t *testing.T) {
 }
 
 func TestApplyCmd(t *testing.T) {
-	tf, err := NewTerraform("/dev/null", "")
+	td := testTempDir(t)
+	defer os.RemoveAll(td)
+
+	tf, err := NewTerraform(td, "", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -95,7 +104,10 @@ func TestApplyCmd(t *testing.T) {
 }
 
 func TestDestroyCmd(t *testing.T) {
-	tf, err := NewTerraform("/dev/null", "")
+	td := testTempDir(t)
+	defer os.RemoveAll(td)
+
+	tf, err := NewTerraform(td, "", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -124,7 +136,10 @@ func TestDestroyCmd(t *testing.T) {
 }
 
 func TestImportCmd(t *testing.T) {
-	tf, err := NewTerraform("/dev/null", "")
+	td := testTempDir(t)
+	defer os.RemoveAll(td)
+
+	tf, err := NewTerraform(td, "", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -162,7 +177,10 @@ func TestImportCmd(t *testing.T) {
 }
 
 func TestOutputCmd(t *testing.T) {
-	tf, err := NewTerraform("/dev/null", "")
+	td := testTempDir(t)
+	defer os.RemoveAll(td)
+
+	tf, err := NewTerraform(td, "", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -192,7 +210,10 @@ func TestOutputCmd(t *testing.T) {
 }
 
 func TestStateShowCmd(t *testing.T) {
-	tf, err := NewTerraform("/dev/null", "")
+	td := testTempDir(t)
+	defer os.RemoveAll(td)
+
+	tf, err := NewTerraform(td, "", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -210,7 +231,10 @@ func TestStateShowCmd(t *testing.T) {
 }
 
 func TestProvidersSchemaCmd(t *testing.T) {
-	tf, err := NewTerraform("/dev/null", "")
+	td := testTempDir(t)
+	defer os.RemoveAll(td)
+
+	tf, err := NewTerraform(td, "", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -231,7 +255,7 @@ func TestStateShow(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
-	tf, err := NewTerraform(td, "")
+	tf, err := NewTerraform(td, "", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -285,7 +309,7 @@ func TestShow_errInitRequired(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
-	tf, err := NewTerraform(td, "")
+	tf, err := NewTerraform(td, "", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -313,7 +337,7 @@ func TestApply(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
-	tf, err := NewTerraform(td, "")
+	tf, err := NewTerraform(td, "", nil)
 	if err != nil {
 		t.Fatal(err)
 	}

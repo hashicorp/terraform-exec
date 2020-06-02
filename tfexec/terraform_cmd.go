@@ -3,28 +3,21 @@ package tfexec
 import (
 	"context"
 	"fmt"
-	"os"
 	"os/exec"
 	"strconv"
 )
 
-func (t *Terraform) buildTerraformCmd(ctx context.Context, args ...string) *exec.Cmd {
-	var env []string
-	for _, e := range os.Environ() {
-		env = append(env, e)
-	}
+func (tf *Terraform) buildTerraformCmd(ctx context.Context, args ...string) *exec.Cmd {
+	env := append(tf.env, "TF_LOG=") // so logging can't pollute our stderr output
 
-	env = append(env, "TF_LOG=") // so logging can't pollute our stderr output
-	env = append(env, "TF_INPUT=0")
-
-	cmd := exec.CommandContext(ctx, t.execPath, args...)
-	cmd.Env = t.Env
-	cmd.Dir = t.workingDir
+	cmd := exec.CommandContext(ctx, tf.execPath, args...)
+	cmd.Env = env
+	cmd.Dir = tf.workingDir
 
 	return cmd
 }
 
-func (t *Terraform) InitCmd(ctx context.Context, opts ...InitOption) *exec.Cmd {
+func (tf *Terraform) InitCmd(ctx context.Context, opts ...InitOption) *exec.Cmd {
 	c := defaultInitOptions
 
 	for _, o := range opts {
@@ -66,10 +59,10 @@ func (t *Terraform) InitCmd(ctx context.Context, opts ...InitOption) *exec.Cmd {
 		}
 	}
 
-	return t.buildTerraformCmd(ctx, args...)
+	return tf.buildTerraformCmd(ctx, args...)
 }
 
-func (t *Terraform) ApplyCmd(ctx context.Context, opts ...ApplyOption) *exec.Cmd {
+func (tf *Terraform) ApplyCmd(ctx context.Context, opts ...ApplyOption) *exec.Cmd {
 	c := defaultApplyOptions
 
 	for _, o := range opts {
@@ -117,10 +110,10 @@ func (t *Terraform) ApplyCmd(ctx context.Context, opts ...ApplyOption) *exec.Cmd
 		args = append(args, c.dirOrPlan)
 	}
 
-	return t.buildTerraformCmd(ctx, args...)
+	return tf.buildTerraformCmd(ctx, args...)
 }
 
-func (t *Terraform) DestroyCmd(ctx context.Context, opts ...DestroyOption) *exec.Cmd {
+func (tf *Terraform) DestroyCmd(ctx context.Context, opts ...DestroyOption) *exec.Cmd {
 	c := defaultDestroyOptions
 
 	for _, o := range opts {
@@ -163,7 +156,7 @@ func (t *Terraform) DestroyCmd(ctx context.Context, opts ...DestroyOption) *exec
 		}
 	}
 
-	return t.buildTerraformCmd(ctx, args...)
+	return tf.buildTerraformCmd(ctx, args...)
 }
 
 func (tf *Terraform) PlanCmd(ctx context.Context, opts ...PlanOption) *exec.Cmd {
@@ -285,9 +278,9 @@ func (tf *Terraform) StateShowCmd(ctx context.Context, args ...string) *exec.Cmd
 	return tf.buildTerraformCmd(ctx, allArgs...)
 }
 
-func (t *Terraform) ProvidersSchemaCmd(ctx context.Context, args ...string) *exec.Cmd {
+func (tf *Terraform) ProvidersSchemaCmd(ctx context.Context, args ...string) *exec.Cmd {
 	allArgs := []string{"providers", "schema", "-json", "-no-color"}
 	allArgs = append(allArgs, args...)
 
-	return t.buildTerraformCmd(ctx, allArgs...)
+	return tf.buildTerraformCmd(ctx, allArgs...)
 }
