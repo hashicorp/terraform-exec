@@ -24,7 +24,7 @@ import (
     
 func main() {
     workingDir := "/path/to/working/dir"
-    tf, err := tfexec.NewTerraform(workingDir)
+    tf, err := tfexec.NewTerraform(workingDir, "")
     if err != nil {
         panic(err)
     }
@@ -37,18 +37,3 @@ func main() {
     fmt.Println(state.FormatVersion) // "0.1"
 )
 ```
-
-
-### `(tf *Terraform) Init(opts ...InitOpts) (*tfjson.State, error)`
-
-Runs `terraform init`.
-
-### `(tf *Terraform) Show(opts ...ShowOpts) (*tfjson.State, error)`
-
-Returns the output of `terraform show -json`, represented as `tfjson.State`.
-
-### `exec.Cmd` functions 
-
-#### `InitCmd(workingDir string, args ...string) exec.Cmd`
-
-#### `ShowCmd(workingDir string, args ...string) exec.Cmd`
