@@ -29,7 +29,12 @@ func main() {
         panic(err)
     }
 
-    state, err := tf.Init()
+    err := tf.Init(Upgrade(true), LockTimeout("60s"))
+    if err != nil {
+        panic(err)
+    }
+    
+    state, err := tf.StateShow()
     if err != nil {
         panic(err)
     }
