@@ -5,6 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"os"
 	"strings"
 
@@ -16,12 +18,13 @@ type Terraform struct {
 	workingDir  string
 	execVersion string
 	env         []string
+	logger      *log.Logger
 }
 
 // NewTerraform returns a Terraform struct with default values for all fields.
 // If a blank execPath is supplied, NewTerraform will attempt to locate an
 // appropriate binary on the system PATH.
-func NewTerraform(workingDir string, execPath string, env map[string]string) (*Terraform, error) {
+func NewTerraform(workingDir string, execPath string) (*Terraform, error) {
 	var err error
 	if workingDir == "" {
 		return nil, fmt.Errorf("Terraform cannot be initialised with empty workdir")
@@ -41,7 +44,8 @@ func NewTerraform(workingDir string, execPath string, env map[string]string) (*T
 	tf := Terraform{
 		execPath:   execPath,
 		workingDir: workingDir,
-		env:        getTerraformEnv(env),
+		env:        os.Environ(),
+		logger:     log.New(ioutil.Discard, "", 0),
 	}
 
 	execVersion, err := tf.version()
@@ -54,27 +58,25 @@ func NewTerraform(workingDir string, execPath string, env map[string]string) (*T
 	return &tf, nil
 }
 
-func getTerraformEnv(env map[string]string) []string {
-	var ret []string
-
-	if env == nil {
-		for _, e := range os.Environ() {
-			ret = append(ret, e)
-		}
-	}
+func (tf *Terraform) SetEnv(env map[string]string) {
+	var tfenv []string
 
 	// always propagate CHECKPOINT_DISABLE env var unless it is
 	// explicitly overridden
 	c := os.Getenv("CHECKPOINT_DISABLE")
 	if c != "" {
-		ret = append(ret, "CHECKPOINT_DISABLE="+c)
+		tfenv = append(tfenv, "CHECKPOINT_DISABLE="+c)
 	}
 
 	for k, v := range env {
-		ret = append(ret, k+"="+v)
+		tfenv = append(tfenv, k+"="+v)
 	}
 
-	return ret
+	tf.env = tfenv
+}
+
+func (tf *Terraform) SetLogger(logger *log.Logger) {
+	tf.logger = logger
 }
 
 func (tf *Terraform) version() (string, error) {

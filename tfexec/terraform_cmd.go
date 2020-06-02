@@ -14,6 +14,8 @@ func (tf *Terraform) buildTerraformCmd(ctx context.Context, args ...string) *exe
 	cmd.Env = env
 	cmd.Dir = tf.workingDir
 
+	tf.logger.Printf("Terraform command: %s", cmd.String())
+
 	return cmd
 }
 
