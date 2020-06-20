@@ -1,4 +1,4 @@
-module github.com/kmoe/terraform-exec
+module github.com/hashicorp/terraform-exec
 
 go 1.14
 
