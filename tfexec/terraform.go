@@ -35,10 +35,8 @@ func NewTerraform(workingDir string, execPath string) (*Terraform, error) {
 	}
 
 	if execPath == "" {
-		execPath, err = FindTerraform()
-		if err != nil {
-			return nil, &ErrNoSuitableBinary{err: err}
-		}
+		err := fmt.Errorf("NewTerraform: please supply the path to a Terraform executable using execPath, e.g. using the tfinstall package.")
+		return nil, &ErrNoSuitableBinary{err: err}
 
 	}
 	tf := Terraform{
