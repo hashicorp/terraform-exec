@@ -592,7 +592,7 @@ func (tf *Terraform) ProvidersSchema(ctx context.Context) (*tfjson.ProviderSchem
 		return nil, parseError(errBuf.String())
 	}
 
-	err = json.Unmarshal(outBuf.Bytes(), ret)
+	err = json.Unmarshal(outBuf.Bytes(), &ret)
 	if err != nil {
 		return nil, err
 	}
