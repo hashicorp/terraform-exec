@@ -1,4 +1,7 @@
-# 0.2.0 (Unreleased)
+# 0.1.1 (July 7, 2020)
+
+BUG FIXES:
+ - Downgrade `github.com/hashicorp/go-getter` dependency, which added a requirement for Go 1.13.
 
 # 0.1.0 (July 3, 2020)
 
