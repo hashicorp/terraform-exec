@@ -498,6 +498,20 @@ func (opt *VarFileOption) configureImport(conf *importConfig) {
 	conf.varFile = opt.path
 }
 
+func (t *Terraform) Import(ctx context.Context, opts ...ImportOption) error {
+	importCmd := t.ImportCmd(ctx, opts...)
+
+	var errBuf strings.Builder
+	importCmd.Stderr = &errBuf
+
+	err := importCmd.Run()
+	if err != nil {
+		return parseError(errBuf.String())
+	}
+
+	return nil
+}
+
 type outputConfig struct {
 	state string
 	json  bool
