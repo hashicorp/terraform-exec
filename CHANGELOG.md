@@ -1,3 +1,8 @@
+# 0.2.0 (July 8, 2020)
+
+NEW FEATURES:
+  - add `Import()` function ([#20](https://github.com/hashicorp/terraform-exec/pull/20))
+
 # 0.1.1 (July 7, 2020)
 
 BUG FIXES:
