@@ -2,6 +2,7 @@ package tfexec
 
 import (
 	"context"
+	"errors"
 	"io"
 	"io/ioutil"
 	"os"
@@ -37,6 +38,24 @@ func TestMain(m *testing.M) {
 	exitCode := m.Run()
 	os.Exit(exitCode)
 
+}
+
+// test that a suitable error is returned if NewTerraform is called without a valid
+// executable path
+func TestNoTerraformBinary(t *testing.T) {
+	td := testTempDir(t)
+	defer os.RemoveAll(td)
+
+	_, err := NewTerraform(td, "")
+	if err == nil {
+		t.Fatal("expected NewTerraform to error, but it did not")
+	}
+
+	var e *ErrNoSuitableBinary
+
+	if !errors.As(err, &e) {
+		t.Fatal("expected error to be ErrNoSuitableBinary")
+	}
 }
 
 func TestCheckpointDisablePropagation(t *testing.T) {
