@@ -2,6 +2,7 @@ package tfexec
 
 import (
 	"context"
+	"errors"
 	"io"
 	"io/ioutil"
 	"os"
@@ -11,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/davecgh/go-spew/spew"
+	"github.com/hashicorp/terraform-exec/tfinstall"
 	tfjson "github.com/hashicorp/terraform-json"
 )
 
@@ -19,11 +21,48 @@ const testConfigFileName = "main.tf"
 const testStateJsonFileName = "state.json"
 const testTerraformStateFileName = "terraform.tfstate"
 
+var tfPath string
+
+func TestMain(m *testing.M) {
+	var err error
+	td, err := ioutil.TempDir("", "tfinstall")
+	if err != nil {
+		panic(err)
+	}
+	defer os.RemoveAll(td)
+
+	tfPath, err = tfinstall.Find(tfinstall.LookPath(), tfinstall.LatestVersion(td, true))
+	if err != nil {
+		panic(err)
+	}
+	exitCode := m.Run()
+	os.Exit(exitCode)
+
+}
+
+// test that a suitable error is returned if NewTerraform is called without a valid
+// executable path
+func TestNoTerraformBinary(t *testing.T) {
+	td := testTempDir(t)
+	defer os.RemoveAll(td)
+
+	_, err := NewTerraform(td, "")
+	if err == nil {
+		t.Fatal("expected NewTerraform to error, but it did not")
+	}
+
+	var e *ErrNoSuitableBinary
+
+	if !errors.As(err, &e) {
+		t.Fatal("expected error to be ErrNoSuitableBinary")
+	}
+}
+
 func TestCheckpointDisablePropagation(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
-	tf, err := NewTerraform(td, "")
+	tf, err := NewTerraform(td, tfPath)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -60,7 +99,7 @@ func TestInitCmd(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
-	tf, err := NewTerraform(td, "")
+	tf, err := NewTerraform(td, tfPath)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -92,7 +131,7 @@ func TestPlanCmd(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
-	tf, err := NewTerraform(td, "")
+	tf, err := NewTerraform(td, tfPath)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -124,7 +163,7 @@ func TestApplyCmd(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
-	tf, err := NewTerraform(td, "")
+	tf, err := NewTerraform(td, tfPath)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -144,7 +183,7 @@ func TestDestroyCmd(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
-	tf, err := NewTerraform(td, "")
+	tf, err := NewTerraform(td, tfPath)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -176,7 +215,7 @@ func TestImportCmd(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
-	tf, err := NewTerraform(td, "")
+	tf, err := NewTerraform(td, tfPath)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -217,7 +256,7 @@ func TestOutputCmd(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
-	tf, err := NewTerraform(td, "")
+	tf, err := NewTerraform(td, tfPath)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -250,7 +289,7 @@ func TestStateShowCmd(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
-	tf, err := NewTerraform(td, "")
+	tf, err := NewTerraform(td, tfPath)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -271,7 +310,7 @@ func TestProvidersSchemaCmd(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
-	tf, err := NewTerraform(td, "")
+	tf, err := NewTerraform(td, tfPath)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -292,7 +331,7 @@ func TestStateShow(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
-	tf, err := NewTerraform(td, "")
+	tf, err := NewTerraform(td, tfPath)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -346,7 +385,7 @@ func TestShow_errInitRequired(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
-	tf, err := NewTerraform(td, "")
+	tf, err := NewTerraform(td, tfPath)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -368,7 +407,7 @@ func TestApply(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
-	tf, err := NewTerraform(td, "")
+	tf, err := NewTerraform(td, tfPath)
 	if err != nil {
 		t.Fatal(err)
 	}
