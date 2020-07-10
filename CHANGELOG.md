@@ -1,3 +1,8 @@
+# 0.2.1 (Unreleased)
+
+BUG FIXES:
+  - Minor code changes to allow for compilation in Go 1.12 ([#21](https://github.com/hashicorp/terraform-exec/pull/21))
+
 # 0.2.0 (July 8, 2020)
 
 NEW FEATURES:
