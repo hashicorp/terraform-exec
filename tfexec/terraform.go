@@ -551,7 +551,7 @@ func (tf *Terraform) Output(ctx context.Context, opts ...OutputOption) (map[stri
 		return nil, parseError(err.Error())
 	}
 
-	err = json.Unmarshal(outBuf.Bytes(), outputs)
+	err = json.Unmarshal(outBuf.Bytes(), &outputs)
 	if err != nil {
 		return nil, err
 	}

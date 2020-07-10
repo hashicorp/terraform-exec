@@ -2,7 +2,6 @@ package tfexec
 
 import (
 	"context"
-	"errors"
 	"io"
 	"io/ioutil"
 	"os"
@@ -12,8 +11,9 @@ import (
 	"testing"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/hashicorp/terraform-exec/tfinstall"
 	tfjson "github.com/hashicorp/terraform-json"
+
+	"github.com/hashicorp/terraform-exec/tfinstall"
 )
 
 const testFixtureDir = "testdata"
@@ -38,24 +38,6 @@ func TestMain(m *testing.M) {
 	exitCode := m.Run()
 	os.Exit(exitCode)
 
-}
-
-// test that a suitable error is returned if NewTerraform is called without a valid
-// executable path
-func TestNoTerraformBinary(t *testing.T) {
-	td := testTempDir(t)
-	defer os.RemoveAll(td)
-
-	_, err := NewTerraform(td, "")
-	if err == nil {
-		t.Fatal("expected NewTerraform to error, but it did not")
-	}
-
-	var e *ErrNoSuitableBinary
-
-	if !errors.As(err, &e) {
-		t.Fatal("expected error to be ErrNoSuitableBinary")
-	}
 }
 
 func TestCheckpointDisablePropagation(t *testing.T) {
@@ -107,7 +89,7 @@ func TestInitCmd(t *testing.T) {
 	// defaults
 	initCmd := tf.InitCmd(context.Background())
 
-	actual := strings.TrimPrefix(initCmd.String(), initCmd.Path+" ")
+	actual := strings.TrimPrefix(cmdString(initCmd), initCmd.Path+" ")
 
 	expected := "init -no-color -force-copy -input=false -lock-timeout=0s -backend=true -get=true -get-plugins=true -lock=true -upgrade=false -verify-plugins=true"
 
@@ -118,7 +100,7 @@ func TestInitCmd(t *testing.T) {
 	// override all defaults
 	initCmd = tf.InitCmd(context.Background(), Backend(false), BackendConfig("confpath1"), BackendConfig("confpath2"), FromModule("testsource"), Get(false), GetPlugins(false), Lock(false), LockTimeout("999s"), PluginDir("testdir1"), PluginDir("testdir2"), Reconfigure(true), Upgrade(true), VerifyPlugins(false))
 
-	actual = strings.TrimPrefix(initCmd.String(), initCmd.Path+" ")
+	actual = strings.TrimPrefix(cmdString(initCmd), initCmd.Path+" ")
 
 	expected = "init -no-color -force-copy -input=false -from-module=testsource -lock-timeout=999s -backend=false -get=false -get-plugins=false -lock=false -upgrade=true -verify-plugins=false -reconfigure -backend-config=confpath1 -backend-config=confpath2 -plugin-dir=testdir1 -plugin-dir=testdir2"
 
@@ -139,7 +121,7 @@ func TestPlanCmd(t *testing.T) {
 	// defaults
 	planCmd := tf.PlanCmd(context.Background())
 
-	actual := strings.TrimPrefix(planCmd.String(), planCmd.Path+" ")
+	actual := strings.TrimPrefix(cmdString(planCmd), planCmd.Path+" ")
 
 	expected := "plan -no-color -input=false -lock-timeout=0s -lock=true -parallelism=10 -refresh=true"
 
@@ -150,7 +132,7 @@ func TestPlanCmd(t *testing.T) {
 	// override all defaults
 	planCmd = tf.PlanCmd(context.Background(), Destroy(true), Lock(false), LockTimeout("22s"), Out("whale"), Parallelism(42), Refresh(false), State("marvin"), Target("zaphod"), Target("beeblebrox"), Var("android=paranoid"), Var("brain_size=planet"), VarFile("trillian"))
 
-	actual = strings.TrimPrefix(planCmd.String(), planCmd.Path+" ")
+	actual = strings.TrimPrefix(cmdString(planCmd), planCmd.Path+" ")
 
 	expected = "plan -no-color -input=false -lock-timeout=22s -out=whale -state=marvin -var-file=trillian -lock=false -parallelism=42 -refresh=false -destroy -target=zaphod -target=beeblebrox -var 'android=paranoid' -var 'brain_size=planet'"
 
@@ -170,7 +152,7 @@ func TestApplyCmd(t *testing.T) {
 
 	applyCmd := tf.ApplyCmd(context.Background(), Backup("testbackup"), LockTimeout("200s"), State("teststate"), StateOut("teststateout"), VarFile("testvarfile"), Lock(false), Parallelism(99), Refresh(false), Target("target1"), Target("target2"), Var("var1=foo"), Var("var2=bar"), DirOrPlan("testfile"))
 
-	actual := strings.TrimPrefix(applyCmd.String(), applyCmd.Path+" ")
+	actual := strings.TrimPrefix(cmdString(applyCmd), applyCmd.Path+" ")
 
 	expected := "apply -no-color -auto-approve -input=false -backup=testbackup -lock-timeout=200s -state=teststate -state-out=teststateout -var-file=testvarfile -lock=false -parallelism=99 -refresh=false -target=target1 -target=target2 -var 'var1=foo' -var 'var2=bar' testfile"
 
@@ -191,7 +173,7 @@ func TestDestroyCmd(t *testing.T) {
 	// defaults
 	destroyCmd := tf.DestroyCmd(context.Background())
 
-	actual := strings.TrimPrefix(destroyCmd.String(), destroyCmd.Path+" ")
+	actual := strings.TrimPrefix(cmdString(destroyCmd), destroyCmd.Path+" ")
 
 	expected := "destroy -no-color -auto-approve -lock-timeout=0s -lock=true -parallelism=10 -refresh=true"
 
@@ -202,7 +184,7 @@ func TestDestroyCmd(t *testing.T) {
 	// override all defaults
 	destroyCmd = tf.DestroyCmd(context.Background(), Backup("testbackup"), LockTimeout("200s"), State("teststate"), StateOut("teststateout"), VarFile("testvarfile"), Lock(false), Parallelism(99), Refresh(false), Target("target1"), Target("target2"), Var("var1=foo"), Var("var2=bar"))
 
-	actual = strings.TrimPrefix(destroyCmd.String(), destroyCmd.Path+" ")
+	actual = strings.TrimPrefix(cmdString(destroyCmd), destroyCmd.Path+" ")
 
 	expected = "destroy -no-color -auto-approve -backup=testbackup -lock-timeout=200s -state=teststate -state-out=teststateout -var-file=testvarfile -lock=false -parallelism=99 -refresh=false -target=target1 -target=target2 -var 'var1=foo' -var 'var2=bar'"
 
@@ -223,7 +205,7 @@ func TestImportCmd(t *testing.T) {
 	// defaults
 	importCmd := tf.ImportCmd(context.Background())
 
-	actual := strings.TrimPrefix(importCmd.String(), importCmd.Path+" ")
+	actual := strings.TrimPrefix(cmdString(importCmd), importCmd.Path+" ")
 
 	expected := "import -no-color -input=false -lock-timeout=0s -lock=true"
 
@@ -243,7 +225,7 @@ func TestImportCmd(t *testing.T) {
 		Var("var2=bar"),
 		AllowMissingConfig(true))
 
-	actual = strings.TrimPrefix(importCmd.String(), importCmd.Path+" ")
+	actual = strings.TrimPrefix(cmdString(importCmd), importCmd.Path+" ")
 
 	expected = "import -no-color -input=false -backup=testbackup -lock-timeout=200s -state=teststate -state-out=teststateout -var-file=testvarfile -lock=false -allow-missing-config -var 'var1=foo' -var 'var2=bar'"
 
@@ -264,7 +246,7 @@ func TestOutputCmd(t *testing.T) {
 	// defaults
 	outputCmd := tf.OutputCmd(context.Background())
 
-	actual := strings.TrimPrefix(outputCmd.String(), outputCmd.Path+" ")
+	actual := strings.TrimPrefix(cmdString(outputCmd), outputCmd.Path+" ")
 
 	expected := "output -no-color -json"
 
@@ -276,7 +258,7 @@ func TestOutputCmd(t *testing.T) {
 	outputCmd = tf.OutputCmd(context.Background(),
 		State("teststate"))
 
-	actual = strings.TrimPrefix(outputCmd.String(), outputCmd.Path+" ")
+	actual = strings.TrimPrefix(cmdString(outputCmd), outputCmd.Path+" ")
 
 	expected = "output -no-color -json -state=teststate"
 
@@ -297,7 +279,7 @@ func TestStateShowCmd(t *testing.T) {
 	// defaults
 	showCmd := tf.StateShowCmd(context.Background())
 
-	actual := strings.TrimPrefix(showCmd.String(), showCmd.Path+" ")
+	actual := strings.TrimPrefix(cmdString(showCmd), showCmd.Path+" ")
 
 	expected := "show -json -no-color"
 
@@ -318,7 +300,7 @@ func TestProvidersSchemaCmd(t *testing.T) {
 	// defaults
 	schemaCmd := tf.ProvidersSchemaCmd(context.Background())
 
-	actual := strings.TrimPrefix(schemaCmd.String(), schemaCmd.Path+" ")
+	actual := strings.TrimPrefix(cmdString(schemaCmd), schemaCmd.Path+" ")
 
 	expected := "providers schema -json -no-color"
 
@@ -351,7 +333,7 @@ func TestStateShow(t *testing.T) {
 		TerraformVersion: "0.12.24",
 		Values: &tfjson.StateValues{
 			RootModule: &tfjson.StateModule{
-				Resources: []*tfjson.StateResource{&tfjson.StateResource{
+				Resources: []*tfjson.StateResource{{
 					Address: "null_resource.foo",
 					AttributeValues: map[string]interface{}{
 						"id":       "5510719323588825107",
