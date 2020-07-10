@@ -5,6 +5,7 @@ package tfexec
 
 import (
 	"errors"
+	"os"
 	"testing"
 )
 
