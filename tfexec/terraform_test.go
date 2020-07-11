@@ -19,20 +19,20 @@ const testTerraformStateFileName = "terraform.tfstate"
 var tfPath string
 
 func TestMain(m *testing.M) {
-	var err error
-	td, err := ioutil.TempDir("", "tfinstall")
-	if err != nil {
-		panic(err)
-	}
-	defer os.RemoveAll(td)
+	os.Exit(func() int {
+		var err error
+		td, err := ioutil.TempDir("", "tfinstall")
+		if err != nil {
+			panic(err)
+		}
+		defer os.RemoveAll(td)
 
-	tfPath, err = tfinstall.Find(tfinstall.LookPath(), tfinstall.LatestVersion(td, true))
-	if err != nil {
-		panic(err)
-	}
-	exitCode := m.Run()
-	os.Exit(exitCode)
-
+		tfPath, err = tfinstall.Find(tfinstall.LookPath(), tfinstall.LatestVersion(td, true))
+		if err != nil {
+			panic(err)
+		}
+		return m.Run()
+	}())
 }
 
 func TestCheckpointDisablePropagation(t *testing.T) {
