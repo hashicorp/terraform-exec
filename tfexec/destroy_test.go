@@ -17,7 +17,7 @@ func TestDestroyCmd(t *testing.T) {
 	}
 
 	// defaults
-	destroyCmd := tf.DestroyCmd(context.Background())
+	destroyCmd := tf.destroyCmd(context.Background())
 
 	actual := strings.TrimPrefix(cmdString(destroyCmd), destroyCmd.Path+" ")
 
@@ -28,7 +28,7 @@ func TestDestroyCmd(t *testing.T) {
 	}
 
 	// override all defaults
-	destroyCmd = tf.DestroyCmd(context.Background(), Backup("testbackup"), LockTimeout("200s"), State("teststate"), StateOut("teststateout"), VarFile("testvarfile"), Lock(false), Parallelism(99), Refresh(false), Target("target1"), Target("target2"), Var("var1=foo"), Var("var2=bar"))
+	destroyCmd = tf.destroyCmd(context.Background(), Backup("testbackup"), LockTimeout("200s"), State("teststate"), StateOut("teststateout"), VarFile("testvarfile"), Lock(false), Parallelism(99), Refresh(false), Target("target1"), Target("target2"), Var("var1=foo"), Var("var2=bar"))
 
 	actual = strings.TrimPrefix(cmdString(destroyCmd), destroyCmd.Path+" ")
 

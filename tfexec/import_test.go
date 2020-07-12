@@ -86,7 +86,7 @@ func TestImportCmd(t *testing.T) {
 	}
 
 	// defaults
-	importCmd := tf.ImportCmd(context.Background(), "my-addr", "my-id")
+	importCmd := tf.importCmd(context.Background(), "my-addr", "my-id")
 
 	actual := strings.TrimPrefix(cmdString(importCmd), importCmd.Path+" ")
 
@@ -97,7 +97,7 @@ func TestImportCmd(t *testing.T) {
 	}
 
 	// override all defaults
-	importCmd = tf.ImportCmd(context.Background(), "my-addr2", "my-id2",
+	importCmd = tf.importCmd(context.Background(), "my-addr2", "my-id2",
 		Backup("testbackup"),
 		LockTimeout("200s"),
 		State("teststate"),

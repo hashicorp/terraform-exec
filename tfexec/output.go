@@ -34,7 +34,7 @@ type OutputMeta struct {
 }
 
 func (tf *Terraform) Output(ctx context.Context, opts ...OutputOption) (map[string]OutputMeta, error) {
-	outputCmd := tf.OutputCmd(ctx, opts...)
+	outputCmd := tf.outputCmd(ctx, opts...)
 
 	var errBuf strings.Builder
 	var outBuf bytes.Buffer
@@ -57,7 +57,7 @@ func (tf *Terraform) Output(ctx context.Context, opts ...OutputOption) (map[stri
 	return outputs, nil
 }
 
-func (tf *Terraform) OutputCmd(ctx context.Context, opts ...OutputOption) *exec.Cmd {
+func (tf *Terraform) outputCmd(ctx context.Context, opts ...OutputOption) *exec.Cmd {
 	c := defaultOutputOptions
 
 	for _, o := range opts {

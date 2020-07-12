@@ -16,7 +16,7 @@ func (tf *Terraform) ProvidersSchema(ctx context.Context) (*tfjson.ProviderSchem
 	var errBuf strings.Builder
 	var outBuf bytes.Buffer
 
-	schemaCmd := tf.ProvidersSchemaCmd(ctx)
+	schemaCmd := tf.providersSchemaCmd(ctx)
 
 	schemaCmd.Stderr = &errBuf
 	schemaCmd.Stdout = &outBuf
@@ -39,7 +39,7 @@ func (tf *Terraform) ProvidersSchema(ctx context.Context) (*tfjson.ProviderSchem
 	return &ret, nil
 }
 
-func (tf *Terraform) ProvidersSchemaCmd(ctx context.Context, args ...string) *exec.Cmd {
+func (tf *Terraform) providersSchemaCmd(ctx context.Context, args ...string) *exec.Cmd {
 	allArgs := []string{"providers", "schema", "-json", "-no-color"}
 	allArgs = append(allArgs, args...)
 

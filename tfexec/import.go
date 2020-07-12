@@ -68,7 +68,7 @@ func (opt *VarFileOption) configureImport(conf *importConfig) {
 }
 
 func (t *Terraform) Import(ctx context.Context, address, id string, opts ...ImportOption) error {
-	importCmd := t.ImportCmd(ctx, address, id, opts...)
+	importCmd := t.importCmd(ctx, address, id, opts...)
 
 	var errBuf strings.Builder
 	importCmd.Stderr = &errBuf
@@ -81,7 +81,7 @@ func (t *Terraform) Import(ctx context.Context, address, id string, opts ...Impo
 	return nil
 }
 
-func (tf *Terraform) ImportCmd(ctx context.Context, address, id string, opts ...ImportOption) *exec.Cmd {
+func (tf *Terraform) importCmd(ctx context.Context, address, id string, opts ...ImportOption) *exec.Cmd {
 	c := defaultImportOptions
 
 	for _, o := range opts {

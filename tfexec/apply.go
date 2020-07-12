@@ -81,7 +81,7 @@ func (opt *DirOrPlanOption) configureApply(conf *applyConfig) {
 }
 
 func (tf *Terraform) Apply(ctx context.Context, opts ...ApplyOption) error {
-	applyCmd := tf.ApplyCmd(ctx, opts...)
+	applyCmd := tf.applyCmd(ctx, opts...)
 
 	var errBuf strings.Builder
 	applyCmd.Stderr = &errBuf
@@ -94,7 +94,7 @@ func (tf *Terraform) Apply(ctx context.Context, opts ...ApplyOption) error {
 	return nil
 }
 
-func (tf *Terraform) ApplyCmd(ctx context.Context, opts ...ApplyOption) *exec.Cmd {
+func (tf *Terraform) applyCmd(ctx context.Context, opts ...ApplyOption) *exec.Cmd {
 	c := defaultApplyOptions
 
 	for _, o := range opts {

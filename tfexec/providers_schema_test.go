@@ -17,7 +17,7 @@ func TestProvidersSchemaCmd(t *testing.T) {
 	}
 
 	// defaults
-	schemaCmd := tf.ProvidersSchemaCmd(context.Background())
+	schemaCmd := tf.providersSchemaCmd(context.Background())
 
 	actual := strings.TrimPrefix(cmdString(schemaCmd), schemaCmd.Path+" ")
 

@@ -16,7 +16,7 @@ func (tf *Terraform) StateShow(ctx context.Context) (*tfjson.State, error) {
 	var errBuf strings.Builder
 	var outBuf bytes.Buffer
 
-	showCmd := tf.StateShowCmd(ctx)
+	showCmd := tf.stateShowCmd(ctx)
 
 	showCmd.Stderr = &errBuf
 	showCmd.Stdout = &outBuf
@@ -39,7 +39,7 @@ func (tf *Terraform) StateShow(ctx context.Context) (*tfjson.State, error) {
 	return &ret, nil
 }
 
-func (tf *Terraform) StateShowCmd(ctx context.Context, args ...string) *exec.Cmd {
+func (tf *Terraform) stateShowCmd(ctx context.Context, args ...string) *exec.Cmd {
 	allArgs := []string{"show", "-json", "-no-color"}
 	allArgs = append(allArgs, args...)
 

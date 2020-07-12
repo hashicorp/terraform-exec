@@ -17,7 +17,7 @@ func TestPlanCmd(t *testing.T) {
 	}
 
 	// defaults
-	planCmd := tf.PlanCmd(context.Background())
+	planCmd := tf.planCmd(context.Background())
 
 	actual := strings.TrimPrefix(cmdString(planCmd), planCmd.Path+" ")
 
@@ -28,7 +28,7 @@ func TestPlanCmd(t *testing.T) {
 	}
 
 	// override all defaults
-	planCmd = tf.PlanCmd(context.Background(), Destroy(true), Lock(false), LockTimeout("22s"), Out("whale"), Parallelism(42), Refresh(false), State("marvin"), Target("zaphod"), Target("beeblebrox"), Var("android=paranoid"), Var("brain_size=planet"), VarFile("trillian"))
+	planCmd = tf.planCmd(context.Background(), Destroy(true), Lock(false), LockTimeout("22s"), Out("whale"), Parallelism(42), Refresh(false), State("marvin"), Target("zaphod"), Target("beeblebrox"), Var("android=paranoid"), Var("brain_size=planet"), VarFile("trillian"))
 
 	actual = strings.TrimPrefix(cmdString(planCmd), planCmd.Path+" ")
 

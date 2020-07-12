@@ -83,7 +83,7 @@ func (opt *VerifyPluginsOption) configureInit(conf *initConfig) {
 }
 
 func (t *Terraform) Init(ctx context.Context, opts ...InitOption) error {
-	initCmd := t.InitCmd(ctx, opts...)
+	initCmd := t.initCmd(ctx, opts...)
 
 	var errBuf strings.Builder
 	initCmd.Stderr = &errBuf
@@ -96,7 +96,7 @@ func (t *Terraform) Init(ctx context.Context, opts ...InitOption) error {
 	return nil
 }
 
-func (tf *Terraform) InitCmd(ctx context.Context, opts ...InitOption) *exec.Cmd {
+func (tf *Terraform) initCmd(ctx context.Context, opts ...InitOption) *exec.Cmd {
 	c := defaultInitOptions
 
 	for _, o := range opts {

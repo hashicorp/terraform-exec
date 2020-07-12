@@ -74,7 +74,7 @@ func (opt *DestroyFlagOption) configurePlan(conf *planConfig) {
 }
 
 func (tf *Terraform) Plan(ctx context.Context, opts ...PlanOption) error {
-	planCmd := tf.PlanCmd(ctx, opts...)
+	planCmd := tf.planCmd(ctx, opts...)
 
 	var errBuf strings.Builder
 	planCmd.Stderr = &errBuf
@@ -87,7 +87,7 @@ func (tf *Terraform) Plan(ctx context.Context, opts ...PlanOption) error {
 	return nil
 }
 
-func (tf *Terraform) PlanCmd(ctx context.Context, opts ...PlanOption) *exec.Cmd {
+func (tf *Terraform) planCmd(ctx context.Context, opts ...PlanOption) *exec.Cmd {
 	c := defaultPlanOptions
 
 	for _, o := range opts {
