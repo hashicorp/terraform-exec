@@ -94,7 +94,7 @@ func TestStateShowCmd(t *testing.T) {
 	}
 
 	// defaults
-	showCmd := tf.StateShowCmd(context.Background())
+	showCmd := tf.stateShowCmd(context.Background())
 
 	actual := strings.TrimPrefix(cmdString(showCmd), showCmd.Path+" ")
 

@@ -17,7 +17,7 @@ func TestOutputCmd(t *testing.T) {
 	}
 
 	// defaults
-	outputCmd := tf.OutputCmd(context.Background())
+	outputCmd := tf.outputCmd(context.Background())
 
 	actual := strings.TrimPrefix(cmdString(outputCmd), outputCmd.Path+" ")
 
@@ -28,7 +28,7 @@ func TestOutputCmd(t *testing.T) {
 	}
 
 	// override all defaults
-	outputCmd = tf.OutputCmd(context.Background(),
+	outputCmd = tf.outputCmd(context.Background(),
 		State("teststate"))
 
 	actual = strings.TrimPrefix(cmdString(outputCmd), outputCmd.Path+" ")

@@ -17,7 +17,7 @@ func TestInitCmd(t *testing.T) {
 	}
 
 	// defaults
-	initCmd := tf.InitCmd(context.Background())
+	initCmd := tf.initCmd(context.Background())
 
 	actual := strings.TrimPrefix(cmdString(initCmd), initCmd.Path+" ")
 
@@ -28,7 +28,7 @@ func TestInitCmd(t *testing.T) {
 	}
 
 	// override all defaults
-	initCmd = tf.InitCmd(context.Background(), Backend(false), BackendConfig("confpath1"), BackendConfig("confpath2"), FromModule("testsource"), Get(false), GetPlugins(false), Lock(false), LockTimeout("999s"), PluginDir("testdir1"), PluginDir("testdir2"), Reconfigure(true), Upgrade(true), VerifyPlugins(false))
+	initCmd = tf.initCmd(context.Background(), Backend(false), BackendConfig("confpath1"), BackendConfig("confpath2"), FromModule("testsource"), Get(false), GetPlugins(false), Lock(false), LockTimeout("999s"), PluginDir("testdir1"), PluginDir("testdir2"), Reconfigure(true), Upgrade(true), VerifyPlugins(false))
 
 	actual = strings.TrimPrefix(cmdString(initCmd), initCmd.Path+" ")
 

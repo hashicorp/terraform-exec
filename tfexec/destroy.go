@@ -77,7 +77,7 @@ func (opt *VarOption) configureDestroy(conf *destroyConfig) {
 }
 
 func (tf *Terraform) Destroy(ctx context.Context, opts ...DestroyOption) error {
-	destroyCmd := tf.DestroyCmd(ctx, opts...)
+	destroyCmd := tf.destroyCmd(ctx, opts...)
 
 	var errBuf strings.Builder
 	destroyCmd.Stderr = &errBuf
@@ -90,7 +90,7 @@ func (tf *Terraform) Destroy(ctx context.Context, opts ...DestroyOption) error {
 	return nil
 }
 
-func (tf *Terraform) DestroyCmd(ctx context.Context, opts ...DestroyOption) *exec.Cmd {
+func (tf *Terraform) destroyCmd(ctx context.Context, opts ...DestroyOption) *exec.Cmd {
 	c := defaultDestroyOptions
 
 	for _, o := range opts {
