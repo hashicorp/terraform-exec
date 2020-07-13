@@ -16,19 +16,15 @@ func TestStateShow(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
-	tf, err := NewTerraform(td, tfPath)
+	tf, err := NewTerraform(td, tfVersion(t, "0.12.28"))
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// copy state and config files into test dir
-	err = copyFile(filepath.Join(testFixtureDir, testTerraformStateFileName), filepath.Join(td, testTerraformStateFileName))
+	err = copyFiles(filepath.Join(testFixtureDir, "basic"), td)
 	if err != nil {
-		t.Fatalf("error copying state file into test dir: %s", err)
-	}
-	err = copyFile(filepath.Join(testFixtureDir, testConfigFileName), filepath.Join(td, testConfigFileName))
-	if err != nil {
-		t.Fatalf("error copying config file into test dir: %s", err)
+		t.Fatalf("error copying files into test dir: %s", err)
 	}
 
 	expected := tfjson.State{
@@ -70,12 +66,12 @@ func TestShow_errInitRequired(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
-	tf, err := NewTerraform(td, tfPath)
+	tf, err := NewTerraform(td, tfVersion(t, "0.12.28"))
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = copyFile(filepath.Join(testFixtureDir, testTerraformStateFileName), filepath.Join(td, testTerraformStateFileName))
+	err = copyFile(filepath.Join(testFixtureDir, "basic", testTerraformStateFileName), td)
 
 	_, err = tf.StateShow(context.Background())
 	if err == nil {
@@ -92,7 +88,7 @@ func TestStateShowCmd(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
-	tf, err := NewTerraform(td, tfPath)
+	tf, err := NewTerraform(td, tfVersion(t, "0.12.28"))
 	if err != nil {
 		t.Fatal(err)
 	}

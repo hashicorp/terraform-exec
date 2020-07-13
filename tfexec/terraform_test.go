@@ -5,32 +5,26 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"reflect"
+	"sync"
 	"testing"
 
 	"github.com/hashicorp/terraform-exec/tfinstall"
 )
 
 const testFixtureDir = "testdata"
-const testConfigFileName = "main.tf"
-const testStateJsonFileName = "state.json"
 const testTerraformStateFileName = "terraform.tfstate"
-
-var tfPath string
 
 func TestMain(m *testing.M) {
 	os.Exit(func() int {
 		var err error
-		td, err := ioutil.TempDir("", "tfinstall")
+		installDir, err = ioutil.TempDir("", "tfinstall")
 		if err != nil {
 			panic(err)
 		}
-		defer os.RemoveAll(td)
+		defer os.RemoveAll(installDir)
 
-		tfPath, err = tfinstall.Find(tfinstall.LookPath(), tfinstall.LatestVersion(td, true))
-		if err != nil {
-			panic(err)
-		}
 		return m.Run()
 	}())
 }
@@ -39,7 +33,7 @@ func TestCheckpointDisablePropagation(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
-	tf, err := NewTerraform(td, tfPath)
+	tf, err := NewTerraform(td, tfVersion(t, "0.12.28"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -81,12 +75,40 @@ func testTempDir(t *testing.T) string {
 	return d
 }
 
+func copyFiles(path string, dstPath string) error {
+	infos, err := ioutil.ReadDir(path)
+	if err != nil {
+		return err
+	}
+
+	for _, info := range infos {
+		if info.IsDir() {
+			// TODO: make recursive with filepath.Walk?
+			continue
+		}
+		err = copyFile(filepath.Join(path, info.Name()), dstPath)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func copyFile(path string, dstPath string) error {
 	srcF, err := os.Open(path)
 	if err != nil {
 		return err
 	}
 	defer srcF.Close()
+
+	di, err := os.Stat(dstPath)
+	if err != nil {
+		return err
+	}
+	if di.IsDir() {
+		_, file := filepath.Split(path)
+		dstPath = filepath.Join(dstPath, file)
+	}
 
 	dstF, err := os.Create(dstPath)
 	if err != nil {
@@ -99,4 +121,41 @@ func copyFile(path string, dstPath string) error {
 	}
 
 	return nil
+}
+
+type installedVersion struct {
+	path string
+	err  error
+}
+
+var (
+	installDir           string
+	installedVersionLock sync.Mutex
+	installedVersions    = map[string]installedVersion{}
+)
+
+func tfVersion(t *testing.T, v string) string {
+	if installDir == "" {
+		t.Fatalf("installDir not yet configured, TestMain must run first")
+	}
+
+	installedVersionLock.Lock()
+	defer installedVersionLock.Unlock()
+
+	iv, ok := installedVersions[v]
+	if !ok {
+		dir := filepath.Join(installDir, v)
+		err := os.MkdirAll(dir, 0777)
+		if err != nil {
+			t.Fatal(err)
+		}
+		iv.path, iv.err = tfinstall.Find(tfinstall.ExactVersion(v, dir))
+		installedVersions[v] = iv
+	}
+
+	if iv.err != nil {
+		t.Fatalf("error installing terraform version %q: %s", v, iv.err)
+	}
+
+	return iv.path
 }

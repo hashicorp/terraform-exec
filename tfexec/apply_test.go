@@ -12,12 +12,12 @@ func TestApply(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
-	tf, err := NewTerraform(td, tfPath)
+	tf, err := NewTerraform(td, tfVersion(t, "0.12.28"))
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = copyFile(filepath.Join(testFixtureDir, testConfigFileName), filepath.Join(td, testConfigFileName))
+	err = copyFile(filepath.Join(testFixtureDir, "basic/main.tf"), td)
 	if err != nil {
 		t.Fatalf("error copying config file into test dir: %s", err)
 	}
@@ -37,7 +37,7 @@ func TestApplyCmd(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
-	tf, err := NewTerraform(td, tfPath)
+	tf, err := NewTerraform(td, tfVersion(t, "0.12.28"))
 	if err != nil {
 		t.Fatal(err)
 	}
