@@ -16,7 +16,7 @@ func TestImport(t *testing.T) {
 	ctx := context.Background()
 
 	for _, tfv := range []string{
-		// "0.11.14", doesn't support show JSON output, but does support import
+		"0.11.14", // doesn't support show JSON output, but does support import
 		"0.12.28",
 		"0.13.0-beta3",
 	} {
@@ -39,9 +39,15 @@ func TestImport(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			err = tf.Import(ctx, resourceAddress, expectedID, DisableBackup(), Lock(false))
+			// Config is unnecessary here since its already the working dir, but just testing an additional flag
+			err = tf.Import(ctx, resourceAddress, expectedID, DisableBackup(), Lock(false), Config(td))
 			if err != nil {
 				t.Fatal(err)
+			}
+
+			if strings.HasPrefix(tfv, "0.11.") {
+				t.Logf("skipping state assertion for 0.11")
+				return
 			}
 
 			state, err := tf.StateShow(ctx)

@@ -95,7 +95,7 @@ func (tf *Terraform) importCmd(ctx context.Context, address, id string, opts ...
 		args = append(args, "-backup="+c.backup)
 	}
 	if c.config != "" {
-		args = append(args, "-config"+c.config)
+		args = append(args, "-config="+c.config)
 	}
 	if c.lockTimeout != "" {
 		args = append(args, "-lock-timeout="+c.lockTimeout)
