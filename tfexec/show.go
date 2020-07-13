@@ -10,13 +10,13 @@ import (
 	tfjson "github.com/hashicorp/terraform-json"
 )
 
-func (tf *Terraform) StateShow(ctx context.Context) (*tfjson.State, error) {
+func (tf *Terraform) Show(ctx context.Context) (*tfjson.State, error) {
 	var ret tfjson.State
 
 	var errBuf strings.Builder
 	var outBuf bytes.Buffer
 
-	showCmd := tf.stateShowCmd(ctx)
+	showCmd := tf.showCmd(ctx)
 
 	showCmd.Stderr = &errBuf
 	showCmd.Stdout = &outBuf
@@ -39,7 +39,7 @@ func (tf *Terraform) StateShow(ctx context.Context) (*tfjson.State, error) {
 	return &ret, nil
 }
 
-func (tf *Terraform) stateShowCmd(ctx context.Context, args ...string) *exec.Cmd {
+func (tf *Terraform) showCmd(ctx context.Context, args ...string) *exec.Cmd {
 	allArgs := []string{"show", "-json", "-no-color"}
 	allArgs = append(allArgs, args...)
 

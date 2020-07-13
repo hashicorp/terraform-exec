@@ -12,7 +12,7 @@ import (
 	tfjson "github.com/hashicorp/terraform-json"
 )
 
-func TestStateShow(t *testing.T) {
+func TestShow(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
@@ -52,7 +52,7 @@ func TestStateShow(t *testing.T) {
 		t.Fatalf("error running Init in test directory: %s", err)
 	}
 
-	actual, err := tf.StateShow(context.Background())
+	actual, err := tf.Show(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -73,7 +73,7 @@ func TestShow_errInitRequired(t *testing.T) {
 
 	err = copyFile(filepath.Join(testFixtureDir, "basic", testTerraformStateFileName), td)
 
-	_, err = tf.StateShow(context.Background())
+	_, err = tf.Show(context.Background())
 	if err == nil {
 		t.Fatal("expected Show to error, but it did not")
 	} else {
@@ -84,7 +84,7 @@ func TestShow_errInitRequired(t *testing.T) {
 
 }
 
-func TestStateShowCmd(t *testing.T) {
+func TestShowCmd(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
@@ -94,7 +94,7 @@ func TestStateShowCmd(t *testing.T) {
 	}
 
 	// defaults
-	showCmd := tf.stateShowCmd(context.Background())
+	showCmd := tf.showCmd(context.Background())
 
 	actual := strings.TrimPrefix(cmdString(showCmd), showCmd.Path+" ")
 
