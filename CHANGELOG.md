@@ -1,4 +1,4 @@
-# 0.2.2 (Unreleased)
+# 0.2.2 (July 13, 2020)
 
 BUG FIXES:
   - Version number is now correctly reported by the tfinstall package. Please note that `tfinstall.Version` was incorrect between versions 0.1.1 and 0.2.1 inclusive.
