@@ -31,14 +31,6 @@ type ImportOption interface {
 	configureImport(*importConfig)
 }
 
-func (opt *AddrOption) configureImport(conf *importConfig) {
-	conf.addr = opt.addr
-}
-
-func (opt *IdOption) configureImport(conf *importConfig) {
-	conf.id = opt.id
-}
-
 func (opt *BackupOption) configureImport(conf *importConfig) {
 	conf.backup = opt.path
 }
@@ -75,8 +67,8 @@ func (opt *VarFileOption) configureImport(conf *importConfig) {
 	conf.varFile = opt.path
 }
 
-func (t *Terraform) Import(ctx context.Context, opts ...ImportOption) error {
-	importCmd := t.ImportCmd(ctx, opts...)
+func (t *Terraform) Import(ctx context.Context, address, id string, opts ...ImportOption) error {
+	importCmd := t.ImportCmd(ctx, address, id, opts...)
 
 	var errBuf strings.Builder
 	importCmd.Stderr = &errBuf
@@ -89,7 +81,7 @@ func (t *Terraform) Import(ctx context.Context, opts ...ImportOption) error {
 	return nil
 }
 
-func (tf *Terraform) ImportCmd(ctx context.Context, opts ...ImportOption) *exec.Cmd {
+func (tf *Terraform) ImportCmd(ctx context.Context, address, id string, opts ...ImportOption) *exec.Cmd {
 	c := defaultImportOptions
 
 	for _, o := range opts {
@@ -132,6 +124,9 @@ func (tf *Terraform) ImportCmd(ctx context.Context, opts ...ImportOption) *exec.
 			args = append(args, "-var '"+v+"'")
 		}
 	}
+
+	// required args, always pass
+	args = append(args, address, id)
 
 	return tf.buildTerraformCmd(ctx, args...)
 }
