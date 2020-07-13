@@ -1,30 +1,33 @@
 package tfexec
 
 import (
-	"bytes"
-	"context"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"strings"
+	"sync"
+
+	"github.com/hashicorp/go-version"
 )
 
 type Terraform struct {
-	execPath    string
-	workingDir  string
-	execVersion string
-	env         map[string]string
+	execPath   string
+	workingDir string
+	env        map[string]string
 
 	logger  *log.Logger
 	logPath string
+
+	versionLock  sync.Mutex
+	execVersion  *version.Version
+	provVersions map[string]*version.Version
 }
 
 // NewTerraform returns a Terraform struct with default values for all fields.
 // If a blank execPath is supplied, NewTerraform will attempt to locate an
 // appropriate binary on the system PATH.
 func NewTerraform(workingDir string, execPath string) (*Terraform, error) {
-	var err error
 	if workingDir == "" {
 		return nil, fmt.Errorf("Terraform cannot be initialised with empty workdir")
 	}
@@ -44,13 +47,6 @@ func NewTerraform(workingDir string, execPath string) (*Terraform, error) {
 		env:        nil, // explicit nil means copy os.Environ
 		logger:     log.New(ioutil.Discard, "", 0),
 	}
-
-	execVersion, err := tf.version()
-	if err != nil {
-		return nil, &ErrNoSuitableBinary{err: fmt.Errorf("error running 'terraform version': %s", err)}
-	}
-
-	tf.execVersion = execVersion
 
 	return &tf, nil
 }
@@ -84,21 +80,4 @@ func (tf *Terraform) SetLogger(logger *log.Logger) {
 func (tf *Terraform) SetLogPath(path string) error {
 	tf.logPath = path
 	return nil
-}
-
-func (tf *Terraform) version() (string, error) {
-	versionCmd := tf.buildTerraformCmd(context.Background(), "version")
-
-	var errBuf strings.Builder
-	var outBuf bytes.Buffer
-	versionCmd.Stderr = &errBuf
-	versionCmd.Stdout = &outBuf
-
-	err := versionCmd.Run()
-	if err != nil {
-		fmt.Println(errBuf.String())
-		return "", fmt.Errorf("%s, %s", err, errBuf.String())
-	}
-
-	return outBuf.String(), nil
 }
