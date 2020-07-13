@@ -11,7 +11,7 @@ func TestPlanCmd(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
-	tf, err := NewTerraform(td, tfPath)
+	tf, err := NewTerraform(td, tfVersion(t, "0.12.28"))
 	if err != nil {
 		t.Fatal(err)
 	}
