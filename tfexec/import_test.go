@@ -50,7 +50,7 @@ func TestImport(t *testing.T) {
 				return
 			}
 
-			state, err := tf.StateShow(ctx)
+			state, err := tf.Show(ctx)
 			if err != nil {
 				t.Fatal(err)
 			}
