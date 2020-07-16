@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"sync"
 	"testing"
 
@@ -45,8 +46,10 @@ func TestCheckpointDisablePropagation(t *testing.T) {
 		"FOOBAR": "1",
 	})
 	initCmd := tf.initCmd(context.Background())
-	expected := []string{"FOOBAR=1", "CHECKPOINT_DISABLE=1", "TF_LOG="}
-	actual := initCmd.Env
+	expected := []string{"CHECKPOINT_DISABLE=1", "FOOBAR=1", "TF_LOG="}
+	s := initCmd.Env
+	sort.Strings(s)
+	actual := s
 
 	if !reflect.DeepEqual(actual, expected) {
 		t.Fatalf("expected command env to be %s, but it was %s", expected, actual)
@@ -59,7 +62,9 @@ func TestCheckpointDisablePropagation(t *testing.T) {
 	})
 	initCmd = tf.initCmd(context.Background())
 	expected = []string{"CHECKPOINT_DISABLE=", "FOOBAR=1", "TF_LOG="}
-	actual = initCmd.Env
+	s = initCmd.Env
+	sort.Strings(s)
+	actual = s
 
 	if !reflect.DeepEqual(actual, expected) {
 		t.Fatalf("expected command env to be %s, but it was %s", expected, actual)
