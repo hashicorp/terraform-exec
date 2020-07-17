@@ -1,3 +1,13 @@
+# 0.3.0 (Unreleased)
+
+BREAKING CHANGES:
+  - Stop exporting `exec.Cmd` versions of methods [GH-25]
+  - Require `address` and `id` arguments in `Import()` [GH-24]
+  - Rename `StateShow()` to `Show()` [GH-30]
+  
+BUG FIXES:
+  - Fix bug in `Import()` config argument [GH-28]
+
 # 0.2.2 (July 13, 2020)
 
 BUG FIXES:
