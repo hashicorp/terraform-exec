@@ -1,12 +1,12 @@
-# 0.3.0 (Unreleased)
+# 0.3.0 (July 17, 2020)
 
 BREAKING CHANGES:
-  - Stop exporting `exec.Cmd` versions of methods [GH-25]
-  - Require `address` and `id` arguments in `Import()` [GH-24]
-  - Rename `StateShow()` to `Show()` [GH-30]
+  - Stop exporting `exec.Cmd` versions of methods ([#25](https://github.com/hashicorp/terraform-plugin-sdk/issues/25))
+  - Require `address` and `id` arguments in `Import()` ([#24](https://github.com/hashicorp/terraform-plugin-sdk/issues/24))
+  - Rename `StateShow()` to `Show()` ([#30](https://github.com/hashicorp/terraform-plugin-sdk/issues/30))
   
 BUG FIXES:
-  - Fix bug in `Import()` config argument [GH-28]
+  - Fix bug in `Import()` config argument ([#28](https://github.com/hashicorp/terraform-plugin-sdk/issues/28))
 
 # 0.2.2 (July 13, 2020)
 
