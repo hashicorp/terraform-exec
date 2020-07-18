@@ -15,7 +15,9 @@ type Terraform struct {
 	workingDir  string
 	execVersion string
 	env         map[string]string
-	logger      *log.Logger
+
+	logger  *log.Logger
+	logPath string
 }
 
 // NewTerraform returns a Terraform struct with default values for all fields.
@@ -75,6 +77,13 @@ func (tf *Terraform) SetEnv(env map[string]string) error {
 
 func (tf *Terraform) SetLogger(logger *log.Logger) {
 	tf.logger = logger
+}
+
+// SetLogPath sets the TF_LOG_PATH environment variable for Terraform CLI
+// execution.
+func (tf *Terraform) SetLogPath(path string) error {
+	tf.logPath = path
+	return nil
 }
 
 func (tf *Terraform) version() (string, error) {
