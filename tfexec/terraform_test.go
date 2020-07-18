@@ -86,7 +86,7 @@ func TestCheckpointDisablePropagation(t *testing.T) {
 		"FOOBAR": "1",
 	})
 	initCmd := tf.initCmd(context.Background())
-	expected := []string{"CHECKPOINT_DISABLE=1", "FOOBAR=1", "TF_LOG="}
+	expected := []string{"CHECKPOINT_DISABLE=1", "FOOBAR=1", "TF_IN_AUTOMATION=1", "TF_LOG=", "TF_LOG_PATH="}
 	s := initCmd.Env
 	sort.Strings(s)
 	actual := s
@@ -104,7 +104,7 @@ func TestCheckpointDisablePropagation(t *testing.T) {
 		t.Fatal(err)
 	}
 	initCmd = tf.initCmd(context.Background())
-	expected = []string{"CHECKPOINT_DISABLE=", "FOOBAR=1", "TF_LOG="}
+	expected = []string{"CHECKPOINT_DISABLE=", "FOOBAR=1", "TF_IN_AUTOMATION=1", "TF_LOG=", "TF_LOG_PATH="}
 	s = initCmd.Env
 	sort.Strings(s)
 	actual = s
