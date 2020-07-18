@@ -64,6 +64,16 @@ func (e *ErrCLIUsage) Error() string {
 	return e.stderr
 }
 
+// ErrManualEnvVar is returned when an env var that should be set programatically via an option or method
+// is set via the manual environment passing functions.
+type ErrManualEnvVar struct {
+	name string
+}
+
+func (err *ErrManualEnvVar) Error() string {
+	return fmt.Sprintf("manual setting of env var %q detected", err.name)
+}
+
 // catchall error
 type Err struct {
 	stderr string

@@ -2,6 +2,7 @@ package tfexec
 
 import (
 	"context"
+	"errors"
 	"io"
 	"io/ioutil"
 	"os"
@@ -30,6 +31,41 @@ func TestMain(m *testing.M) {
 	}())
 }
 
+func TestSetEnv(t *testing.T) {
+	td := testTempDir(t)
+	defer os.RemoveAll(td)
+
+	tf, err := NewTerraform(td, tfVersion(t, "0.12.28"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, c := range []struct {
+		errManual bool
+		name      string
+	}{
+		{false, "OK_ENV_VAR"},
+
+		{true, "TF_LOG"},
+		{true, "TF_VAR_foo"},
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			err = tf.SetEnv(map[string]string{c.name: "foo"})
+
+			if c.errManual {
+				var evErr *ErrManualEnvVar
+				if !errors.As(err, &evErr) {
+					t.Fatalf("expected ErrManualEnvVar, got %T %s", err, err)
+				}
+			} else {
+				if !c.errManual && err != nil {
+					t.Fatal(err)
+				}
+			}
+		})
+	}
+}
+
 func TestCheckpointDisablePropagation(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
@@ -40,8 +76,12 @@ func TestCheckpointDisablePropagation(t *testing.T) {
 	}
 
 	// case 1: env var is set in environment and not overridden
-	os.Setenv("CHECKPOINT_DISABLE", "1")
+	err = os.Setenv("CHECKPOINT_DISABLE", "1")
+	if err != nil {
+		t.Fatal(err)
+	}
 	defer os.Unsetenv("CHECKPOINT_DISABLE")
+
 	tf.SetEnv(map[string]string{
 		"FOOBAR": "1",
 	})
@@ -56,10 +96,13 @@ func TestCheckpointDisablePropagation(t *testing.T) {
 	}
 
 	// case 2: env var is set in environment and overridden with SetEnv
-	tf.SetEnv(map[string]string{
+	err = tf.SetEnv(map[string]string{
 		"CHECKPOINT_DISABLE": "",
 		"FOOBAR":             "1",
 	})
+	if err != nil {
+		t.Fatal(err)
+	}
 	initCmd = tf.initCmd(context.Background())
 	expected = []string{"CHECKPOINT_DISABLE=", "FOOBAR=1", "TF_LOG="}
 	s = initCmd.Env
