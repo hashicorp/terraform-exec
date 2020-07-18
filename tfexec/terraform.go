@@ -14,7 +14,7 @@ type Terraform struct {
 	execPath    string
 	workingDir  string
 	execVersion string
-	env         []string
+	env         map[string]string
 	logger      *log.Logger
 }
 
@@ -39,7 +39,7 @@ func NewTerraform(workingDir string, execPath string) (*Terraform, error) {
 	tf := Terraform{
 		execPath:   execPath,
 		workingDir: workingDir,
-		env:        os.Environ(),
+		env:        nil, // explicit nil means copy os.Environ
 		logger:     log.New(ioutil.Discard, "", 0),
 	}
 
@@ -53,20 +53,24 @@ func NewTerraform(workingDir string, execPath string) (*Terraform, error) {
 	return &tf, nil
 }
 
-func (tf *Terraform) SetEnv(env map[string]string) {
-	var tfenv []string
-
-	// always propagate CHECKPOINT_DISABLE env var unless it is
-	// explicitly overridden with tf.SetEnv
-	if _, ok := env["CHECKPOINT_DISABLE"]; !ok {
-		env["CHECKPOINT_DISABLE"] = os.Getenv("CHECKPOINT_DISABLE")
+// SetEnv allows you to override environment variables, this should not be used for any well known
+// Terraform environment variables that are already covered in options. Pass nil to copy the values
+// from os.Environ. Attempting to set environment variables that should be managed manually will
+// result in ErrManualEnvVar being returned.
+func (tf *Terraform) SetEnv(env map[string]string) error {
+	for k := range env {
+		if strings.HasPrefix(k, varEnvVarPrefix) {
+			return fmt.Errorf("variables should be passed using the Var option: %w", &ErrManualEnvVar{k})
+		}
+		for _, p := range prohibitedEnvVars {
+			if p == k {
+				return &ErrManualEnvVar{k}
+			}
+		}
 	}
 
-	for k, v := range env {
-		tfenv = append(tfenv, k+"="+v)
-	}
-
-	tf.env = tfenv
+	tf.env = env
+	return nil
 }
 
 func (tf *Terraform) SetLogger(logger *log.Logger) {
@@ -75,6 +79,7 @@ func (tf *Terraform) SetLogger(logger *log.Logger) {
 
 func (tf *Terraform) version() (string, error) {
 	versionCmd := tf.buildTerraformCmd(context.Background(), "version")
+
 	var errBuf strings.Builder
 	var outBuf bytes.Buffer
 	versionCmd.Stderr = &errBuf
