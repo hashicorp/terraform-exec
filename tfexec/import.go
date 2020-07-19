@@ -121,7 +121,7 @@ func (tf *Terraform) importCmd(ctx context.Context, address, id string, opts ...
 	// string slice opts: split into separate args
 	if c.vars != nil {
 		for _, v := range c.vars {
-			args = append(args, "-var '"+v+"'")
+			args = append(args, "-var", v)
 		}
 	}
 

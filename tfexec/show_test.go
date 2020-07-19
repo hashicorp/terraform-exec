@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
-	"strings"
 	"testing"
 
 	"github.com/davecgh/go-spew/spew"
@@ -22,7 +21,7 @@ func TestShow(t *testing.T) {
 	}
 
 	// copy state and config files into test dir
-	err = copyFiles(filepath.Join(testFixtureDir, "basic"), td)
+	err = copyFiles(filepath.Join(testFixtureDir, "state"), td)
 	if err != nil {
 		t.Fatalf("error copying files into test dir: %s", err)
 	}
@@ -71,7 +70,7 @@ func TestShow_errInitRequired(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = copyFile(filepath.Join(testFixtureDir, "basic", testTerraformStateFileName), td)
+	err = copyFiles(filepath.Join(testFixtureDir, "basic"), td)
 
 	_, err = tf.Show(context.Background())
 	if err == nil {
@@ -93,14 +92,15 @@ func TestShowCmd(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// empty env, to avoid environ mismatch in testing
+	tf.SetEnv(map[string]string{})
+
 	// defaults
 	showCmd := tf.showCmd(context.Background())
 
-	actual := strings.TrimPrefix(cmdString(showCmd), showCmd.Path+" ")
-
-	expected := "show -json -no-color"
-
-	if actual != expected {
-		t.Fatalf("expected default arguments of ShowCmd:\n%s\n actual arguments:\n%s\n", expected, actual)
-	}
+	assertCmd(t, []string{
+		"show",
+		"-json",
+		"-no-color",
+	}, nil, showCmd)
 }

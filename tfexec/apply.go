@@ -133,7 +133,7 @@ func (tf *Terraform) applyCmd(ctx context.Context, opts ...ApplyOption) *exec.Cm
 	}
 	if c.vars != nil {
 		for _, v := range c.vars {
-			args = append(args, "-var '"+v+"'")
+			args = append(args, "-var", v)
 		}
 	}
 

@@ -3,7 +3,6 @@ package tfexec
 import (
 	"context"
 	"os"
-	"strings"
 	"testing"
 )
 
@@ -16,26 +15,28 @@ func TestOutputCmd(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// defaults
-	outputCmd := tf.outputCmd(context.Background())
+	// empty env, to avoid environ mismatch in testing
+	tf.SetEnv(map[string]string{})
 
-	actual := strings.TrimPrefix(cmdString(outputCmd), outputCmd.Path+" ")
+	t.Run("defaults", func(t *testing.T) {
+		outputCmd := tf.outputCmd(context.Background())
 
-	expected := "output -no-color -json"
+		assertCmd(t, []string{
+			"output",
+			"-no-color",
+			"-json",
+		}, nil, outputCmd)
+	})
 
-	if actual != expected {
-		t.Fatalf("expected default arguments of OutputCmd:\n%s\n actual arguments:\n%s\n", expected, actual)
-	}
+	t.Run("override all defaults", func(t *testing.T) {
+		outputCmd := tf.outputCmd(context.Background(),
+			State("teststate"))
 
-	// override all defaults
-	outputCmd = tf.outputCmd(context.Background(),
-		State("teststate"))
-
-	actual = strings.TrimPrefix(cmdString(outputCmd), outputCmd.Path+" ")
-
-	expected = "output -no-color -json -state=teststate"
-
-	if actual != expected {
-		t.Fatalf("expected arguments of ImportCmd:\n%s\n actual arguments:\n%s\n", expected, actual)
-	}
+		assertCmd(t, []string{
+			"output",
+			"-no-color",
+			"-json",
+			"-state=teststate",
+		}, nil, outputCmd)
+	})
 }
