@@ -7,8 +7,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"reflect"
-	"sort"
 	"sync"
 	"testing"
 
@@ -75,43 +73,69 @@ func TestCheckpointDisablePropagation(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// case 1: env var is set in environment and not overridden
 	err = os.Setenv("CHECKPOINT_DISABLE", "1")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer os.Unsetenv("CHECKPOINT_DISABLE")
 
-	tf.SetEnv(map[string]string{
-		"FOOBAR": "1",
+	t.Run("case 1: env var is set in environment and not overridden", func(t *testing.T) {
+
+		err = tf.SetEnv(map[string]string{
+			"FOOBAR": "1",
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		initCmd := tf.initCmd(context.Background())
+
+		assertCmd(t, []string{
+			"init",
+			"-no-color",
+			"-force-copy",
+			"-input=false",
+			"-lock-timeout=0s",
+			"-backend=true",
+			"-get=true",
+			"-get-plugins=true",
+			"-lock=true",
+			"-upgrade=false",
+			"-verify-plugins=true",
+		}, map[string]string{
+			"CHECKPOINT_DISABLE": "1",
+			"FOOBAR":             "1",
+		}, initCmd)
 	})
-	initCmd := tf.initCmd(context.Background())
-	expected := []string{"CHECKPOINT_DISABLE=1", "FOOBAR=1", "TF_IN_AUTOMATION=1", "TF_LOG=", "TF_LOG_PATH="}
-	s := initCmd.Env
-	sort.Strings(s)
-	actual := s
 
-	if !reflect.DeepEqual(actual, expected) {
-		t.Fatalf("expected command env to be %s, but it was %s", expected, actual)
-	}
+	t.Run("case 2: env var is set in environment and overridden with SetEnv", func(t *testing.T) {
+		err = tf.SetEnv(map[string]string{
+			"CHECKPOINT_DISABLE": "",
+			"FOOBAR":             "2",
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	// case 2: env var is set in environment and overridden with SetEnv
-	err = tf.SetEnv(map[string]string{
-		"CHECKPOINT_DISABLE": "",
-		"FOOBAR":             "1",
+		initCmd := tf.initCmd(context.Background())
+
+		assertCmd(t, []string{
+			"init",
+			"-no-color",
+			"-force-copy",
+			"-input=false",
+			"-lock-timeout=0s",
+			"-backend=true",
+			"-get=true",
+			"-get-plugins=true",
+			"-lock=true",
+			"-upgrade=false",
+			"-verify-plugins=true",
+		}, map[string]string{
+			"CHECKPOINT_DISABLE": "",
+			"FOOBAR":             "2",
+		}, initCmd)
 	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	initCmd = tf.initCmd(context.Background())
-	expected = []string{"CHECKPOINT_DISABLE=", "FOOBAR=1", "TF_IN_AUTOMATION=1", "TF_LOG=", "TF_LOG_PATH="}
-	s = initCmd.Env
-	sort.Strings(s)
-	actual = s
-
-	if !reflect.DeepEqual(actual, expected) {
-		t.Fatalf("expected command env to be %s, but it was %s", expected, actual)
-	}
 }
 
 func testTempDir(t *testing.T) string {

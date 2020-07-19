@@ -128,7 +128,7 @@ func (tf *Terraform) planCmd(ctx context.Context, opts ...PlanOption) *exec.Cmd 
 	}
 	if c.vars != nil {
 		for _, v := range c.vars {
-			args = append(args, "-var '"+v+"'")
+			args = append(args, "-var", v)
 		}
 	}
 

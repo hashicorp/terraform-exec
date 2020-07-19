@@ -3,7 +3,6 @@ package tfexec
 import (
 	"context"
 	"os"
-	"strings"
 	"testing"
 )
 
@@ -16,14 +15,15 @@ func TestProvidersSchemaCmd(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// defaults
+	// empty env, to avoid environ mismatch in testing
+	tf.SetEnv(map[string]string{})
+
 	schemaCmd := tf.providersSchemaCmd(context.Background())
 
-	actual := strings.TrimPrefix(cmdString(schemaCmd), schemaCmd.Path+" ")
-
-	expected := "providers schema -json -no-color"
-
-	if actual != expected {
-		t.Fatalf("expected default arguments of ProvidersSchemaCmd:\n%s\n actual arguments:\n%s\n", expected, actual)
-	}
+	assertCmd(t, []string{
+		"providers",
+		"schema",
+		"-json",
+		"-no-color",
+	}, nil, schemaCmd)
 }
