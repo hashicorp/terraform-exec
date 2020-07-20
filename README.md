@@ -22,25 +22,43 @@ Top-level Terraform commands each have their own function, which will return eit
 package main
 
 import (
-    "github.com/kmoe/terraform-exec/tfexec"
-    
-func main() {
-    workingDir := "/path/to/working/dir"
-    tf, err := tfexec.NewTerraform(workingDir, "")
-    if err != nil {
-        panic(err)
-    }
+	"context"
+	"fmt"
+	"io/ioutil"
+	"os"
 
-    err := tf.Init(Upgrade(true), LockTimeout("60s"))
-    if err != nil {
-        panic(err)
-    }
-    
-    state, err := tf.StateShow()
-    if err != nil {
-        panic(err)
-    }
-
-    fmt.Println(state.FormatVersion) // "0.1"
+	"github.com/hashicorp/terraform-exec/tfexec"
+	"github.com/hashicorp/terraform-exec/tfinstall"
 )
+
+func main() {
+	tmpDir, err := ioutil.TempDir("", "tfinstall")
+	if err != nil {
+		panic(err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	execPath, err := tfinstall.Find(tfinstall.LatestVersion(tmpDir, false))
+	if err != nil {
+		panic(err)
+	}
+
+	workingDir := "/path/to/working/dir"
+	tf, err := tfexec.NewTerraform(workingDir, execPath)
+	if err != nil {
+		panic(err)
+	}
+
+	err = tf.Init(context.Background(), tfexec.Upgrade(true), tfexec.LockTimeout("60s"))
+	if err != nil {
+		panic(err)
+	}
+
+	state, err := tf.Show(context.Background())
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(state.FormatVersion) // "0.1"
+}
 ```
