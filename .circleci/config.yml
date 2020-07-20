@@ -4,6 +4,9 @@ orbs:
   win: circleci/windows@2.2.0
 
 commands:
+  win_install_go:
+    steps:
+      - run: choco install golang --version 1.14.6 --yes
   go_build:
     steps:
       - run: go build ./...
@@ -17,12 +20,14 @@ jobs:
       name: win/default
     steps:
       - checkout
+      - win_install_go
       - go_build
   wintest:
     executor:
       name: win/default
     steps:
       - checkout
+      - win_install_go
       - go_test
 
   "go112_build":
