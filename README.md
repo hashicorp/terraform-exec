@@ -1,4 +1,4 @@
-**This is an experimental project still undergoing active development and breaking changes.**
+**This is an experimental project still undergoing active development and breaking changes, PRs are discouraged in the meantime as the code is changing rapidly.**
 
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/hashicorp/terraform-exec)](https://pkg.go.dev/github.com/hashicorp/terraform-exec)
 
