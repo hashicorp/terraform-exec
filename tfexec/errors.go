@@ -1,6 +1,7 @@
 package tfexec
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 )
@@ -16,7 +17,7 @@ func parseError(stderr string) error {
 	case regexp.MustCompile(`Error: No configuration files`).MatchString(stderr):
 		return &ErrNoConfig{stderr: stderr}
 	default:
-		return &Err{stderr: stderr}
+		return errors.New(stderr)
 	}
 }
 
@@ -28,9 +29,17 @@ func (e *ErrNoSuitableBinary) Error() string {
 	return fmt.Sprintf("no suitable terraform binary could be found: %s", e.err.Error())
 }
 
-// Not yet implemented.
-// Intended for use when the detected Terraform version is not compatible with the command or flags being used in this invocation.
-type ErrVersionMismatch struct{}
+// ErrVersionMismatch is returned when the detected Terraform version is not compatible with the
+// command or flags being used in this invocation.
+type ErrVersionMismatch struct {
+	MinInclusive string
+	MaxExclusive string
+	Actual       string
+}
+
+func (e *ErrVersionMismatch) Error() string {
+	return fmt.Sprintf("unexpected version %s (min: %s, max: %s)", e.Actual, e.MinInclusive, e.MaxExclusive)
+}
 
 type ErrNoInit struct {
 	stderr string
@@ -48,7 +57,9 @@ func (e *ErrNoConfig) Error() string {
 	return e.stderr
 }
 
-// Terraform CLI indicates usage errors in three different ways: either
+// ErrCLIUsage is returned when the combination of flags or arguments is incorrect.
+//
+//  CLI indicates usage errors in three different ways: either
 // 1. Exit 1, with a custom error message on stderr.
 // 2. Exit 1, with command usage logged to stderr.
 // 3. Exit 127, with command usage logged to stdout.
@@ -72,13 +83,4 @@ type ErrManualEnvVar struct {
 
 func (err *ErrManualEnvVar) Error() string {
 	return fmt.Sprintf("manual setting of env var %q detected", err.name)
-}
-
-// catchall error
-type Err struct {
-	stderr string
-}
-
-func (e *Err) Error() string {
-	return e.stderr
 }
