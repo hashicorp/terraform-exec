@@ -1,6 +1,8 @@
 package e2etest
 
 import (
+	"bufio"
+	"bytes"
 	"io"
 	"io/ioutil"
 	"os"
@@ -30,14 +32,24 @@ func copyFiles(path string, dstPath string) error {
 	}
 
 	for _, info := range infos {
+		srcPath := filepath.Join(path, info.Name())
 		if info.IsDir() {
-			// TODO: make recursive with filepath.Walk?
-			continue
+			newDir := filepath.Join(dstPath, info.Name())
+			err = os.MkdirAll(newDir, info.Mode())
+			if err != nil {
+				return err
+			}
+			err = copyFiles(srcPath, newDir)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = copyFile(srcPath, dstPath)
+			if err != nil {
+				return err
+			}
 		}
-		err = copyFile(filepath.Join(path, info.Name()), dstPath)
-		if err != nil {
-			return err
-		}
+
 	}
 	return nil
 }
@@ -69,6 +81,31 @@ func copyFile(path string, dstPath string) error {
 	}
 
 	return nil
+}
+
+// filesEqual returns true iff the two files have the same contents.
+func filesEqual(file1, file2 string) (bool, error) {
+	sf, err := os.Open(file1)
+	if err != nil {
+		return false, err
+	}
+
+	df, err := os.Open(file2)
+	if err != nil {
+		return false, err
+	}
+
+	sscan := bufio.NewScanner(sf)
+	dscan := bufio.NewScanner(df)
+
+	for sscan.Scan() {
+		dscan.Scan()
+		if !bytes.Equal(sscan.Bytes(), dscan.Bytes()) {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }
 
 type installedVersion struct {

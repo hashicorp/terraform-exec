@@ -14,8 +14,6 @@ import (
 	"github.com/hashicorp/terraform-exec/tfinstall"
 )
 
-const testTerraformStateFileName = "terraform.tfstate"
-
 func TestMain(m *testing.M) {
 	os.Exit(func() int {
 		var err error
