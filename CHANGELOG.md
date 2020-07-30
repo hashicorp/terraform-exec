@@ -3,6 +3,9 @@
 FEATURES:
   - Added `Terraform.SetLogPath` method to set `TF_LOG_PATH` environment variable, and prevented manual setting of programmatically supported environment variables [GH-32]
 
+BUG FIXES:
+  - Fixed `-var` handling issue [GH-34]
+
 # 0.3.0 (July 17, 2020)
 
 BREAKING CHANGES:
