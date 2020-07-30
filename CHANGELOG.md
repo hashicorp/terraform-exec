@@ -2,6 +2,7 @@
 
 FEATURES:
   - Added `Terraform.SetLogPath` method to set `TF_LOG_PATH` environment variable, and prevented manual setting of programmatically supported environment variables [GH-32]
+  - Added `Terraform.Version` method to get executable version information [GH-7]
 
 BUG FIXES:
   - Fixed `-var` handling issue [GH-34]
