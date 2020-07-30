@@ -1,11 +1,11 @@
-# 0.4.0 (Unreleased)
+# 0.4.0 (July 30, 2020)
 
 FEATURES:
-  - Added `Terraform.SetLogPath` method to set `TF_LOG_PATH` environment variable, and prevented manual setting of programmatically supported environment variables [GH-32]
-  - Added `Terraform.Version` method to get executable version information [GH-7]
+  - Added `Terraform.SetLogPath` method to set `TF_LOG_PATH` environment variable, and prevented manual setting of programmatically supported environment variables ([#32](https://github.com/hashicorp/terraform-plugin-sdk/issues/32))
+  - Added `Terraform.Version` method to get executable version information ([#7](https://github.com/hashicorp/terraform-plugin-sdk/issues/7))
 
 BUG FIXES:
-  - Fixed `-var` handling issue [GH-34]
+  - Fixed `-var` handling issue ([#34](https://github.com/hashicorp/terraform-plugin-sdk/issues/34))
 
 # 0.3.0 (July 17, 2020)
 
