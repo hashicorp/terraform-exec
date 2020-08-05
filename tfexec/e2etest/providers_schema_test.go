@@ -3,13 +3,11 @@ package e2etest
 import (
 	"context"
 	"fmt"
-	"os"
-	"path/filepath"
 	"reflect"
 	"testing"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/hashicorp/terraform-exec/tfexec"
+	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
 	tfjson "github.com/hashicorp/terraform-json"
 	"github.com/zclconf/go-cty/cty"
 )
@@ -23,22 +21,22 @@ func TestProvidersSchema(t *testing.T) {
 			"basic", &tfjson.ProviderSchemas{
 				FormatVersion: "0.1",
 				Schemas: map[string]*tfjson.ProviderSchema{
-					"null": &tfjson.ProviderSchema{
+					"null": {
 						ConfigSchema: &tfjson.Schema{
 							Version: 0,
 							Block:   &tfjson.SchemaBlock{},
 						},
 						ResourceSchemas: map[string]*tfjson.Schema{
-							"null_resource": &tfjson.Schema{
+							"null_resource": {
 								Version: 0,
 								Block: &tfjson.SchemaBlock{
 									Attributes: map[string]*tfjson.SchemaAttribute{
-										"id": &tfjson.SchemaAttribute{
+										"id": {
 											AttributeType: cty.String,
 											Optional:      true,
 											Computed:      true,
 										},
-										"triggers": &tfjson.SchemaAttribute{
+										"triggers": {
 											AttributeType: cty.Map(cty.String),
 											Optional:      true,
 										},
@@ -47,29 +45,29 @@ func TestProvidersSchema(t *testing.T) {
 							},
 						},
 						DataSourceSchemas: map[string]*tfjson.Schema{
-							"null_data_source": &tfjson.Schema{
+							"null_data_source": {
 								Version: 0,
 								Block: &tfjson.SchemaBlock{
 									Attributes: map[string]*tfjson.SchemaAttribute{
-										"has_computed_default": &tfjson.SchemaAttribute{
+										"has_computed_default": {
 											AttributeType: cty.String,
 											Optional:      true,
 											Computed:      true,
 										},
-										"id": &tfjson.SchemaAttribute{
+										"id": {
 											AttributeType: cty.String,
 											Optional:      true,
 											Computed:      true,
 										},
-										"inputs": &tfjson.SchemaAttribute{
+										"inputs": {
 											AttributeType: cty.Map(cty.String),
 											Optional:      true,
 										},
-										"outputs": &tfjson.SchemaAttribute{
+										"outputs": {
 											AttributeType: cty.Map(cty.String),
 											Computed:      true,
 										},
-										"random": &tfjson.SchemaAttribute{
+										"random": {
 											AttributeType: cty.String,
 											Computed:      true,
 										},
@@ -88,20 +86,10 @@ func TestProvidersSchema(t *testing.T) {
 		},
 	} {
 		t.Run(fmt.Sprintf("%d %s", i, c.fixtureDir), func(t *testing.T) {
-			td := testTempDir(t)
-			defer os.RemoveAll(td)
+			tf, cleanup := setupFixture(t, testutil.Latest012, c.fixtureDir)
+			defer cleanup()
 
-			tf, err := tfexec.NewTerraform(td, tfVersion(t, "0.12.28"))
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			err = copyFiles(filepath.Join(testFixtureDir, c.fixtureDir), td)
-			if err != nil {
-				t.Fatalf("error copying fixtures into test dir: %s", err)
-			}
-
-			err = tf.Init(context.Background())
+			err := tf.Init(context.Background())
 			if err != nil {
 				t.Fatalf("error running Init in test directory: %s", err)
 			}

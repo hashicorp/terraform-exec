@@ -2,12 +2,11 @@ package e2etest
 
 import (
 	"context"
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-exec/tfexec"
+	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
 )
 
 func TestImport(t *testing.T) {
@@ -18,31 +17,21 @@ func TestImport(t *testing.T) {
 	ctx := context.Background()
 
 	for _, tfv := range []string{
-		"0.11.14", // doesn't support show JSON output, but does support import
-		"0.12.28",
-		"0.13.0-beta3",
+		testutil.Latest011, // doesn't support show JSON output, but does support import
+		testutil.Latest012,
+		testutil.Latest013,
 	} {
 		t.Run(tfv, func(t *testing.T) {
-			td := testTempDir(t)
-			defer os.RemoveAll(td)
+			tf, cleanup := setupFixture(t, tfv, "import")
+			defer cleanup()
 
-			err := copyFiles(filepath.Join(testFixtureDir, "import"), td)
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			tf, err := tfexec.NewTerraform(td, tfVersion(t, tfv))
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			err = tf.Init(ctx, tfexec.Lock(false))
+			err := tf.Init(ctx, tfexec.Lock(false))
 			if err != nil {
 				t.Fatal(err)
 			}
 
 			// Config is unnecessary here since its already the working dir, but just testing an additional flag
-			err = tf.Import(ctx, resourceAddress, expectedID, tfexec.DisableBackup(), tfexec.Lock(false), tfexec.Config(td))
+			err = tf.Import(ctx, resourceAddress, expectedID, tfexec.DisableBackup(), tfexec.Lock(false), tfexec.Config(tf.WorkingDir()))
 			if err != nil {
 				t.Fatal(err)
 			}

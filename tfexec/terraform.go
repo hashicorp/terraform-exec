@@ -81,3 +81,8 @@ func (tf *Terraform) SetLogPath(path string) error {
 	tf.logPath = path
 	return nil
 }
+
+// WorkingDir returns the working directory for Terraform.
+func (tf *Terraform) WorkingDir() string {
+	return tf.workingDir
+}
