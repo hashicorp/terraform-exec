@@ -3,34 +3,22 @@ package e2etest
 import (
 	"context"
 	"errors"
-	"os"
-	"path/filepath"
 	"reflect"
 	"testing"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/terraform-exec/tfexec"
-	"github.com/hashicorp/terraform-exec/tfinstall"
+	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
 	tfjson "github.com/hashicorp/terraform-json"
 )
 
 func TestShow(t *testing.T) {
-	td := testTempDir(t)
-	defer os.RemoveAll(td)
-
-	tf, err := tfexec.NewTerraform(td, tfVersion(t, "0.12.28"))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// copy state and config files into test dir
-	err = copyFiles(filepath.Join(testFixtureDir, "basic"), td)
-	if err != nil {
-		t.Fatalf("error copying files into test dir: %s", err)
-	}
+	tf, cleanup := setupFixture(t, testutil.Latest012, "basic_with_state")
+	defer cleanup()
 
 	expected := tfjson.State{
-		FormatVersion:    "0.1",
+		FormatVersion: "0.1",
+		// this is the version that wrote state, not the version that is running
 		TerraformVersion: "0.12.24",
 		Values: &tfjson.StateValues{
 			RootModule: &tfjson.StateModule{
@@ -49,7 +37,7 @@ func TestShow(t *testing.T) {
 		},
 	}
 
-	err = tf.Init(context.Background())
+	err := tf.Init(context.Background())
 	if err != nil {
 		t.Fatalf("error running Init in test directory: %s", err)
 	}
@@ -65,43 +53,24 @@ func TestShow(t *testing.T) {
 }
 
 func TestShow_errInitRequired(t *testing.T) {
-	td := testTempDir(t)
-	defer os.RemoveAll(td)
+	tf, cleanup := setupFixture(t, testutil.Latest012, "basic")
+	defer cleanup()
 
-	tf, err := tfexec.NewTerraform(td, tfVersion(t, "0.12.28"))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	err = copyFile(filepath.Join(testFixtureDir, "basic", testTerraformStateFileName), td)
-
-	_, err = tf.Show(context.Background())
+	_, err := tf.Show(context.Background())
 	if err == nil {
 		t.Fatal("expected Show to error, but it did not")
-	} else {
-		if _, ok := err.(*tfexec.ErrNoInit); !ok {
-			t.Fatalf("expected error %s to be ErrNoInit", err)
-		}
 	}
-
+	if _, ok := err.(*tfexec.ErrNoInit); !ok {
+		t.Fatalf("expected error %s to be ErrNoInit", err)
+	}
 }
 
 func TestShow_compatible(t *testing.T) {
-	td := testTempDir(t)
-	defer os.RemoveAll(td)
-
-	tfPath, err := tfinstall.Find(tfinstall.ExactVersion("0.11.14", td))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	tf, err := tfexec.NewTerraform(td, tfPath)
-	if err != nil {
-		t.Fatal(err)
-	}
+	tf, cleanup := setupFixture(t, testutil.Latest011, "basic")
+	defer cleanup()
 
 	var mismatch *tfexec.ErrVersionMismatch
-	_, err = tf.Show(context.Background())
+	_, err := tf.Show(context.Background())
 	if !errors.As(err, &mismatch) {
 		t.Fatal("expected version mismatch error")
 	}

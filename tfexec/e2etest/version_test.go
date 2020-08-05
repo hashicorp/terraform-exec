@@ -2,36 +2,25 @@ package e2etest
 
 import (
 	"context"
-	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/hashicorp/terraform-exec/tfexec"
+	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
 )
 
 func TestVersion(t *testing.T) {
 	ctx := context.Background()
 
 	for _, tfv := range []string{
-		"0.11.14",
-		"0.12.28",
-		"0.13.0-beta3",
+		testutil.Latest011,
+		testutil.Latest012,
+		testutil.Latest013,
 	} {
 		t.Run(tfv, func(t *testing.T) {
-			td := testTempDir(t)
-			defer os.RemoveAll(td)
+			tf, cleanup := setupFixture(t, tfv, "basic")
+			defer cleanup()
 
-			err := copyFile(filepath.Join(testFixtureDir, "basic/main.tf"), td)
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			tf, err := tfexec.NewTerraform(td, tfVersion(t, tfv))
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			err = tf.Init(ctx, tfexec.Lock(false))
+			err := tf.Init(ctx, tfexec.Lock(false))
 			if err != nil {
 				t.Fatal(err)
 			}

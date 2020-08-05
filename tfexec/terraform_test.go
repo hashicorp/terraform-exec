@@ -9,6 +9,7 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
 	"github.com/hashicorp/terraform-exec/tfinstall"
 )
 
@@ -29,7 +30,7 @@ func TestSetEnv(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
-	tf, err := NewTerraform(td, tfVersion(t, "0.12.28"))
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest012))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -64,7 +65,7 @@ func TestCheckpointDisablePropagation(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
-	tf, err := NewTerraform(td, tfVersion(t, "0.12.28"))
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest012))
 	if err != nil {
 		t.Fatal(err)
 	}

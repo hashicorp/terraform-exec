@@ -4,13 +4,15 @@ import (
 	"context"
 	"os"
 	"testing"
+
+	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
 )
 
 func TestDestroyCmd(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
-	tf, err := NewTerraform(td, tfVersion(t, "0.12.28"))
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest012))
 	if err != nil {
 		t.Fatal(err)
 	}

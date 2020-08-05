@@ -7,22 +7,36 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"sync"
 	"testing"
 
-	"github.com/hashicorp/terraform-exec/tfinstall"
+	"github.com/hashicorp/terraform-exec/tfexec"
 )
 
 const testFixtureDir = "testdata"
-const testTerraformStateFileName = "terraform.tfstate"
 
-func testTempDir(t *testing.T) string {
-	d, err := ioutil.TempDir("", "tf")
+func setupFixture(t *testing.T, version, name string) (*tfexec.Terraform, func()) {
+	t.Helper()
+
+	td, err := ioutil.TempDir("", "tf")
 	if err != nil {
 		t.Fatalf("error creating temporary test directory: %s", err)
 	}
+	// TODO: make this a t.Cleanup once we no longer support Go 1.13
+	cleanup := func() {
+		os.RemoveAll(td)
+	}
 
-	return d
+	tf, err := tfexec.NewTerraform(td, tfcache.Version(t, version))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = copyFiles(filepath.Join(testFixtureDir, name), td)
+	if err != nil {
+		t.Fatalf("error copying config file into test dir: %s", err)
+	}
+
+	return tf, cleanup
 }
 
 func copyFiles(path string, dstPath string) error {
@@ -106,41 +120,4 @@ func filesEqual(file1, file2 string) (bool, error) {
 	}
 
 	return false, nil
-}
-
-type installedVersion struct {
-	path string
-	err  error
-}
-
-var (
-	installDir           string
-	installedVersionLock sync.Mutex
-	installedVersions    = map[string]installedVersion{}
-)
-
-func tfVersion(t *testing.T, v string) string {
-	if installDir == "" {
-		t.Fatalf("installDir not yet configured, TestMain must run first")
-	}
-
-	installedVersionLock.Lock()
-	defer installedVersionLock.Unlock()
-
-	iv, ok := installedVersions[v]
-	if !ok {
-		dir := filepath.Join(installDir, v)
-		err := os.MkdirAll(dir, 0777)
-		if err != nil {
-			t.Fatal(err)
-		}
-		iv.path, iv.err = tfinstall.Find(tfinstall.ExactVersion(v, dir))
-		installedVersions[v] = iv
-	}
-
-	if iv.err != nil {
-		t.Fatalf("error installing terraform version %q: %s", v, iv.err)
-	}
-
-	return iv.path
 }
