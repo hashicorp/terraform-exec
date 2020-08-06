@@ -31,9 +31,11 @@ func setupFixture(t *testing.T, version, name string) (*tfexec.Terraform, func()
 		t.Fatal(err)
 	}
 
-	err = copyFiles(filepath.Join(testFixtureDir, name), td)
-	if err != nil {
-		t.Fatalf("error copying config file into test dir: %s", err)
+	if name != "" {
+		err = copyFiles(filepath.Join(testFixtureDir, name), td)
+		if err != nil {
+			t.Fatalf("error copying config file into test dir: %s", err)
+		}
 	}
 
 	return tf, cleanup
