@@ -23,7 +23,7 @@ func (tf *Terraform) Show(ctx context.Context) (*tfjson.State, error) {
 
 	err := showCmd.Run()
 	if err != nil {
-		return nil, parseError(errBuf.String())
+		return nil, parseError(err, errBuf.String())
 	}
 
 	err = json.Unmarshal(outBuf.Bytes(), &ret)

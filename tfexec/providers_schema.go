@@ -23,7 +23,7 @@ func (tf *Terraform) ProvidersSchema(ctx context.Context) (*tfjson.ProviderSchem
 
 	err := schemaCmd.Run()
 	if err != nil {
-		return nil, parseError(errBuf.String())
+		return nil, parseError(err, errBuf.String())
 	}
 
 	err = json.Unmarshal(outBuf.Bytes(), &ret)

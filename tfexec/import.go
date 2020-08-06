@@ -75,7 +75,7 @@ func (t *Terraform) Import(ctx context.Context, address, id string, opts ...Impo
 
 	err := importCmd.Run()
 	if err != nil {
-		return parseError(errBuf.String())
+		return parseError(err, errBuf.String())
 	}
 
 	return nil

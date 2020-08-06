@@ -81,7 +81,7 @@ func (tf *Terraform) Plan(ctx context.Context, opts ...PlanOption) error {
 
 	err := planCmd.Run()
 	if err != nil {
-		return parseError(errBuf.String())
+		return parseError(err, errBuf.String())
 	}
 
 	return nil

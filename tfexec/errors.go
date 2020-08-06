@@ -2,10 +2,15 @@ package tfexec
 
 import (
 	"fmt"
+	"os/exec"
 	"regexp"
 )
 
-func parseError(stderr string) error {
+func parseError(err error, stderr string) error {
+	if _, ok := err.(*exec.ExitError); !ok {
+		return err
+	}
+
 	switch {
 	// case ErrTerraformNotFound.regexp.MatchString(stderr):
 	// return ErrTerraformNotFound
@@ -15,9 +20,9 @@ func parseError(stderr string) error {
 		return &ErrNoInit{stderr: stderr}
 	case regexp.MustCompile(`Error: No configuration files`).MatchString(stderr):
 		return &ErrNoConfig{stderr: stderr}
-	default:
-		return &Err{stderr: stderr}
 	}
+
+	return fmt.Errorf("error from Terraform CLI:\n%s", stderr)
 }
 
 type ErrNoSuitableBinary struct {
@@ -72,13 +77,4 @@ type ErrManualEnvVar struct {
 
 func (err *ErrManualEnvVar) Error() string {
 	return fmt.Sprintf("manual setting of env var %q detected", err.name)
-}
-
-// catchall error
-type Err struct {
-	stderr string
-}
-
-func (e *Err) Error() string {
-	return e.stderr
 }
