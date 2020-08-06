@@ -2,12 +2,14 @@ package tfexec
 
 import (
 	"context"
+	"errors"
 	"os"
 	"path/filepath"
 	"reflect"
 	"testing"
 
 	"github.com/davecgh/go-spew/spew"
+	"github.com/hashicorp/terraform-exec/tfinstall"
 	tfjson "github.com/hashicorp/terraform-json"
 )
 
@@ -58,6 +60,36 @@ func TestShow(t *testing.T) {
 
 	if !reflect.DeepEqual(actual, &expected) {
 		t.Fatalf("actual: %s\nexpected: %s", spew.Sdump(actual), spew.Sdump(expected))
+	}
+}
+
+func TestShow_compatible(t *testing.T) {
+	td := testTempDir(t)
+	defer os.RemoveAll(td)
+
+	tfPath, err := tfinstall.Find(tfinstall.ExactVersion("0.11.14", td))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tf, err := NewTerraform(td, tfPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var mismatch *ErrVersionMismatch
+	_, err = tf.Show(context.Background())
+	if !errors.As(err, &mismatch) {
+		t.Fatal("expected version mismatch error")
+	}
+	if mismatch.Actual != "0.11.14" {
+		t.Fatalf("expected version 0.11.14, got %q", mismatch.Actual)
+	}
+	if mismatch.MinInclusive != "0.12.0" {
+		t.Fatalf("expected min 0.12.0, got %q", mismatch.MinInclusive)
+	}
+	if mismatch.MaxExclusive != "-" {
+		t.Fatalf("expected max -, got %q", mismatch.MaxExclusive)
 	}
 }
 

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"os/exec"
 	"strings"
 
@@ -11,6 +12,11 @@ import (
 )
 
 func (tf *Terraform) Show(ctx context.Context) (*tfjson.State, error) {
+	err := tf.compatible(ctx, tf0_12_0, nil)
+	if err != nil {
+		return nil, fmt.Errorf("terraform show -json was added in 0.12.0: %w", err)
+	}
+
 	var ret tfjson.State
 
 	var errBuf strings.Builder
@@ -21,7 +27,7 @@ func (tf *Terraform) Show(ctx context.Context) (*tfjson.State, error) {
 	showCmd.Stderr = &errBuf
 	showCmd.Stdout = &outBuf
 
-	err := showCmd.Run()
+	err = showCmd.Run()
 	if err != nil {
 		return nil, parseError(errBuf.String())
 	}
