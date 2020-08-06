@@ -79,7 +79,7 @@ func TestProvidersSchema(t *testing.T) {
 			},
 		},
 		{
-			"empty", &tfjson.ProviderSchemas{
+			"empty_with_tf_file", &tfjson.ProviderSchemas{
 				FormatVersion: "0.1",
 				Schemas:       nil,
 			},
