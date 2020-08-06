@@ -24,8 +24,6 @@ func parseError(err error, stderr string) error {
 	default:
 		return errors.New(stderr)
 	}
-
-	return fmt.Errorf("error from Terraform CLI:\n%s", stderr)
 }
 
 type ErrNoSuitableBinary struct {
