@@ -86,3 +86,8 @@ func (tf *Terraform) SetLogPath(path string) error {
 func (tf *Terraform) WorkingDir() string {
 	return tf.workingDir
 }
+
+// ExecPath returns the path to the Terraform executable.
+func (tf *Terraform) ExecPath() string {
+	return tf.execPath
+}

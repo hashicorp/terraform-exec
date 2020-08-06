@@ -46,7 +46,7 @@ func (tf *Terraform) Output(ctx context.Context, opts ...OutputOption) (map[stri
 
 	err := outputCmd.Run()
 	if err != nil {
-		return nil, parseError(err.Error())
+		return nil, parseError(err, errBuf.String())
 	}
 
 	err = json.Unmarshal(outBuf.Bytes(), &outputs)

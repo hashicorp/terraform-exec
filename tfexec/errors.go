@@ -3,10 +3,15 @@ package tfexec
 import (
 	"errors"
 	"fmt"
+	"os/exec"
 	"regexp"
 )
 
-func parseError(stderr string) error {
+func parseError(err error, stderr string) error {
+	if _, ok := err.(*exec.ExitError); !ok {
+		return err
+	}
+
 	switch {
 	// case ErrTerraformNotFound.regexp.MatchString(stderr):
 	// return ErrTerraformNotFound
@@ -19,6 +24,8 @@ func parseError(stderr string) error {
 	default:
 		return errors.New(stderr)
 	}
+
+	return fmt.Errorf("error from Terraform CLI:\n%s", stderr)
 }
 
 type ErrNoSuitableBinary struct {
