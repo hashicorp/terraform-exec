@@ -49,8 +49,7 @@ func (tf *Terraform) version(ctx context.Context) (*version.Version, map[string]
 
 	err := versionCmd.Run()
 	if err != nil {
-		fmt.Println(errBuf.String())
-		return nil, nil, fmt.Errorf("unable to run version command: %w, %s", err, errBuf.String())
+		return nil, nil, parseError(err, errBuf.String())
 	}
 
 	tfVersion, providerVersions, err := parseVersionOutput(outBuf.String())

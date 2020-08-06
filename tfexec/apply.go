@@ -88,7 +88,7 @@ func (tf *Terraform) Apply(ctx context.Context, opts ...ApplyOption) error {
 
 	err := applyCmd.Run()
 	if err != nil {
-		return parseError(errBuf.String())
+		return parseError(err, errBuf.String())
 	}
 
 	return nil

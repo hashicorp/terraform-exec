@@ -90,7 +90,7 @@ func (t *Terraform) Init(ctx context.Context, opts ...InitOption) error {
 
 	err := initCmd.Run()
 	if err != nil {
-		return parseError(errBuf.String())
+		return parseError(err, errBuf.String())
 	}
 
 	return nil

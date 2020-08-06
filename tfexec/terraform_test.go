@@ -3,18 +3,15 @@ package tfexec
 import (
 	"context"
 	"errors"
-	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sync"
 	"testing"
 
+	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
 	"github.com/hashicorp/terraform-exec/tfinstall"
 )
-
-const testFixtureDir = "testdata"
-const testTerraformStateFileName = "terraform.tfstate"
 
 func TestMain(m *testing.M) {
 	os.Exit(func() int {
@@ -33,7 +30,7 @@ func TestSetEnv(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
-	tf, err := NewTerraform(td, tfVersion(t, "0.12.28"))
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest012))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -68,7 +65,7 @@ func TestCheckpointDisablePropagation(t *testing.T) {
 	td := testTempDir(t)
 	defer os.RemoveAll(td)
 
-	tf, err := NewTerraform(td, tfVersion(t, "0.12.28"))
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest012))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -145,54 +142,6 @@ func testTempDir(t *testing.T) string {
 	}
 
 	return d
-}
-
-func copyFiles(path string, dstPath string) error {
-	infos, err := ioutil.ReadDir(path)
-	if err != nil {
-		return err
-	}
-
-	for _, info := range infos {
-		if info.IsDir() {
-			// TODO: make recursive with filepath.Walk?
-			continue
-		}
-		err = copyFile(filepath.Join(path, info.Name()), dstPath)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func copyFile(path string, dstPath string) error {
-	srcF, err := os.Open(path)
-	if err != nil {
-		return err
-	}
-	defer srcF.Close()
-
-	di, err := os.Stat(dstPath)
-	if err != nil {
-		return err
-	}
-	if di.IsDir() {
-		_, file := filepath.Split(path)
-		dstPath = filepath.Join(dstPath, file)
-	}
-
-	dstF, err := os.Create(dstPath)
-	if err != nil {
-		return err
-	}
-	defer dstF.Close()
-
-	if _, err := io.Copy(dstF, srcF); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 type installedVersion struct {

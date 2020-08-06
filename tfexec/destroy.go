@@ -84,7 +84,7 @@ func (tf *Terraform) Destroy(ctx context.Context, opts ...DestroyOption) error {
 
 	err := destroyCmd.Run()
 	if err != nil {
-		return parseError(errBuf.String())
+		return parseError(err, errBuf.String())
 	}
 
 	return nil
