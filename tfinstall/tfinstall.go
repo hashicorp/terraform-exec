@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -162,11 +161,9 @@ func downloadWithVerification(tfVersion string, installDir string) (string, erro
 
 	}
 
-	// setup: getter client
-	httpHeader := make(http.Header)
-	httpHeader.Set("User-Agent", "HashiCorp-tfinstall/"+Version)
 	httpGetter := &getter.HttpGetter{
-		Netrc: true,
+		Netrc:  true,
+		Client: newHTTPClient(),
 	}
 	client := getter.Client{
 		Getters: map[string]getter.Getter{

@@ -6,7 +6,7 @@ set -x
 # release.sh will:
 # 1. Modify changelog
 # 2. Run changelog links script
-# 3. Modify version in tfinstall/version.go
+# 3. Modify version in internal/version/version.go
 # 4. Commit and push changes
 # 5. Create a Git tag
 
@@ -59,13 +59,13 @@ function changelogMain {
 }
 
 function modifyVersionFiles {
-  sed -i "s/const Version =.*/const Version = \"${TARGET_VERSION}\"/" tfinstall/version.go
+  sed -i "s/const version =.*/const version = \"${TARGET_VERSION}\"/" internal/version/version.go
 }
 
 function commitChanges {
   git add CHANGELOG.md
   modifyVersionFiles
-  git add tfinstall/version.go
+  git add internal/version/version.go
 
   if [ "$CI" = true ] ; then
       git commit --gpg-sign="${GPG_KEY_ID}" -m "v${TARGET_VERSION} [skip ci]"
