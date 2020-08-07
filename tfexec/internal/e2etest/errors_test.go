@@ -41,7 +41,7 @@ func TestMissingVar(t *testing.T) {
 		err := tf.Init(context.Background())
 		if err != nil {
 			t.Fatalf("err during init: %s", err)
-		} 
+		}
 
 		err = tf.Plan(context.Background())
 		if err == nil {

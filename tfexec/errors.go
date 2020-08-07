@@ -36,7 +36,7 @@ func parseError(err error, stderr string) error {
 				break
 			}
 		}
-		
+
 		return &ErrMissingVar{name}
 	case usageRegexp.MatchString(stderr):
 		return &ErrCLIUsage{stderr: stderr}

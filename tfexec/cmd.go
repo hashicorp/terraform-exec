@@ -2,10 +2,13 @@ package tfexec
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/hashicorp/terraform-exec/internal/version"
 )
 
 const (
@@ -15,6 +18,7 @@ const (
 	automationEnvVar        = "TF_IN_AUTOMATION"
 	logPathEnvVar           = "TF_LOG_PATH"
 	reattachEnvVar          = "TF_REATTACH_PROVIDERS"
+	appendUserAgentEnvVar   = "TF_APPEND_USER_AGENT"
 
 	varEnvVarPrefix = "TF_VAR_"
 )
@@ -25,6 +29,7 @@ var prohibitedEnvVars = []string{
 	logPathEnvVar,
 	logEnvVar,
 	reattachEnvVar,
+	appendUserAgentEnvVar,
 }
 
 func envMap(environ []string) map[string]string {
@@ -75,6 +80,14 @@ func (tf *Terraform) buildEnv(mergeEnv map[string]string) []string {
 		env[checkpointDisableEnvVar] = os.Getenv(checkpointDisableEnvVar)
 	}
 
+	// always override user agent
+	ua := mergeUserAgent(
+		os.Getenv(appendUserAgentEnvVar),
+		tf.appendUserAgent,
+		fmt.Sprintf("HashiCorp-terraform-exec/%s", version.ModuleVersion()),
+	)
+	env[appendUserAgentEnvVar] = ua
+
 	// always override logging
 	if tf.logPath == "" {
 		// so logging can't pollute our stderr output
@@ -122,4 +135,24 @@ func (tf *Terraform) runTerraformCmd(cmd *exec.Cmd) error {
 		return parseError(err, errBuf.String())
 	}
 	return nil
+}
+
+// mergeUserAgent does some minor deduplication to ensure we aren't
+// just using the same append string over and over.
+func mergeUserAgent(uas ...string) string {
+	included := map[string]bool{}
+	merged := []string{}
+	for _, ua := range uas {
+		ua = strings.TrimSpace(ua)
+
+		if ua == "" {
+			continue
+		}
+		if included[ua] {
+			continue
+		}
+		included[ua] = true
+		merged = append(merged, ua)
+	}
+	return strings.Join(merged, " ")
 }

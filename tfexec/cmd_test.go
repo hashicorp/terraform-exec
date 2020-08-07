@@ -1,16 +1,47 @@
 package tfexec
 
 import (
+	"fmt"
 	"os/exec"
 	"strings"
 	"testing"
+
+	"github.com/hashicorp/terraform-exec/internal/version"
 )
 
-var defaultEnv = []string{
-	"TF_LOG=",
-	"TF_LOG_PATH=",
-	"TF_IN_AUTOMATION=1",
-	"CHECKPOINT_DISABLE=",
+func TestMergeUserAgent(t *testing.T) {
+	for i, c := range []struct {
+		expected string
+		uas      []string
+	}{
+		{"foo/1 bar/2", []string{"foo/1", "bar/2"}},
+		{"foo/1 bar/2", []string{"foo/1 bar/2"}},
+		{"foo/1 bar/2", []string{"", "foo/1", "bar/2"}},
+		{"foo/1 bar/2", []string{"", "foo/1 bar/2"}},
+		{"foo/1 bar/2", []string{"  ", "foo/1 bar/2"}},
+		{"foo/1 bar/2", []string{"foo/1", "", "bar/2"}},
+		{"foo/1 bar/2", []string{"foo/1", "   ", "bar/2"}},
+
+		// comments
+		{"foo/1 (bar/1 bar/2 bar/3) bar/2", []string{"foo/1 (bar/1 bar/2 bar/3)", "bar/2"}},
+	} {
+		t.Run(fmt.Sprintf("%d %s", i, c.expected), func(t *testing.T) {
+			actual := mergeUserAgent(c.uas...)
+			if c.expected != actual {
+				t.Fatalf("expected %q, got %q", c.expected, actual)
+			}
+		})
+	}
+}
+
+func defaultEnv() []string {
+	return []string{
+		"TF_APPEND_USER_AGENT=HashiCorp-terraform-exec/" + version.ModuleVersion(),
+		"TF_LOG=",
+		"TF_LOG_PATH=",
+		"TF_IN_AUTOMATION=1",
+		"CHECKPOINT_DISABLE=",
+	}
 }
 
 func assertCmd(t *testing.T, expectedArgs []string, expectedEnv map[string]string, actual *exec.Cmd) {
@@ -29,7 +60,7 @@ func assertCmd(t *testing.T, expectedArgs []string, expectedEnv map[string]strin
 	}
 
 	// check environment
-	expectedEnv = envMap(append(defaultEnv, envSlice(expectedEnv)...))
+	expectedEnv = envMap(append(defaultEnv(), envSlice(expectedEnv)...))
 
 	// compare against raw slice len incase of duplication or something
 	if len(expectedEnv) != len(actual.Env) {
