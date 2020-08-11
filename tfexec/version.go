@@ -63,7 +63,7 @@ func (tf *Terraform) version(ctx context.Context) (*version.Version, map[string]
 var (
 	simpleVersionRe = `v?(?P<version>[0-9]+(?:\.[0-9]+)*(?:-[A-Za-z0-9\.]+)?)`
 
-	versionOutputRe         = regexp.MustCompile(`^Terraform ` + simpleVersionRe)
+	versionOutputRe         = regexp.MustCompile(`Terraform ` + simpleVersionRe)
 	providerVersionOutputRe = regexp.MustCompile(`(\n\+ provider[\. ](?P<name>\S+) ` + simpleVersionRe + `)`)
 )
 
@@ -84,7 +84,7 @@ func parseVersionOutput(stdout string) (*version.Version, map[string]*version.Ve
 
 	for _, submatches := range allSubmatches {
 		if len(submatches) != 4 {
-			return nil, nil, fmt.Errorf("unexpected number of providerion version matches %d for %s", len(submatches), stdout)
+			return nil, nil, fmt.Errorf("unexpected number of provider version matches %d for %s", len(submatches), stdout)
 		}
 
 		v, err := version.NewVersion(submatches[3])
