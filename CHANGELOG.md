@@ -1,3 +1,8 @@
+# 0.5.0 (Unreleased)
+
+FEATURES:
+ - Version compatibility testing for `terraform show` [GH-41]
+
 # 0.4.0 (July 30, 2020)
 
 FEATURES:
