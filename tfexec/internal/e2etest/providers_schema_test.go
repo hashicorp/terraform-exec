@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/davecgh/go-spew/spew"
+	"github.com/hashicorp/terraform-exec/tfexec"
 	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
 	tfjson "github.com/hashicorp/terraform-json"
 	"github.com/zclconf/go-cty/cty"
@@ -86,22 +87,23 @@ func TestProvidersSchema(t *testing.T) {
 		},
 	} {
 		t.Run(fmt.Sprintf("%d %s", i, c.fixtureDir), func(t *testing.T) {
-			tf, cleanup := setupFixture(t, testutil.Latest012, c.fixtureDir)
-			defer cleanup()
+			runTest(t, []string{
+				testutil.Latest012,
+			}, c.fixtureDir, func(t *testing.T, tfv string, tf *tfexec.Terraform) {
+				err := tf.Init(context.Background())
+				if err != nil {
+					t.Fatalf("error running Init in test directory: %s", err)
+				}
 
-			err := tf.Init(context.Background())
-			if err != nil {
-				t.Fatalf("error running Init in test directory: %s", err)
-			}
+				schemas, err := tf.ProvidersSchema(context.Background())
+				if err != nil {
+					t.Fatalf("error running ProvidersSchema in test directory: %s", err)
+				}
 
-			schemas, err := tf.ProvidersSchema(context.Background())
-			if err != nil {
-				t.Fatalf("error running ProvidersSchema in test directory: %s", err)
-			}
-
-			if !reflect.DeepEqual(schemas, c.expected) {
-				t.Fatalf("expected %+v, but got %+v", spew.Sdump(c.expected), spew.Sdump(schemas))
-			}
+				if !reflect.DeepEqual(schemas, c.expected) {
+					t.Fatalf("expected %+v, but got %+v", spew.Sdump(c.expected), spew.Sdump(schemas))
+				}
+			})
 		})
 	}
 

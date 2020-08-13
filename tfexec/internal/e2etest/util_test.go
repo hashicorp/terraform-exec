@@ -3,6 +3,7 @@ package e2etest
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -14,31 +15,43 @@ import (
 
 const testFixtureDir = "testdata"
 
-func setupFixture(t *testing.T, version, name string) (*tfexec.Terraform, func()) {
+func runTest(t *testing.T, versions []string, fixtureName string, cb func(t *testing.T, tfVersion string, tf *tfexec.Terraform)) {
 	t.Helper()
 
-	td, err := ioutil.TempDir("", "tf")
-	if err != nil {
-		t.Fatalf("error creating temporary test directory: %s", err)
-	}
-	// TODO: make this a t.Cleanup once we no longer support Go 1.13
-	cleanup := func() {
-		os.RemoveAll(td)
-	}
+	// TODO: if overriding latest for master code, skip all other tests
 
-	tf, err := tfexec.NewTerraform(td, tfcache.Version(t, version))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if name != "" {
-		err = copyFiles(filepath.Join(testFixtureDir, name), td)
-		if err != nil {
-			t.Fatalf("error copying config file into test dir: %s", err)
+	alreadyRunVersions := map[string]bool{}
+	for _, tfv := range versions {
+		if alreadyRunVersions[tfv] {
+			t.Skipf("already run version %q", tfv)
 		}
-	}
+		alreadyRunVersions[tfv] = true
 
-	return tf, cleanup
+		t.Run(fmt.Sprintf("%s-%s", fixtureName, tfv), func(t *testing.T) {
+			td, err := ioutil.TempDir("", "tf")
+			if err != nil {
+				t.Fatalf("error creating temporary test directory: %s", err)
+			}
+			t.Cleanup(func() {
+				os.RemoveAll(td)
+			})
+
+			tf, err := tfexec.NewTerraform(td, tfcache.Version(t, tfv))
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if fixtureName != "" {
+				err = copyFiles(filepath.Join(testFixtureDir, fixtureName), td)
+				if err != nil {
+					t.Fatalf("error copying config file into test dir: %s", err)
+				}
+			}
+
+			// TODO: capture panics here?
+			cb(t, tfv, tf)
+		})
+	}
 }
 
 func copyFiles(path string, dstPath string) error {
