@@ -10,12 +10,26 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/hashicorp/go-version"
+
 	"github.com/hashicorp/terraform-exec/tfexec"
+	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
 )
 
 const testFixtureDir = "testdata"
 
-func runTest(t *testing.T, versions []string, fixtureName string, cb func(t *testing.T, tfVersion string, tf *tfexec.Terraform)) {
+func runTest(t *testing.T, fixtureName string, cb func(t *testing.T, tfVersion *version.Version, tf *tfexec.Terraform)) {
+	t.Helper()
+	runTestVersions(t, []string{
+		testutil.Latest011,
+		testutil.Latest012,
+		testutil.Latest013,
+	}, fixtureName, cb)
+}
+
+// runTestVersions should probably not be used directly, better to use
+// t.Skip in your test with a comment as to why you shouldn't test on a version
+func runTestVersions(t *testing.T, versions []string, fixtureName string, cb func(t *testing.T, tfVersion *version.Version, tf *tfexec.Terraform)) {
 	t.Helper()
 
 	// TODO: if overriding latest for master code, skip all other tests
@@ -49,7 +63,7 @@ func runTest(t *testing.T, versions []string, fixtureName string, cb func(t *tes
 			}
 
 			// TODO: capture panics here?
-			cb(t, tfv, tf)
+			cb(t, version.Must(version.NewVersion(tfv)), tf)
 		})
 	}
 }

@@ -9,18 +9,15 @@ import (
 	"os"
 	"testing"
 
+	"github.com/hashicorp/go-version"
+
 	"github.com/hashicorp/terraform-exec/tfexec"
-	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
 )
 
 func TestUnparsedError(t *testing.T) {
 	// This simulates an unparsed error from the Cmd.Run method (in this case file not found). This
 	// is to ensure we don't miss raising unexpected errors in addition to parsed / well known ones.
-	runTest(t, []string{
-		testutil.Latest011,
-		testutil.Latest012,
-		testutil.Latest013,
-	}, "", func(t *testing.T, tfv string, tf *tfexec.Terraform) {
+	runTest(t, "", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 
 		// force delete the working dir to cause an os.PathError
 		err := os.RemoveAll(tf.WorkingDir())

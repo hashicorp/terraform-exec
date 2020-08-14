@@ -7,15 +7,29 @@ import (
 	"testing"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/hashicorp/terraform-exec/tfexec"
-	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
+	"github.com/hashicorp/go-version"
 	tfjson "github.com/hashicorp/terraform-json"
+
+	"github.com/hashicorp/terraform-exec/tfexec"
+)
+
+var (
+	showMinVersion = version.Must(version.NewVersion("0.12.0"))
+
+	providerAddressMinVersion = version.Must(version.NewVersion("0.13.0"))
 )
 
 func TestShow(t *testing.T) {
-	runTest(t, []string{
-		testutil.Latest012,
-	}, "basic_with_state", func(t *testing.T, tfv string, tf *tfexec.Terraform) {
+	runTest(t, "basic_with_state", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		if tfv.LessThan(showMinVersion) {
+			t.Skip("terraform show was added in Terraform 0.12, so test is not valid")
+		}
+
+		providerName := "registry.terraform.io/-/null"
+		if tfv.LessThan(providerAddressMinVersion) {
+			providerName = "null"
+		}
+
 		expected := tfjson.State{
 			FormatVersion: "0.1",
 			// this is the version that wrote state, not the version that is running
@@ -31,7 +45,7 @@ func TestShow(t *testing.T) {
 						Mode:         tfjson.ManagedResourceMode,
 						Type:         "null_resource",
 						Name:         "foo",
-						ProviderName: "null",
+						ProviderName: providerName,
 					}},
 				},
 			},
@@ -54,9 +68,11 @@ func TestShow(t *testing.T) {
 }
 
 func TestShow_errInitRequired(t *testing.T) {
-	runTest(t, []string{
-		testutil.Latest012,
-	}, "basic", func(t *testing.T, tfv string, tf *tfexec.Terraform) {
+	runTest(t, "basic", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		if tfv.LessThan(showMinVersion) {
+			t.Skip("terraform show was added in Terraform 0.12, so test is not valid")
+		}
+
 		_, err := tf.Show(context.Background())
 		if err == nil {
 			t.Fatal("expected Show to error, but it did not")
@@ -67,11 +83,13 @@ func TestShow_errInitRequired(t *testing.T) {
 	})
 }
 
-func TestShow_compatible(t *testing.T) {
-	runTest(t, []string{
-		// terraform show was added in Terraform 0.12
-		testutil.Latest011,
-	}, "basic", func(t *testing.T, tfv string, tf *tfexec.Terraform) {
+func TestShow_versionMismatch(t *testing.T) {
+	runTest(t, "basic", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		// only testing versions without show
+		if tfv.GreaterThanOrEqual(showMinVersion) {
+			t.Skip("terraform show was added in Terraform 0.12, so test is not valid")
+		}
+
 		var mismatch *tfexec.ErrVersionMismatch
 		_, err := tf.Show(context.Background())
 		if !errors.As(err, &mismatch) {
