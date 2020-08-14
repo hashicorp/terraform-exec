@@ -19,6 +19,9 @@ func parseError(err error, stderr string) error {
 		return &ErrCLIUsage{stderr: stderr}
 	case regexp.MustCompile(`Error: Could not satisfy plugin requirements`).MatchString(stderr):
 		return &ErrNoInit{stderr: stderr}
+	case regexp.MustCompile(`Error: Could not load plugin`).MatchString(stderr):
+		// this string is present in 0.13
+		return &ErrNoInit{stderr: stderr}
 	case regexp.MustCompile(`Error: No configuration files`).MatchString(stderr):
 		return &ErrNoConfig{stderr: stderr}
 	default:

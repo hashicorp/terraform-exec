@@ -73,12 +73,10 @@ func TestShow_errInitRequired(t *testing.T) {
 			t.Skip("terraform show was added in Terraform 0.12, so test is not valid")
 		}
 
+		var noInit *tfexec.ErrNoInit
 		_, err := tf.Show(context.Background())
-		if err == nil {
-			t.Fatal("expected Show to error, but it did not")
-		}
-		if _, ok := err.(*tfexec.ErrNoInit); !ok {
-			t.Fatalf("expected error %s to be ErrNoInit", err)
+		if !errors.As(err, &noInit) {
+			t.Fatalf("expected error ErrNoInit, got %T: %s", err, err)
 		}
 	})
 }
@@ -93,7 +91,7 @@ func TestShow_versionMismatch(t *testing.T) {
 		var mismatch *tfexec.ErrVersionMismatch
 		_, err := tf.Show(context.Background())
 		if !errors.As(err, &mismatch) {
-			t.Fatal("expected version mismatch error")
+			t.Fatalf("expected version mismatch error, got %T %s", err, err)
 		}
 		if mismatch.Actual != "0.11.14" {
 			t.Fatalf("expected version 0.11.14, got %q", mismatch.Actual)
