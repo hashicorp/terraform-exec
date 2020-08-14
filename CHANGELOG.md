@@ -1,10 +1,10 @@
-# 0.5.0 (Unreleased)
+# 0.5.0 (August 14, 2020)
 
 FEATURES:
- - Version compatibility testing for `terraform show` [GH-41]
+ - Version compatibility testing for `terraform show` ([#41](https://github.com/hashicorp/terraform-plugin-sdk/issues/41))
  
 BUG FIXES:
- - Tolerate reversed `terraform version` output order [GH-47]
+ - Tolerate reversed `terraform version` output order ([#47](https://github.com/hashicorp/terraform-plugin-sdk/issues/47))
 
 # 0.4.0 (July 30, 2020)
 
