@@ -30,26 +30,27 @@ jobs:
       - win_install_go
       - go_test
 
-  "go112_build":
-    docker:
-      - image: circleci/golang:1.12
-    steps:
-      - checkout
-      - go_build
-  "go112_test":
+  go112_build:
     docker:
       - image: circleci/golang:1.12
     steps:
       - checkout
       - go_build
 
-  "go114_build":
+  go113_build:
+    docker:
+      - image: circleci/golang:1.13
+    steps:
+      - checkout
+      - go_build
+
+  go114_build:
     docker:
       - image: circleci/golang:1.14
     steps:
       - checkout
       - go_build
-  "go114_test":
+  go114_test:
     docker:
       - image: circleci/golang:1.14
     parameters:
@@ -59,25 +60,42 @@ jobs:
     steps:
       - checkout
       - go_test
-  "go114_vet":
+
+  go115_build:
     docker:
-      - image: circleci/golang:1.14
+      - image: circleci/golang:1.15
+    steps:
+      - checkout
+      - go_build
+  go115_test:
+    docker:
+      - image: circleci/golang:1.15
+    parameters:
+      test_results:
+        type: string
+        default: /tmp/test-results
+    steps:
+      - checkout
+      - go_test
+  go115_vet:
+    docker:
+      - image: circleci/golang:1.15
     steps:
       - checkout
       - run: go vet ./...
-  "go114_fmt":
+  go115_fmt:
     docker:
-      - image: circleci/golang:1.14
+      - image: circleci/golang:1.15
     steps:
       - checkout
       - run: gofmt -s -l .
-  "go114_release":
+  go115_release:
     docker:
-      - image: circleci/golang:1.14
+      - image: circleci/golang:1.15
     steps:
       - add_ssh_keys:
           fingerprints:
-            - "db:cf:97:b8:d6:ac:86:74:96:e1:54:e4:bc:27:2b:d0"
+            - db:cf:97:b8:d6:ac:86:74:96:e1:54:e4:bc:27:2b:d0
       - checkout
       - run: ./scripts/release/release.sh
 
@@ -86,50 +104,74 @@ workflows:
   pr:
     jobs:
       - winbuild
-      - wintest
-      - "go112_build"
-      - "go112_test"
-      - "go114_build"
-      - "go114_test":
+      - wintest:
           requires:
-            - "go114_build"
-      - "go114_vet":
+            - winbuild
+
+      # build only for these versions
+      - go112_build
+      - go113_build
+
+      - go114_build
+      - go114_test:
           requires:
-            - "go114_build"
-      - "go114_fmt":
+            - go114_build
+
+      - go115_build
+      - go115_test:
           requires:
-            - "go114_build"
+            - go115_build
+      - go115_vet:
+          requires:
+            - go115_build
+      - go115_fmt:
+          requires:
+            - go115_build
   release:
     jobs:
       - winbuild
-      - wintest
-      - "go112_build"
-      - "go112_test"
-      - "go114_build"
-      - "go114_test":
+      - wintest:
           requires:
-            - "go114_build"
-      - "go114_vet":
+            - winbuild
+
+      # build only for these versions
+      - go112_build
+      - go113_build
+
+      - go114_build
+      - go114_test:
           requires:
-            - "go114_build"
-      - "go114_fmt":
+            - go114_build
+
+      - go115_build
+      - go115_test:
           requires:
-            - "go114_build"
+            - go115_build
+      - go115_vet:
+          requires:
+            - go115_build
+      - go115_fmt:
+          requires:
+            - go115_build
+
       - trigger-release:
           filters:
             branches:
               only:
                 - master
           type: approval
-      - "go114_release":
+
+      - go115_release:
           filters:
             branches:
               only:
                 - master
           requires:
             - trigger-release
-            - "go114_test"
-            - "go114_vet"
-            - "go114_fmt"
-            - winbuild
+            - go112_build
+            - go113_build
+            - go114_test
+            - go115_test
+            - go115_vet
+            - go115_fmt
             - wintest
