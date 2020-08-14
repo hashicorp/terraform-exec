@@ -2,6 +2,9 @@
 
 FEATURES:
  - Version compatibility testing for `terraform show` [GH-41]
+ 
+BUG FIXES:
+ - Tolerate reversed `terraform version` output order [GH-47]
 
 # 0.4.0 (July 30, 2020)
 
