@@ -2,6 +2,7 @@ package tfexec
 
 import (
 	"context"
+	"io"
 	"os"
 	"os/exec"
 	"strings"
@@ -99,4 +100,26 @@ func (tf *Terraform) buildTerraformCmd(ctx context.Context, args ...string) *exe
 	tf.logger.Printf("[INFO] running Terraform command: %s", cmdString(cmd))
 
 	return cmd
+}
+
+func (tf *Terraform) runTerraformCmd(cmd *exec.Cmd) error {
+	var errBuf strings.Builder
+
+	stdout := tf.stdout
+	if cmd.Stdout != nil {
+		stdout = io.MultiWriter(cmd.Stdout, stdout)
+	}
+	cmd.Stdout = stdout
+
+	stderr := io.MultiWriter(&errBuf, tf.stderr)
+	if cmd.Stderr != nil {
+		stderr = io.MultiWriter(cmd.Stderr, stderr)
+	}
+	cmd.Stderr = stderr
+
+	err := cmd.Run()
+	if err != nil {
+		return parseError(err, errBuf.String())
+	}
+	return nil
 }

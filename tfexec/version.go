@@ -42,14 +42,13 @@ func (tf *Terraform) version(ctx context.Context) (*version.Version, map[string]
 	// for that here and fallback to string parsing
 
 	versionCmd := tf.buildTerraformCmd(ctx, "version")
-	var errBuf strings.Builder
+
 	var outBuf bytes.Buffer
-	versionCmd.Stderr = &errBuf
 	versionCmd.Stdout = &outBuf
 
-	err := versionCmd.Run()
+	err := tf.runTerraformCmd(versionCmd)
 	if err != nil {
-		return nil, nil, parseError(err, errBuf.String())
+		return nil, nil, err
 	}
 
 	tfVersion, providerVersions, err := parseVersionOutput(outBuf.String())

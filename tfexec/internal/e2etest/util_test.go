@@ -62,8 +62,14 @@ func runTestVersions(t *testing.T, versions []string, fixtureName string, cb fun
 				}
 			}
 
+			var stdouterr bytes.Buffer
+			tf.SetStdout(&stdouterr)
+			tf.SetStderr(&stdouterr)
+
 			// TODO: capture panics here?
 			cb(t, version.Must(version.NewVersion(tfv)), tf)
+
+			t.Logf("CLI Output:\n%s", stdouterr.String())
 		})
 	}
 }
