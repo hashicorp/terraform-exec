@@ -12,6 +12,10 @@ import (
 	"github.com/hashicorp/go-version"
 )
 
+type printfer interface {
+	Printf(format string, v ...interface{})
+}
+
 type Terraform struct {
 	execPath   string
 	workingDir string
@@ -19,7 +23,7 @@ type Terraform struct {
 
 	stdout  io.Writer
 	stderr  io.Writer
-	logger  *log.Logger
+	logger  printfer
 	logPath string
 
 	versionLock  sync.Mutex
@@ -77,7 +81,7 @@ func (tf *Terraform) SetEnv(env map[string]string) error {
 }
 
 // SetLogger specifies a logger for tfexec to use.
-func (tf *Terraform) SetLogger(logger *log.Logger) {
+func (tf *Terraform) SetLogger(logger printfer) {
 	tf.logger = logger
 }
 

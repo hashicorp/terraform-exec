@@ -66,12 +66,22 @@ func runTestVersions(t *testing.T, versions []string, fixtureName string, cb fun
 			tf.SetStdout(&stdouterr)
 			tf.SetStderr(&stdouterr)
 
+			tf.SetLogger(&testingPrintfer{t})
+
 			// TODO: capture panics here?
 			cb(t, version.Must(version.NewVersion(tfv)), tf)
 
 			t.Logf("CLI Output:\n%s", stdouterr.String())
 		})
 	}
+}
+
+type testingPrintfer struct {
+	t *testing.T
+}
+
+func (t *testingPrintfer) Printf(format string, v ...interface{}) {
+	t.t.Logf(format, v...)
 }
 
 func copyFiles(path string, dstPath string) error {
