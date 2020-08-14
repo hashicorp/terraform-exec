@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os/exec"
-	"strings"
 
 	tfjson "github.com/hashicorp/terraform-json"
 )
@@ -17,19 +16,15 @@ func (tf *Terraform) Show(ctx context.Context) (*tfjson.State, error) {
 		return nil, fmt.Errorf("terraform show -json was added in 0.12.0: %w", err)
 	}
 
-	var ret tfjson.State
-
-	var errBuf strings.Builder
-	var outBuf bytes.Buffer
-
 	showCmd := tf.showCmd(ctx)
 
-	showCmd.Stderr = &errBuf
+	var ret tfjson.State
+	var outBuf bytes.Buffer
 	showCmd.Stdout = &outBuf
 
-	err = showCmd.Run()
+	err = tf.runTerraformCmd(showCmd)
 	if err != nil {
-		return nil, parseError(err, errBuf.String())
+		return nil, err
 	}
 
 	err = json.Unmarshal(outBuf.Bytes(), &ret)

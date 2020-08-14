@@ -2,6 +2,7 @@ package tfexec
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -16,6 +17,8 @@ type Terraform struct {
 	workingDir string
 	env        map[string]string
 
+	stdout  io.Writer
+	stderr  io.Writer
 	logger  *log.Logger
 	logPath string
 
@@ -46,6 +49,8 @@ func NewTerraform(workingDir string, execPath string) (*Terraform, error) {
 		workingDir: workingDir,
 		env:        nil, // explicit nil means copy os.Environ
 		logger:     log.New(ioutil.Discard, "", 0),
+		stdout:     ioutil.Discard,
+		stderr:     ioutil.Discard,
 	}
 
 	return &tf, nil
@@ -71,8 +76,25 @@ func (tf *Terraform) SetEnv(env map[string]string) error {
 	return nil
 }
 
+// SetLogger specifies a logger for tfexec to use.
 func (tf *Terraform) SetLogger(logger *log.Logger) {
 	tf.logger = logger
+}
+
+// SetStdout specifies a writer to stream stdout to for every command.
+//
+// This should be used for information or logging purposes only, not control
+// flow. Any parsing necessary should be added as functionality to this package.
+func (tf *Terraform) SetStdout(w io.Writer) {
+	tf.stdout = w
+}
+
+// SetStderr specifies a writer to stream stderr to for every command.
+//
+// This should be used for information or logging purposes only, not control
+// flow. Any parsing necessary should be added as functionality to this package.
+func (tf *Terraform) SetStderr(w io.Writer) {
+	tf.stderr = w
 }
 
 // SetLogPath sets the TF_LOG_PATH environment variable for Terraform CLI

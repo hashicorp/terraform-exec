@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os/exec"
 	"strconv"
-	"strings"
 )
 
 type planConfig struct {
@@ -74,17 +73,7 @@ func (opt *DestroyFlagOption) configurePlan(conf *planConfig) {
 }
 
 func (tf *Terraform) Plan(ctx context.Context, opts ...PlanOption) error {
-	planCmd := tf.planCmd(ctx, opts...)
-
-	var errBuf strings.Builder
-	planCmd.Stderr = &errBuf
-
-	err := planCmd.Run()
-	if err != nil {
-		return parseError(err, errBuf.String())
-	}
-
-	return nil
+	return tf.runTerraformCmd(tf.planCmd(ctx, opts...))
 }
 
 func (tf *Terraform) planCmd(ctx context.Context, opts ...PlanOption) *exec.Cmd {

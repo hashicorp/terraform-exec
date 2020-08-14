@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os/exec"
 	"strconv"
-	"strings"
 )
 
 type destroyConfig struct {
@@ -77,17 +76,7 @@ func (opt *VarOption) configureDestroy(conf *destroyConfig) {
 }
 
 func (tf *Terraform) Destroy(ctx context.Context, opts ...DestroyOption) error {
-	destroyCmd := tf.destroyCmd(ctx, opts...)
-
-	var errBuf strings.Builder
-	destroyCmd.Stderr = &errBuf
-
-	err := destroyCmd.Run()
-	if err != nil {
-		return parseError(err, errBuf.String())
-	}
-
-	return nil
+	return tf.runTerraformCmd(tf.destroyCmd(ctx, opts...))
 }
 
 func (tf *Terraform) destroyCmd(ctx context.Context, opts ...DestroyOption) *exec.Cmd {
