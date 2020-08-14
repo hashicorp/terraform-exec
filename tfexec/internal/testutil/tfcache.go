@@ -12,7 +12,7 @@ import (
 const (
 	Latest011 = "0.11.14"
 	Latest012 = "0.12.29"
-	Latest013 = "0.13.0-rc1"
+	Latest013 = "0.13.0"
 )
 
 type TFCache struct {
@@ -48,6 +48,7 @@ func (tf *TFCache) Version(t *testing.T, v string) string {
 		if err != nil {
 			t.Fatal(err)
 		}
+
 		path, err = tfinstall.Find(tfinstall.ExactVersion(v, dir))
 		if err != nil {
 			t.Fatalf("error installing terraform version %q: %s", v, err)

@@ -2,11 +2,11 @@ package e2etest
 
 import (
 	"context"
-	"strings"
 	"testing"
 
+	"github.com/hashicorp/go-version"
+
 	"github.com/hashicorp/terraform-exec/tfexec"
-	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
 )
 
 func TestImport(t *testing.T) {
@@ -15,11 +15,7 @@ func TestImport(t *testing.T) {
 		resourceAddress = "random_string.random_string"
 	)
 
-	runTest(t, []string{
-		testutil.Latest011, // doesn't support show JSON output, but does support import
-		testutil.Latest012,
-		testutil.Latest013,
-	}, "import", func(t *testing.T, tfv string, tf *tfexec.Terraform) {
+	runTest(t, "import", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		ctx := context.Background()
 
 		err := tf.Init(ctx, tfexec.Lock(false))
@@ -33,7 +29,7 @@ func TestImport(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if strings.HasPrefix(tfv, "0.11.") {
+		if tfv.LessThan(version.Must(version.NewVersion("0.12.0"))) {
 			t.Logf("skipping state assertion for 0.11")
 			return
 		}
