@@ -1,3 +1,11 @@
+# 0.6.0 (Unreleased)
+
+FEATURES
+ - Added `Terraform.SetStdout` and `Terraform.SetStderr` to let consumers log CLI output [GH-49]
+
+BUG FIXES
+ - Fixed miscategorization of `ErrNoInit` on Terraform 0.13 [GH-48]
+
 # 0.5.0 (August 14, 2020)
 
 FEATURES:
