@@ -13,23 +13,26 @@ import (
 	"golang.org/x/crypto/openpgp"
 )
 
+func ensureInstallDir(installDir string) (string, error) {
+	if installDir == "" {
+		return ioutil.TempDir("", "tfexec")
+	}
+
+	if _, err := os.Stat(installDir); err != nil {
+		return "", fmt.Errorf("could not access directory %s for installing Terraform: %w", installDir, err)
+	}
+
+	return installDir, nil
+}
+
 func downloadWithVerification(ctx context.Context, tfVersion string, installDir string) (string, error) {
 	osName := runtime.GOOS
 	archName := runtime.GOARCH
 
 	// setup: ensure we have a place to put our downloaded terraform binary
-	var tfDir string
-	var err error
-	if installDir == "" {
-		tfDir, err = ioutil.TempDir("", "tfexec")
-		if err != nil {
-			return "", fmt.Errorf("failed to create temp dir: %s", err)
-		}
-	} else {
-		if _, err := os.Stat(installDir); err != nil {
-			return "", fmt.Errorf("could not access directory %s for installing Terraform: %s", installDir, err)
-		}
-		tfDir = installDir
+	tfDir, err := ensureInstallDir(installDir)
+	if err != nil {
+		return "", err
 	}
 
 	httpGetter := &getter.HttpGetter{
