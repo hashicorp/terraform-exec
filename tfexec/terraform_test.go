@@ -171,7 +171,7 @@ func tfVersion(t *testing.T, v string) string {
 		if err != nil {
 			t.Fatal(err)
 		}
-		iv.path, iv.err = tfinstall.Find(tfinstall.ExactVersion(v, dir))
+		iv.path, iv.err = tfinstall.Find(context.Background(), tfinstall.ExactVersion(v, dir))
 		installedVersions[v] = iv
 	}
 

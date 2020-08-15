@@ -1,6 +1,7 @@
 package tfinstall
 
 import (
+	"context"
 	"fmt"
 	"os/exec"
 	"strings"
@@ -9,16 +10,16 @@ import (
 const baseURL = "https://releases.hashicorp.com/terraform"
 
 type ExecPathFinder interface {
-	ExecPath() (string, error)
+	ExecPath(context.Context) (string, error)
 }
 
-func Find(opts ...ExecPathFinder) (string, error) {
+func Find(ctx context.Context, opts ...ExecPathFinder) (string, error) {
 	var terraformPath string
 
 	// go through the options in order
 	// until a valid terraform executable is found
 	for _, opt := range opts {
-		p, err := opt.ExecPath()
+		p, err := opt.ExecPath(ctx)
 		if err != nil {
 			return "", fmt.Errorf("unexpected error: %s", err)
 		}

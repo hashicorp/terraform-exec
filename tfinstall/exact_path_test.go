@@ -1,6 +1,7 @@
 package tfinstall
 
 import (
+	"context"
 	"fmt"
 	"os/exec"
 	"strings"
@@ -16,7 +17,7 @@ func TestExactPath(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_, err = Find(ExactPath(execPath))
+	_, err = Find(context.Background(), ExactPath(execPath))
 	if err == nil {
 		t.Fatalf("expected Find() to fail when given ExactPath(%s), but it did not", execPath)
 	}
