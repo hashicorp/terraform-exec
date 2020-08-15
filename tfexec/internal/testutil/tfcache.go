@@ -1,6 +1,7 @@
 package testutil
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"sync"
@@ -49,7 +50,7 @@ func (tf *TFCache) Version(t *testing.T, v string) string {
 			t.Fatal(err)
 		}
 
-		path, err = tfinstall.Find(tfinstall.ExactVersion(v, dir))
+		path, err = tfinstall.Find(context.Background(), tfinstall.ExactVersion(v, dir))
 		if err != nil {
 			t.Fatalf("error installing terraform version %q: %s", v, err)
 		}

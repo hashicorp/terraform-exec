@@ -1,11 +1,17 @@
 package tfinstall
 
-import "github.com/hashicorp/go-version"
+import (
+	"context"
+
+	"github.com/hashicorp/go-version"
+)
 
 type ExactVersionOption struct {
 	tfVersion  string
 	installDir string
 }
+
+var _ ExecPathFinder = &ExactVersionOption{}
 
 func ExactVersion(tfVersion string, installDir string) *ExactVersionOption {
 	opt := &ExactVersionOption{
@@ -16,12 +22,12 @@ func ExactVersion(tfVersion string, installDir string) *ExactVersionOption {
 	return opt
 }
 
-func (opt *ExactVersionOption) ExecPath() (string, error) {
+func (opt *ExactVersionOption) ExecPath(ctx context.Context) (string, error) {
 	// validate version
 	_, err := version.NewVersion(opt.tfVersion)
 	if err != nil {
 		return "", err
 	}
 
-	return downloadWithVerification(opt.tfVersion, opt.installDir)
+	return downloadWithVerification(ctx, opt.tfVersion, opt.installDir)
 }

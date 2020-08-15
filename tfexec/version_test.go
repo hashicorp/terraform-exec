@@ -173,11 +173,11 @@ func TestVersionInRange(t *testing.T) {
 }
 
 func TestCompatible(t *testing.T) {
-	tf01226, err := tfinstall.Find(tfinstall.ExactVersion("0.12.26", ""))
+	tf01226, err := tfinstall.Find(context.Background(), tfinstall.ExactVersion("0.12.26", ""))
 	if err != nil {
 		t.Fatal(err)
 	}
-	tf013beta3, err := tfinstall.Find(tfinstall.ExactVersion("0.13.0-beta3", ""))
+	tf013beta3, err := tfinstall.Find(context.Background(), tfinstall.ExactVersion("0.13.0-beta3", ""))
 	if err != nil {
 		t.Fatal(err)
 	}

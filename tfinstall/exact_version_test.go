@@ -1,6 +1,7 @@
 package tfinstall
 
 import (
+	"context"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -16,7 +17,7 @@ func TestFindExactVersion(t *testing.T) {
 	}
 	defer os.RemoveAll(tmpDir)
 
-	tfpath, err := Find(ExactVersion("0.12.26", tmpDir))
+	tfpath, err := Find(context.Background(), ExactVersion("0.12.26", tmpDir))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -44,7 +45,7 @@ func TestFindExactVersionPrerelease(t *testing.T) {
 	}
 	defer os.RemoveAll(tmpDir)
 
-	tfpath, err := Find(ExactVersion("0.13.0-beta1", tmpDir))
+	tfpath, err := Find(context.Background(), ExactVersion("0.13.0-beta1", tmpDir))
 	if err != nil {
 		t.Fatal(err)
 	}

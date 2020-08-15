@@ -1,6 +1,7 @@
 package tfinstall
 
 import (
+	"context"
 	"log"
 	"os/exec"
 )
@@ -8,13 +9,15 @@ import (
 type LookPathOption struct {
 }
 
+var _ ExecPathFinder = &LookPathOption{}
+
 func LookPath() *LookPathOption {
 	opt := &LookPathOption{}
 
 	return opt
 }
 
-func (opt *LookPathOption) ExecPath() (string, error) {
+func (opt *LookPathOption) ExecPath(context.Context) (string, error) {
 	p, err := exec.LookPath("terraform")
 	if err != nil {
 		if notFoundErr, ok := err.(*exec.Error); ok && notFoundErr.Err == exec.ErrNotFound {

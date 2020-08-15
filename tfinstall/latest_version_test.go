@@ -1,6 +1,7 @@
 package tfinstall
 
 import (
+	"context"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -21,7 +22,7 @@ func TestLatestVersion(t *testing.T) {
 	}
 	defer os.RemoveAll(tmpDir)
 
-	tfpath, err := Find(LatestVersion(tmpDir, false))
+	tfpath, err := Find(context.Background(), LatestVersion(tmpDir, false))
 	if err != nil {
 		t.Fatal(err)
 	}

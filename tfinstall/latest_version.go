@@ -1,6 +1,7 @@
 package tfinstall
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/hashicorp/go-checkpoint"
@@ -11,6 +12,8 @@ type LatestVersionOption struct {
 	installDir      string
 }
 
+var _ ExecPathFinder = &LatestVersionOption{}
+
 func LatestVersion(installDir string, forceCheckpoint bool) *LatestVersionOption {
 	opt := &LatestVersionOption{
 		forceCheckpoint: forceCheckpoint,
@@ -20,13 +23,13 @@ func LatestVersion(installDir string, forceCheckpoint bool) *LatestVersionOption
 	return opt
 }
 
-func (opt *LatestVersionOption) ExecPath() (string, error) {
+func (opt *LatestVersionOption) ExecPath(ctx context.Context) (string, error) {
 	v, err := latestVersion(opt.forceCheckpoint)
 	if err != nil {
 		return "", err
 	}
 
-	return downloadWithVerification(v, opt.installDir)
+	return downloadWithVerification(ctx, v, opt.installDir)
 }
 
 func latestVersion(forceCheckpoint bool) (string, error) {

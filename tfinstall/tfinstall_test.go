@@ -1,6 +1,7 @@
 package tfinstall
 
 import (
+	"context"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -17,7 +18,7 @@ func TestFindFallback(t *testing.T) {
 	}
 	defer os.RemoveAll(tmpDir)
 
-	tfpath, err := Find(ExactPath("/hopefully/completely/nonexistent/path"), ExactVersion("0.12.26", tmpDir))
+	tfpath, err := Find(context.Background(), ExactPath("/hopefully/completely/nonexistent/path"), ExactVersion("0.12.26", tmpDir))
 	if err != nil {
 		t.Fatal(err)
 	}
