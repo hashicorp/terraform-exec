@@ -9,6 +9,7 @@ import (
 
 type planConfig struct {
 	destroy     bool
+	dir         string
 	lock        bool
 	lockTimeout string
 	out         string
@@ -30,6 +31,10 @@ var defaultPlanOptions = planConfig{
 
 type PlanOption interface {
 	configurePlan(*planConfig)
+}
+
+func (opt *DirOption) configurePlan(conf *planConfig) {
+	conf.dir = opt.path
 }
 
 func (opt *VarFileOption) configurePlan(conf *planConfig) {
@@ -119,6 +124,11 @@ func (tf *Terraform) planCmd(ctx context.Context, opts ...PlanOption) *exec.Cmd 
 		for _, v := range c.vars {
 			args = append(args, "-var", v)
 		}
+	}
+
+	// optional positional argument
+	if c.dir != "" {
+		args = append(args, c.dir)
 	}
 
 	return tf.buildTerraformCmd(ctx, args...)

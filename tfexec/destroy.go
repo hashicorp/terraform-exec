@@ -9,6 +9,7 @@ import (
 
 type destroyConfig struct {
 	backup string
+	dir    string
 	lock   bool
 
 	// LockTimeout must be a string with time unit, e.g. '10s'
@@ -33,6 +34,10 @@ var defaultDestroyOptions = destroyConfig{
 
 type DestroyOption interface {
 	configureDestroy(*destroyConfig)
+}
+
+func (opt *DirOption) configureDestroy(conf *destroyConfig) {
+	conf.dir = opt.path
 }
 
 func (opt *ParallelismOption) configureDestroy(conf *destroyConfig) {
@@ -120,6 +125,11 @@ func (tf *Terraform) destroyCmd(ctx context.Context, opts ...DestroyOption) *exe
 		for _, v := range c.vars {
 			args = append(args, "-var", v)
 		}
+	}
+
+	// optional positional argument
+	if c.dir != "" {
+		args = append(args, c.dir)
 	}
 
 	return tf.buildTerraformCmd(ctx, args...)

@@ -9,6 +9,7 @@ import (
 type initConfig struct {
 	backend       bool
 	backendConfig []string
+	dir           string
 	forceCopy     bool
 	fromModule    string
 	get           bool
@@ -43,6 +44,10 @@ func (opt *BackendOption) configureInit(conf *initConfig) {
 
 func (opt *BackendConfigOption) configureInit(conf *initConfig) {
 	conf.backendConfig = append(conf.backendConfig, opt.path)
+}
+
+func (opt *DirOption) configureInit(conf *initConfig) {
+	conf.dir = opt.path
 }
 
 func (opt *FromModuleOption) configureInit(conf *initConfig) {
@@ -125,6 +130,11 @@ func (tf *Terraform) initCmd(ctx context.Context, opts ...InitOption) *exec.Cmd 
 		for _, pd := range c.pluginDir {
 			args = append(args, "-plugin-dir="+pd)
 		}
+	}
+
+	// optional positional argument
+	if c.dir != "" {
+		args = append(args, c.dir)
 	}
 
 	return tf.buildTerraformCmd(ctx, args...)

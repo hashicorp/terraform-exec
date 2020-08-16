@@ -43,7 +43,7 @@ func TestInitCmd(t *testing.T) {
 	})
 
 	t.Run("override all defaults", func(t *testing.T) {
-		initCmd := tf.initCmd(context.Background(), Backend(false), BackendConfig("confpath1"), BackendConfig("confpath2"), FromModule("testsource"), Get(false), GetPlugins(false), Lock(false), LockTimeout("999s"), PluginDir("testdir1"), PluginDir("testdir2"), Reconfigure(true), Upgrade(true), VerifyPlugins(false))
+		initCmd := tf.initCmd(context.Background(), Backend(false), BackendConfig("confpath1"), BackendConfig("confpath2"), FromModule("testsource"), Get(false), GetPlugins(false), Lock(false), LockTimeout("999s"), PluginDir("testdir1"), PluginDir("testdir2"), Reconfigure(true), Upgrade(true), VerifyPlugins(false), Dir("initdir"))
 
 		assertCmd(t, []string{
 			"init",
@@ -63,6 +63,7 @@ func TestInitCmd(t *testing.T) {
 			"-backend-config=confpath2",
 			"-plugin-dir=testdir1",
 			"-plugin-dir=testdir2",
+			"initdir",
 		}, nil, initCmd)
 	})
 }
