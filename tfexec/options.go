@@ -45,6 +45,14 @@ func Config(path string) *ConfigOption {
 	return &ConfigOption{path}
 }
 
+type DirOption struct {
+	path string
+}
+
+func Dir(path string) *DirOption {
+	return &DirOption{path}
+}
+
 type DirOrPlanOption struct {
 	path string
 }
