@@ -3,6 +3,7 @@ package e2etest
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -18,29 +19,34 @@ import (
 )
 
 const testFixtureDir = "testdata"
+const masterRef = "refs/heads/master"
 
 func runTest(t *testing.T, fixtureName string, cb func(t *testing.T, tfVersion *version.Version, tf *tfexec.Terraform)) {
 	t.Helper()
-	runTestVersions(t, []string{
+
+	versions := []string{
 		testutil.Latest011,
 		testutil.Latest012,
 		testutil.Latest013,
-	}, fixtureName, cb)
+	}
+	if override := os.Getenv("TFEXEC_E2ETEST_VERSIONS"); override != "" {
+		versions = strings.Split(override, ",")
+	}
+
+	runTestVersions(t, versions, fixtureName, cb)
 }
 
 func runTestVersions(t *testing.T, versions []string, fixtureName string, cb func(t *testing.T, tfVersion *version.Version, tf *tfexec.Terraform)) {
 	t.Helper()
 
-	// TODO: if overriding latest for master code, skip all other tests
-
 	alreadyRunVersions := map[string]bool{}
 	for _, tfv := range versions {
-		if alreadyRunVersions[tfv] {
-			t.Skipf("already run version %q", tfv)
-		}
-		alreadyRunVersions[tfv] = true
-
 		t.Run(fmt.Sprintf("%s-%s", fixtureName, tfv), func(t *testing.T) {
+			if alreadyRunVersions[tfv] {
+				t.Skipf("already run version %q", tfv)
+			}
+			alreadyRunVersions[tfv] = true
+
 			td, err := ioutil.TempDir("", "tf")
 			if err != nil {
 				t.Fatalf("error creating temporary test directory: %s", err)
@@ -49,9 +55,23 @@ func runTestVersions(t *testing.T, versions []string, fixtureName string, cb fun
 				os.RemoveAll(td)
 			})
 
-			tf, err := tfexec.NewTerraform(td, tfcache.Version(t, tfv))
+			// TODO: do this in a cleaner way than string comparison?
+			var execPath string
+			switch {
+			case strings.HasPrefix(tfv, "refs/"):
+				execPath = tfcache.GitRef(t, tfv)
+			default:
+				execPath = tfcache.Version(t, tfv)
+			}
+
+			tf, err := tfexec.NewTerraform(td, execPath)
 			if err != nil {
 				t.Fatal(err)
+			}
+
+			runningVersion, _, err := tf.Version(context.Background(), false)
+			if err != nil {
+				t.Fatalf("unable to determin running version (expected %q): %s", tfv, err)
 			}
 
 			if fixtureName != "" {
@@ -68,7 +88,7 @@ func runTestVersions(t *testing.T, versions []string, fixtureName string, cb fun
 			tf.SetLogger(&testingPrintfer{t})
 
 			// TODO: capture panics here?
-			cb(t, version.Must(version.NewVersion(tfv)), tf)
+			cb(t, runningVersion, tf)
 
 			t.Logf("CLI Output:\n%s", stdouterr.String())
 		})

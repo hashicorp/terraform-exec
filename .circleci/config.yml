@@ -101,6 +101,7 @@ jobs:
 
 workflows:
   version: 2
+  # TODO: add a `nightly` run for checking against TF master branch using TFEXEC_E2ETEST_VERSIONS
   pr:
     jobs:
       - winbuild
