@@ -35,7 +35,7 @@ func TestPlanCmd(t *testing.T) {
 	})
 
 	t.Run("override all defaults", func(t *testing.T) {
-		planCmd := tf.planCmd(context.Background(), Destroy(true), Lock(false), LockTimeout("22s"), Out("whale"), Parallelism(42), Refresh(false), State("marvin"), Target("zaphod"), Target("beeblebrox"), Var("android=paranoid"), Var("brain_size=planet"), VarFile("trillian"))
+		planCmd := tf.planCmd(context.Background(), Destroy(true), Lock(false), LockTimeout("22s"), Out("whale"), Parallelism(42), Refresh(false), State("marvin"), Target("zaphod"), Target("beeblebrox"), Var("android=paranoid"), Var("brain_size=planet"), VarFile("trillian"), Dir("earth"))
 
 		assertCmd(t, []string{
 			"plan",
@@ -53,6 +53,7 @@ func TestPlanCmd(t *testing.T) {
 			"-target=beeblebrox",
 			"-var", "android=paranoid",
 			"-var", "brain_size=planet",
+			"earth",
 		}, nil, planCmd)
 	})
 }
