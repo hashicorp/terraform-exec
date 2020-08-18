@@ -45,6 +45,14 @@ func Config(path string) *ConfigOption {
 	return &ConfigOption{path}
 }
 
+type DetailedExitCodeOption struct {
+	detailedExitCode bool
+}
+
+func DetailedExitCode(detailedExitCode bool) *DetailedExitCodeOption {
+	return &DetailedExitCodeOption{detailedExitCode}
+}
+
 type DirOption struct {
 	path string
 }

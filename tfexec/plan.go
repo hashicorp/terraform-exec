@@ -8,25 +8,27 @@ import (
 )
 
 type planConfig struct {
-	destroy     bool
-	dir         string
-	lock        bool
-	lockTimeout string
-	out         string
-	parallelism int
-	refresh     bool
-	state       string
-	targets     []string
-	vars        []string
-	varFile     string
+	destroy          bool
+	detailedExitCode bool
+	dir              string
+	lock             bool
+	lockTimeout      string
+	out              string
+	parallelism      int
+	refresh          bool
+	state            string
+	targets          []string
+	vars             []string
+	varFile          string
 }
 
 var defaultPlanOptions = planConfig{
-	destroy:     false,
-	lock:        true,
-	lockTimeout: "0s",
-	parallelism: 10,
-	refresh:     true,
+	destroy:          false,
+	detailedExitCode: false,
+	lock:             true,
+	lockTimeout:      "0s",
+	parallelism:      10,
+	refresh:          true,
 }
 
 type PlanOption interface {
@@ -73,6 +75,10 @@ func (opt *LockOption) configurePlan(conf *planConfig) {
 	conf.lock = opt.lock
 }
 
+func (opt *DetailedExitCodeOption) configurePlan(conf *planConfig) {
+	conf.detailedExitCode = opt.detailedExitCode
+}
+
 func (opt *DestroyFlagOption) configurePlan(conf *planConfig) {
 	conf.destroy = opt.destroy
 }
@@ -112,6 +118,9 @@ func (tf *Terraform) planCmd(ctx context.Context, opts ...PlanOption) *exec.Cmd 
 	// unary flags: pass if true
 	if c.destroy {
 		args = append(args, "-destroy")
+	}
+	if c.detailedExitCode {
+		args = append(args, "-detailed-exitcode")
 	}
 
 	// string slice opts: split into separate args
