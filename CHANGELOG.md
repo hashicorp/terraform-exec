@@ -1,14 +1,14 @@
-# 0.7.0 (Unreleased)
+# 0.7.0 (August 20, 2020)
 
 FEATURES
- - Added `Terraform.Refresh` method [GH-53]
- - Added `Terraform.ShowStateFile` and `Terraform.ShowPlanFile` [GH-54]
- - Added support for `DIR` positional arg in init, destroy, and plan [GH-52]
- - Relaxed logger interface [GH-57]
- - Added error for missing required variable [GH-57]
+ - Added `Terraform.Refresh` method ([#53](https://github.com/hashicorp/terraform-plugin-sdk/issues/53))
+ - Added `Terraform.ShowStateFile` and `Terraform.ShowPlanFile` ([#54](https://github.com/hashicorp/terraform-plugin-sdk/issues/54))
+ - Added support for `DIR` positional arg in init, destroy, and plan ([#52](https://github.com/hashicorp/terraform-plugin-sdk/issues/52))
+ - Relaxed logger interface ([#57](https://github.com/hashicorp/terraform-plugin-sdk/issues/57))
+ - Added error for missing required variable ([#57](https://github.com/hashicorp/terraform-plugin-sdk/issues/57))
  
 BUG FIXES
- - Fixed logging issue for error cmd [GH-57]
+ - Fixed logging issue for error cmd ([#57](https://github.com/hashicorp/terraform-plugin-sdk/issues/57))
 
 # 0.6.0 (August 14, 2020)
 
