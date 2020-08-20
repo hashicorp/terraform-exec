@@ -29,3 +29,47 @@ func TestShowCmd(t *testing.T) {
 		"-no-color",
 	}, nil, showCmd)
 }
+
+func TestShowStateFileCmd(t *testing.T) {
+	td := testTempDir(t)
+	defer os.RemoveAll(td)
+
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest012))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// empty env, to avoid environ mismatch in testing
+	tf.SetEnv(map[string]string{})
+
+	showCmd := tf.showCmd(context.Background(), "statefilepath")
+
+	assertCmd(t, []string{
+		"show",
+		"-json",
+		"-no-color",
+		"statefilepath",
+	}, nil, showCmd)
+}
+
+func TestShowPlanFileCmd(t *testing.T) {
+	td := testTempDir(t)
+	defer os.RemoveAll(td)
+
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest012))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// empty env, to avoid environ mismatch in testing
+	tf.SetEnv(map[string]string{})
+
+	showCmd := tf.showCmd(context.Background(), "planfilepath")
+
+	assertCmd(t, []string{
+		"show",
+		"-json",
+		"-no-color",
+		"planfilepath",
+	}, nil, showCmd)
+}
