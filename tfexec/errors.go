@@ -5,6 +5,20 @@ import (
 	"fmt"
 	"os/exec"
 	"regexp"
+	"strings"
+)
+
+var (
+	// The "Required variable not set:" case is for 0.11
+	missingVarErrRegexp  = regexp.MustCompile(`Error: No value for required variable|Error: Required variable not set:`)
+	missingVarNameRegexp = regexp.MustCompile(`The root module input variable "(.+)" is not set, and has no default|Error: Required variable not set: (.+)`)
+
+	usageRegexp = regexp.MustCompile(`Too many command line arguments|^Usage: .*Options:.*|Error: Invalid -\d+ option`)
+
+	// "Could not load plugin" is present in 0.13
+	noInitErrRegexp = regexp.MustCompile(`Error: Could not satisfy plugin requirements|Error: Could not load plugin`)
+
+	noConfigErrRegexp = regexp.MustCompile(`Error: No configuration files`)
 )
 
 func parseError(err error, stderr string) error {
@@ -13,16 +27,22 @@ func parseError(err error, stderr string) error {
 	}
 
 	switch {
-	// case ErrTerraformNotFound.regexp.MatchString(stderr):
-	// return ErrTerraformNotFound
-	case regexp.MustCompile(usageRegexp).MatchString(stderr):
+	case missingVarErrRegexp.MatchString(stderr):
+		name := ""
+		names := missingVarNameRegexp.FindStringSubmatch(stderr)
+		for i := 1; i < len(names); i++ {
+			name = strings.TrimSpace(names[i])
+			if name != "" {
+				break
+			}
+		}
+		
+		return &ErrMissingVar{name}
+	case usageRegexp.MatchString(stderr):
 		return &ErrCLIUsage{stderr: stderr}
-	case regexp.MustCompile(`Error: Could not satisfy plugin requirements`).MatchString(stderr):
+	case noInitErrRegexp.MatchString(stderr):
 		return &ErrNoInit{stderr: stderr}
-	case regexp.MustCompile(`Error: Could not load plugin`).MatchString(stderr):
-		// this string is present in 0.13
-		return &ErrNoInit{stderr: stderr}
-	case regexp.MustCompile(`Error: No configuration files`).MatchString(stderr):
+	case noConfigErrRegexp.MatchString(stderr):
 		return &ErrNoConfig{stderr: stderr}
 	default:
 		return errors.New(stderr)
@@ -77,8 +97,6 @@ type ErrCLIUsage struct {
 	stderr string
 }
 
-var usageRegexp = `Too many command line arguments|^Usage: .*Options:.*|Error: Invalid -\d+ option`
-
 func (e *ErrCLIUsage) Error() string {
 	return e.stderr
 }
@@ -91,4 +109,12 @@ type ErrManualEnvVar struct {
 
 func (err *ErrManualEnvVar) Error() string {
 	return fmt.Sprintf("manual setting of env var %q detected", err.name)
+}
+
+type ErrMissingVar struct {
+	VariableName string
+}
+
+func (err *ErrMissingVar) Error() string {
+	return fmt.Sprintf("variable %q was required but not supplied", err.VariableName)
 }
