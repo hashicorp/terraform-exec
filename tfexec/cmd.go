@@ -107,13 +107,13 @@ func (tf *Terraform) runTerraformCmd(cmd *exec.Cmd) error {
 
 	stdout := tf.stdout
 	if cmd.Stdout != nil {
-		stdout = io.MultiWriter(cmd.Stdout, stdout)
+		stdout = io.MultiWriter(stdout, cmd.Stdout)
 	}
 	cmd.Stdout = stdout
 
 	stderr := io.MultiWriter(&errBuf, tf.stderr)
 	if cmd.Stderr != nil {
-		stderr = io.MultiWriter(cmd.Stderr, stderr)
+		stderr = io.MultiWriter(stderr, cmd.Stderr)
 	}
 	cmd.Stderr = stderr
 

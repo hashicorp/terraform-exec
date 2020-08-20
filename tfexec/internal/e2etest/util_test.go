@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/go-version"
@@ -62,7 +63,7 @@ func runTestVersions(t *testing.T, versions []string, fixtureName string, cb fun
 				}
 			}
 
-			var stdouterr bytes.Buffer
+			var stdouterr strings.Builder
 			tf.SetStdout(&stdouterr)
 			tf.SetStderr(&stdouterr)
 
