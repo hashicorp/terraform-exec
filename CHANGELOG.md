@@ -1,49 +1,49 @@
 # 0.7.0 (August 20, 2020)
 
 FEATURES
- - Added `Terraform.Refresh` method ([#53](https://github.com/hashicorp/terraform-plugin-sdk/issues/53))
- - Added `Terraform.ShowStateFile` and `Terraform.ShowPlanFile` ([#54](https://github.com/hashicorp/terraform-plugin-sdk/issues/54))
- - Added support for `DIR` positional arg in init, destroy, and plan ([#52](https://github.com/hashicorp/terraform-plugin-sdk/issues/52))
- - Relaxed logger interface ([#57](https://github.com/hashicorp/terraform-plugin-sdk/issues/57))
- - Added error for missing required variable ([#57](https://github.com/hashicorp/terraform-plugin-sdk/issues/57))
- 
+ - Added `Terraform.Refresh` method ([#53](https://github.com/hashicorp/terraform-exec/issues/53))
+ - Added `Terraform.ShowStateFile` and `Terraform.ShowPlanFile` ([#54](https://github.com/hashicorp/terraform-exec/issues/54))
+ - Added support for `DIR` positional arg in init, destroy, and plan ([#52](https://github.com/hashicorp/terraform-exec/issues/52))
+ - Relaxed logger interface ([#57](https://github.com/hashicorp/terraform-exec/issues/57))
+ - Added error for missing required variable ([#57](https://github.com/hashicorp/terraform-exec/issues/57))
+
 BUG FIXES
- - Fixed logging issue for error cmd ([#57](https://github.com/hashicorp/terraform-plugin-sdk/issues/57))
+ - Fixed logging issue for error cmd ([#57](https://github.com/hashicorp/terraform-exec/issues/57))
 
 # 0.6.0 (August 14, 2020)
 
 FEATURES
- - Added `Terraform.SetStdout` and `Terraform.SetStderr` to let consumers log CLI output ([#49](https://github.com/hashicorp/terraform-plugin-sdk/issues/49))
+ - Added `Terraform.SetStdout` and `Terraform.SetStderr` to let consumers log CLI output ([#49](https://github.com/hashicorp/terraform-exec/issues/49))
 
 BUG FIXES
- - Fixed miscategorization of `ErrNoInit` on Terraform 0.13 ([#48](https://github.com/hashicorp/terraform-plugin-sdk/issues/48))
+ - Fixed miscategorization of `ErrNoInit` on Terraform 0.13 ([#48](https://github.com/hashicorp/terraform-exec/issues/48))
 
 # 0.5.0 (August 14, 2020)
 
 FEATURES:
- - Version compatibility testing for `terraform show` ([#41](https://github.com/hashicorp/terraform-plugin-sdk/issues/41))
- 
+ - Version compatibility testing for `terraform show` ([#41](https://github.com/hashicorp/terraform-exec/issues/41))
+
 BUG FIXES:
- - Tolerate reversed `terraform version` output order ([#47](https://github.com/hashicorp/terraform-plugin-sdk/issues/47))
+ - Tolerate reversed `terraform version` output order ([#47](https://github.com/hashicorp/terraform-exec/issues/47))
 
 # 0.4.0 (July 30, 2020)
 
 FEATURES:
-  - Added `Terraform.SetLogPath` method to set `TF_LOG_PATH` environment variable, and prevented manual setting of programmatically supported environment variables ([#32](https://github.com/hashicorp/terraform-plugin-sdk/issues/32))
-  - Added `Terraform.Version` method to get executable version information ([#7](https://github.com/hashicorp/terraform-plugin-sdk/issues/7))
+  - Added `Terraform.SetLogPath` method to set `TF_LOG_PATH` environment variable, and prevented manual setting of programmatically supported environment variables ([#32](https://github.com/hashicorp/terraform-exec/issues/32))
+  - Added `Terraform.Version` method to get executable version information ([#7](https://github.com/hashicorp/terraform-exec/issues/7))
 
 BUG FIXES:
-  - Fixed `-var` handling issue ([#34](https://github.com/hashicorp/terraform-plugin-sdk/issues/34))
+  - Fixed `-var` handling issue ([#34](https://github.com/hashicorp/terraform-exec/issues/34))
 
 # 0.3.0 (July 17, 2020)
 
 BREAKING CHANGES:
-  - Stop exporting `exec.Cmd` versions of methods ([#25](https://github.com/hashicorp/terraform-plugin-sdk/issues/25))
-  - Require `address` and `id` arguments in `Import()` ([#24](https://github.com/hashicorp/terraform-plugin-sdk/issues/24))
-  - Rename `StateShow()` to `Show()` ([#30](https://github.com/hashicorp/terraform-plugin-sdk/issues/30))
-  
+  - Stop exporting `exec.Cmd` versions of methods ([#25](https://github.com/hashicorp/terraform-exec/issues/25))
+  - Require `address` and `id` arguments in `Import()` ([#24](https://github.com/hashicorp/terraform-exec/issues/24))
+  - Rename `StateShow()` to `Show()` ([#30](https://github.com/hashicorp/terraform-exec/issues/30))
+
 BUG FIXES:
-  - Fix bug in `Import()` config argument ([#28](https://github.com/hashicorp/terraform-plugin-sdk/issues/28))
+  - Fix bug in `Import()` config argument ([#28](https://github.com/hashicorp/terraform-exec/issues/28))
 
 # 0.2.2 (July 13, 2020)
 
@@ -67,6 +67,6 @@ BUG FIXES:
 
 # 0.1.0 (July 3, 2020)
 
-Initial release. 
+Initial release.
 
 This Go module contains two packages, `github.com/hashicorp/terraform-exec/tfexec`, and `github.com/hashicorp/terraform-exec/tfinstall`, which share the same version.
