@@ -1,3 +1,15 @@
+# 0.7.0 (Unreleased)
+
+FEATURES
+ - Added `Terraform.Refresh` method [GH-53]
+ - Added `Terraform.ShowStateFile` and `Terraform.ShowPlanFile` [GH-54]
+ - Added support for `DIR` positional arg in init, destroy, and plan [GH-52]
+ - Relaxed logger interface [GH-57]
+ - Added error for missing required variable [GH-57]
+ 
+BUG FIXES
+ - Fixed logging issue for error cmd [GH-57]
+
 # 0.6.0 (August 14, 2020)
 
 FEATURES
