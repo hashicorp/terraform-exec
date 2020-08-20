@@ -35,3 +35,30 @@ func TestUnparsedError(t *testing.T) {
 		}
 	})
 }
+
+func TestMissingVar(t *testing.T) {
+	runTest(t, "var", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		err := tf.Init(context.Background())
+		if err != nil {
+			t.Fatalf("err during init: %s", err)
+		} 
+
+		err = tf.Plan(context.Background())
+		if err == nil {
+			t.Fatalf("expected error running Plan, none returned")
+		}
+		var e *tfexec.ErrMissingVar
+		if !errors.As(err, &e) {
+			t.Fatalf("expected ErrMissingVar, got %T, %s", err, err)
+		}
+
+		if e.VariableName != "no_default" {
+			t.Fatalf("expected missing no_default, got %q", e.VariableName)
+		}
+
+		err = tf.Plan(context.Background(), tfexec.Var("no_default=foo"))
+		if err != nil {
+			t.Fatalf("expected no error, got %s", err)
+		}
+	})
+}
