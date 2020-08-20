@@ -1,0 +1,25 @@
+{
+  "version": 4,
+  "terraform_version": "0.13.0",
+  "serial": 1,
+  "lineage": "b69e96b9-250f-2004-c603-1b11dc3459c1",
+  "outputs": {},
+  "resources": [
+    {
+      "mode": "managed",
+      "type": "null_resource",
+      "name": "foo",
+      "provider": "provider[\"registry.terraform.io/hashicorp/null\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "3610244792381545397",
+            "triggers": null
+          },
+          "private": "bnVsbA=="
+        }
+      ]
+    }
+  ]
+}

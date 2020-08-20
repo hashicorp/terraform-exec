@@ -27,8 +27,6 @@ func runTest(t *testing.T, fixtureName string, cb func(t *testing.T, tfVersion *
 	}, fixtureName, cb)
 }
 
-// runTestVersions should probably not be used directly, better to use
-// t.Skip in your test with a comment as to why you shouldn't test on a version
 func runTestVersions(t *testing.T, versions []string, fixtureName string, cb func(t *testing.T, tfVersion *version.Version, tf *tfexec.Terraform)) {
 	t.Helper()
 
