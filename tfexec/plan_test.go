@@ -27,6 +27,7 @@ func TestPlanCmd(t *testing.T) {
 			"plan",
 			"-no-color",
 			"-input=false",
+			"-detailed-exitcode",
 			"-lock-timeout=0s",
 			"-lock=true",
 			"-parallelism=10",
@@ -35,12 +36,13 @@ func TestPlanCmd(t *testing.T) {
 	})
 
 	t.Run("override all defaults", func(t *testing.T) {
-		planCmd := tf.planCmd(context.Background(), Destroy(true), DetailedExitCode(true), Lock(false), LockTimeout("22s"), Out("whale"), Parallelism(42), Refresh(false), State("marvin"), Target("zaphod"), Target("beeblebrox"), Var("android=paranoid"), Var("brain_size=planet"), VarFile("trillian"), Dir("earth"))
+		planCmd := tf.planCmd(context.Background(), Destroy(true), Lock(false), LockTimeout("22s"), Out("whale"), Parallelism(42), Refresh(false), State("marvin"), Target("zaphod"), Target("beeblebrox"), Var("android=paranoid"), Var("brain_size=planet"), VarFile("trillian"), Dir("earth"))
 
 		assertCmd(t, []string{
 			"plan",
 			"-no-color",
 			"-input=false",
+			"-detailed-exitcode",
 			"-lock-timeout=22s",
 			"-out=whale",
 			"-state=marvin",
@@ -49,7 +51,6 @@ func TestPlanCmd(t *testing.T) {
 			"-parallelism=42",
 			"-refresh=false",
 			"-destroy",
-			"-detailed-exitcode",
 			"-target=zaphod",
 			"-target=beeblebrox",
 			"-var", "android=paranoid",
