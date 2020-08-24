@@ -44,8 +44,6 @@ func parseError(err error, stderr string) error {
 		return &ErrNoInit{stderr: stderr}
 	case noConfigErrRegexp.MatchString(stderr):
 		return &ErrNoConfig{stderr: stderr}
-	case err.(*exec.ExitError).ProcessState.ExitCode() == 2:
-		return &ErrExitCodeTwo{stderr: err.Error()}
 	default:
 		return errors.New(stderr)
 	}

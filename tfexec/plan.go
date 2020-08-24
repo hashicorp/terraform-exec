@@ -8,27 +8,25 @@ import (
 )
 
 type planConfig struct {
-	destroy          bool
-	detailedExitCode bool
-	dir              string
-	lock             bool
-	lockTimeout      string
-	out              string
-	parallelism      int
-	refresh          bool
-	state            string
-	targets          []string
-	vars             []string
-	varFile          string
+	destroy     bool
+	dir         string
+	lock        bool
+	lockTimeout string
+	out         string
+	parallelism int
+	refresh     bool
+	state       string
+	targets     []string
+	vars        []string
+	varFile     string
 }
 
 var defaultPlanOptions = planConfig{
-	destroy:          false,
-	detailedExitCode: false,
-	lock:             true,
-	lockTimeout:      "0s",
-	parallelism:      10,
-	refresh:          true,
+	destroy:     false,
+	lock:        true,
+	lockTimeout: "0s",
+	parallelism: 10,
+	refresh:     true,
 }
 
 type PlanOption interface {
@@ -75,16 +73,25 @@ func (opt *LockOption) configurePlan(conf *planConfig) {
 	conf.lock = opt.lock
 }
 
-func (opt *DetailedExitCodeOption) configurePlan(conf *planConfig) {
-	conf.detailedExitCode = opt.detailedExitCode
-}
-
 func (opt *DestroyFlagOption) configurePlan(conf *planConfig) {
 	conf.destroy = opt.destroy
 }
 
-func (tf *Terraform) Plan(ctx context.Context, opts ...PlanOption) error {
-	return tf.runTerraformCmd(tf.planCmd(ctx, opts...))
+// Plan executes `terraform plan` with the specified options and waits for it
+// to complete.
+//
+// The returned boolean is false when the plan diff is empty (no changes) and
+// true when the plan diff is non-empty (changes present).
+//
+// The returned error is nil if `terraform plan` has been executed and exits
+// with either 0 or 2.
+func (tf *Terraform) Plan(ctx context.Context, opts ...PlanOption) (bool, error) {
+	cmd := tf.planCmd(ctx, opts...)
+	err := tf.runTerraformCmd(cmd)
+	if err != nil && cmd.ProcessState.ExitCode() == 2 {
+		return true, nil
+	}
+	return false, err
 }
 
 func (tf *Terraform) planCmd(ctx context.Context, opts ...PlanOption) *exec.Cmd {
@@ -94,7 +101,7 @@ func (tf *Terraform) planCmd(ctx context.Context, opts ...PlanOption) *exec.Cmd 
 		o.configurePlan(&c)
 	}
 
-	args := []string{"plan", "-no-color", "-input=false"}
+	args := []string{"plan", "-no-color", "-input=false", "-detailed-exitcode"}
 
 	// string opts: only pass if set
 	if c.lockTimeout != "" {
@@ -118,9 +125,6 @@ func (tf *Terraform) planCmd(ctx context.Context, opts ...PlanOption) *exec.Cmd 
 	// unary flags: pass if true
 	if c.destroy {
 		args = append(args, "-destroy")
-	}
-	if c.detailedExitCode {
-		args = append(args, "-detailed-exitcode")
 	}
 
 	// string slice opts: split into separate args
