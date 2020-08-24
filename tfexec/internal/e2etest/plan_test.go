@@ -16,12 +16,12 @@ func TestPlan(t *testing.T) {
 			t.Fatalf("error running Init in test directory: %s", err)
 		}
 
-		ok, err := tf.Plan(context.Background())
+		hasChanges, err := tf.Plan(context.Background())
 		if err != nil {
 			t.Fatalf("error running Plan: %s", err)
 		}
-		if !ok {
-			t.Fatalf("expected: true, got: %t", ok)
+		if !hasChanges {
+			t.Fatalf("expected: true, got: %t", hasChanges)
 		}
 	})
 
@@ -37,12 +37,12 @@ func TestPlanWithState(t *testing.T) {
 			t.Fatalf("error running Init in test directory: %s", err)
 		}
 
-		ok, err := tf.Plan(context.Background())
+		hasChanges, err := tf.Plan(context.Background())
 		if err != nil {
 			t.Fatalf("error running Plan: %s", err)
 		}
-		if ok {
-			t.Fatalf("expected: false, got: %t", ok)
+		if hasChanges {
+			t.Fatalf("expected: false, got: %t", hasChanges)
 		}
 	})
 
