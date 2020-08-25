@@ -41,9 +41,9 @@ func TestMissingVar(t *testing.T) {
 		err := tf.Init(context.Background())
 		if err != nil {
 			t.Fatalf("err during init: %s", err)
-		} 
+		}
 
-		err = tf.Plan(context.Background())
+		_, err = tf.Plan(context.Background())
 		if err == nil {
 			t.Fatalf("expected error running Plan, none returned")
 		}
@@ -56,7 +56,7 @@ func TestMissingVar(t *testing.T) {
 			t.Fatalf("expected missing no_default, got %q", e.VariableName)
 		}
 
-		err = tf.Plan(context.Background(), tfexec.Var("no_default=foo"))
+		_, err = tf.Plan(context.Background(), tfexec.Var("no_default=foo"))
 		if err != nil {
 			t.Fatalf("expected no error, got %s", err)
 		}
