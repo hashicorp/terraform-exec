@@ -18,7 +18,7 @@ type planConfig struct {
 	state       string
 	targets     []string
 	vars        []string
-	varFile     string
+	varFiles    []string
 }
 
 var defaultPlanOptions = planConfig{
@@ -38,7 +38,7 @@ func (opt *DirOption) configurePlan(conf *planConfig) {
 }
 
 func (opt *VarFileOption) configurePlan(conf *planConfig) {
-	conf.varFile = opt.path
+	conf.varFiles = append(conf.varFiles, opt.path)
 }
 
 func (opt *VarOption) configurePlan(conf *planConfig) {
@@ -113,8 +113,8 @@ func (tf *Terraform) planCmd(ctx context.Context, opts ...PlanOption) *exec.Cmd 
 	if c.state != "" {
 		args = append(args, "-state="+c.state)
 	}
-	if c.varFile != "" {
-		args = append(args, "-var-file="+c.varFile)
+	for _, vf := range c.varFiles {
+		args = append(args, "-var-file="+vf)
 	}
 
 	// boolean and numerical opts: always pass

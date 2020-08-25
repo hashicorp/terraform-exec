@@ -17,7 +17,7 @@ type importConfig struct {
 	state              string
 	stateOut           string
 	vars               []string
-	varFile            string
+	varFiles           []string
 }
 
 var defaultImportOptions = importConfig{
@@ -63,7 +63,7 @@ func (opt *VarOption) configureImport(conf *importConfig) {
 }
 
 func (opt *VarFileOption) configureImport(conf *importConfig) {
-	conf.varFile = opt.path
+	conf.varFiles = append(conf.varFiles, opt.path)
 }
 
 func (tf *Terraform) Import(ctx context.Context, address, id string, opts ...ImportOption) error {
@@ -95,8 +95,8 @@ func (tf *Terraform) importCmd(ctx context.Context, address, id string, opts ...
 	if c.stateOut != "" {
 		args = append(args, "-state-out="+c.stateOut)
 	}
-	if c.varFile != "" {
-		args = append(args, "-var-file="+c.varFile)
+	for _, vf := range c.varFiles {
+		args = append(args, "-var-file="+vf)
 	}
 
 	// boolean and numerical opts: always pass

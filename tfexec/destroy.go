@@ -21,8 +21,8 @@ type destroyConfig struct {
 	targets     []string
 
 	// Vars: each var must be supplied as a single string, e.g. 'foo=bar'
-	vars    []string
-	varFile string
+	vars     []string
+	varFiles []string
 }
 
 var defaultDestroyOptions = destroyConfig{
@@ -65,7 +65,7 @@ func (opt *StateOutOption) configureDestroy(conf *destroyConfig) {
 }
 
 func (opt *VarFileOption) configureDestroy(conf *destroyConfig) {
-	conf.varFile = opt.path
+	conf.varFiles = append(conf.varFiles, opt.path)
 }
 
 func (opt *LockOption) configureDestroy(conf *destroyConfig) {
@@ -106,8 +106,8 @@ func (tf *Terraform) destroyCmd(ctx context.Context, opts ...DestroyOption) *exe
 	if c.stateOut != "" {
 		args = append(args, "-state-out="+c.stateOut)
 	}
-	if c.varFile != "" {
-		args = append(args, "-var-file="+c.varFile)
+	for _, vf := range c.varFiles {
+		args = append(args, "-var-file="+vf)
 	}
 
 	// boolean and numerical opts: always pass
