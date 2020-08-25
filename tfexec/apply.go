@@ -21,8 +21,8 @@ type applyConfig struct {
 	targets     []string
 
 	// Vars: each var must be supplied as a single string, e.g. 'foo=bar'
-	vars    []string
-	varFile string
+	vars     []string
+	varFiles []string
 }
 
 var defaultApplyOptions = applyConfig{
@@ -60,7 +60,7 @@ func (opt *StateOutOption) configureApply(conf *applyConfig) {
 }
 
 func (opt *VarFileOption) configureApply(conf *applyConfig) {
-	conf.varFile = opt.path
+	conf.varFiles = append(conf.varFiles, opt.path)
 }
 
 func (opt *LockOption) configureApply(conf *applyConfig) {
@@ -105,8 +105,8 @@ func (tf *Terraform) applyCmd(ctx context.Context, opts ...ApplyOption) *exec.Cm
 	if c.stateOut != "" {
 		args = append(args, "-state-out="+c.stateOut)
 	}
-	if c.varFile != "" {
-		args = append(args, "-var-file="+c.varFile)
+	for _, vf := range c.varFiles {
+		args = append(args, "-var-file="+vf)
 	}
 
 	// boolean and numerical opts: always pass

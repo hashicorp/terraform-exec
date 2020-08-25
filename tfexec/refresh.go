@@ -15,7 +15,7 @@ type refreshConfig struct {
 	stateOut    string
 	targets     []string
 	vars        []string
-	varFile     string
+	varFiles    []string
 }
 
 var defaultRefreshOptions = refreshConfig{
@@ -60,7 +60,7 @@ func (opt *VarOption) configureRefresh(conf *refreshConfig) {
 }
 
 func (opt *VarFileOption) configureRefresh(conf *refreshConfig) {
-	conf.varFile = opt.path
+	conf.varFiles = append(conf.varFiles, opt.path)
 }
 
 func (tf *Terraform) Refresh(ctx context.Context, opts ...RefreshCmdOption) error {
@@ -89,8 +89,8 @@ func (tf *Terraform) refreshCmd(ctx context.Context, opts ...RefreshCmdOption) *
 	if c.stateOut != "" {
 		args = append(args, "-state-out="+c.stateOut)
 	}
-	if c.varFile != "" {
-		args = append(args, "-var-file="+c.varFile)
+	for _, vf := range c.varFiles {
+		args = append(args, "-var-file="+vf)
 	}
 
 	// boolean and numerical opts: always pass
