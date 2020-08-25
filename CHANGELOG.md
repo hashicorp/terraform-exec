@@ -1,3 +1,8 @@
+# 0.8.0 (Unreleased)
+
+BREAKING
+ - Add `-detailed-exit-code` to `Terraform.Plan` calls, `Terraform.Plan` now returns a bool indicating if any diff is present [GH-55]
+
 # 0.7.0 (August 20, 2020)
 
 FEATURES
