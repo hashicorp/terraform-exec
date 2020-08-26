@@ -129,13 +129,13 @@ func Find(opts ...ExecPathFinder) (string, error) {
 		}
 	}
 
+	if terraformPath == "" {
+		return "", fmt.Errorf("could not find terraform executable")
+	}
+
 	err := runTerraformVersion(terraformPath)
 	if err != nil {
 		return "", fmt.Errorf("executable found at path %s is not terraform: %s", terraformPath, err)
-	}
-
-	if terraformPath == "" {
-		return "", fmt.Errorf("could not find terraform executable")
 	}
 
 	return terraformPath, nil
