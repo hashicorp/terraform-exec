@@ -31,6 +31,7 @@ var defaultApplyOptions = applyConfig{
 	refresh:     true,
 }
 
+// ApplyOption represents options used in the Apply method.
 type ApplyOption interface {
 	configureApply(*applyConfig)
 }

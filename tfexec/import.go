@@ -26,6 +26,7 @@ var defaultImportOptions = importConfig{
 	lockTimeout:        "0s",
 }
 
+// ImportOption represents options used in the Import method.
 type ImportOption interface {
 	configureImport(*importConfig)
 }

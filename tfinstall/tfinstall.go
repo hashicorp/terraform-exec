@@ -16,7 +16,7 @@ import (
 	"golang.org/x/crypto/openpgp"
 )
 
-const baseUrl = "https://releases.hashicorp.com/terraform"
+const baseURL = "https://releases.hashicorp.com/terraform"
 
 type ExecPathFinder interface {
 	ExecPath() (string, error)
@@ -183,19 +183,17 @@ func downloadWithVerification(tfVersion string, installDir string) (string, erro
 	sumsFilename := "terraform_" + tfVersion + "_SHA256SUMS"
 	sumsSigFilename := sumsFilename + ".sig"
 
-	sumsUrl := fmt.Sprintf("%s/%s/%s",
-		baseUrl, tfVersion, sumsFilename)
-	sumsSigUrl := fmt.Sprintf("%s/%s/%s",
-		baseUrl, tfVersion, sumsSigFilename)
+	sumsURL := fmt.Sprintf("%s/%s/%s", baseURL, tfVersion, sumsFilename)
+	sumsSigURL := fmt.Sprintf("%s/%s/%s", baseURL, tfVersion, sumsSigFilename)
 
-	client.Src = sumsUrl
+	client.Src = sumsURL
 	client.Dst = sumsTmpDir
 	err = client.Get()
 	if err != nil {
 		return "", fmt.Errorf("error fetching checksums: %s", err)
 	}
 
-	client.Src = sumsSigUrl
+	client.Src = sumsSigURL
 	err = client.Get()
 	if err != nil {
 		return "", fmt.Errorf("error fetching checksums signature: %s", err)
@@ -210,7 +208,7 @@ func downloadWithVerification(tfVersion string, installDir string) (string, erro
 	}
 
 	// secondly, download Terraform itself, verifying the checksum
-	url := tfUrl(tfVersion, osName, archName)
+	url := tfURL(tfVersion, osName, archName)
 	client.Src = url
 	client.Dst = tfDir
 	client.Mode = getter.ClientModeDir
@@ -222,13 +220,12 @@ func downloadWithVerification(tfVersion string, installDir string) (string, erro
 	return filepath.Join(tfDir, "terraform"), nil
 }
 
-func tfUrl(tfVersion, osName, archName string) string {
+func tfURL(tfVersion, osName, archName string) string {
 	sumsFilename := "terraform_" + tfVersion + "_SHA256SUMS"
-	sumsUrl := fmt.Sprintf("%s/%s/%s",
-		baseUrl, tfVersion, sumsFilename)
+	sumsURL := fmt.Sprintf("%s/%s/%s", baseURL, tfVersion, sumsFilename)
 	return fmt.Sprintf(
 		"%s/%s/terraform_%s_%s_%s.zip?checksum=file:%s",
-		baseUrl, tfVersion, tfVersion, osName, archName, sumsUrl,
+		baseURL, tfVersion, tfVersion, osName, archName, sumsURL,
 	)
 }
 

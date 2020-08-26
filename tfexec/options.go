@@ -1,33 +1,41 @@
 package tfexec
 
+// AllowMissingConfigOption represents the -allow-missing-config flag.
 type AllowMissingConfigOption struct {
 	allowMissingConfig bool
 }
 
+// AllowMissingConfig represents the -allow-missing-config flag.
 func AllowMissingConfig(allowMissingConfig bool) *AllowMissingConfigOption {
 	return &AllowMissingConfigOption{allowMissingConfig}
 }
 
+// BackendOption represents the -backend flag.
 type BackendOption struct {
 	backend bool
 }
 
+// Backend represents the -backend flag.
 func Backend(backend bool) *BackendOption {
 	return &BackendOption{backend}
 }
 
+// BackendConfigOption represents the -backend-config flag.
 type BackendConfigOption struct {
 	path string
 }
 
+// BackendConfig represents the -backend-config flag.
 func BackendConfig(backendConfig string) *BackendConfigOption {
 	return &BackendConfigOption{backendConfig}
 }
 
+// BackupOption represents the -backup flag.
 type BackupOption struct {
 	path string
 }
 
+// Backup represents the -backup flag.
 func Backup(path string) *BackupOption {
 	return &BackupOption{path}
 }
@@ -37,10 +45,12 @@ func DisableBackup() *BackupOption {
 	return &BackupOption{"-"}
 }
 
+// ConfigOption represents the -config flag.
 type ConfigOption struct {
 	path string
 }
 
+// Config represents the -config flag.
 func Config(path string) *ConfigOption {
 	return &ConfigOption{path}
 }
@@ -61,11 +71,13 @@ func DirOrPlan(path string) *DirOrPlanOption {
 	return &DirOrPlanOption{path}
 }
 
-// named to prevent conflict with DestroyOption interface
 type DestroyFlagOption struct {
+	// named to prevent conflict with DestroyOption interface
+
 	destroy bool
 }
 
+// Destroy represents the -destroy flag.
 func Destroy(destroy bool) *DestroyFlagOption {
 	return &DestroyFlagOption{destroy}
 }
@@ -102,19 +114,24 @@ func GetPlugins(getPlugins bool) *GetPluginsOption {
 	return &GetPluginsOption{getPlugins}
 }
 
+// LockOption represents the -lock flag.
 type LockOption struct {
 	lock bool
 }
 
+// Lock represents the -lock flag.
 func Lock(lock bool) *LockOption {
 	return &LockOption{lock}
 }
 
+// LockTimeoutOption represents the -lock-timeout flag.
 type LockTimeoutOption struct {
 	timeout string
 }
 
+// LockTimeout represents the -lock-timeout flag.
 func LockTimeout(lockTimeout string) *LockTimeoutOption {
+	// TODO: should this just use a duration instead?
 	return &LockTimeoutOption{lockTimeout}
 }
 
@@ -162,6 +179,12 @@ type StateOption struct {
 	path string
 }
 
+// State represents the -state flag.
+//
+// Deprecated: The -state CLI flag is a legacy flag and should not be used.
+// If you need a different state file for every run, you can instead use the
+// local backend.
+// See https://github.com/hashicorp/terraform/issues/25920#issuecomment-676560799
 func State(path string) *StateOption {
 	return &StateOption{path}
 }
