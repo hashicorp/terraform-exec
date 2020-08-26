@@ -32,6 +32,7 @@ var defaultDestroyOptions = destroyConfig{
 	refresh:     true,
 }
 
+// DestroyOption represents options used in the Destroy method.
 type DestroyOption interface {
 	configureDestroy(*destroyConfig)
 }

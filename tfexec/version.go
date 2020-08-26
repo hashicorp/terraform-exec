@@ -12,12 +12,8 @@ import (
 )
 
 var (
-	tf0_12_0 *version.Version
+	tf0_12_0 = version.Must(version.NewVersion("0.12.0"))
 )
-
-func init() {
-	tf0_12_0, _ = version.NewVersion("0.12.0")
-}
 
 // Version returns structured output from the terraform version command including both the Terraform CLI version
 // and any initialized provider versions. This will read cached values when present unless the skipCache parameter

@@ -34,6 +34,7 @@ var defaultInitOptions = initConfig{
 	verifyPlugins: true,
 }
 
+// InitOption represents options used in the Init method.
 type InitOption interface {
 	configureInit(*initConfig)
 }
