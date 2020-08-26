@@ -140,6 +140,7 @@ func testTempDir(t *testing.T) string {
 	if err != nil {
 		t.Fatalf("error creating temporary test directory: %s", err)
 	}
+	// TODO: add t.Cleanup so we can remove the defers
 
 	return d
 }

@@ -61,13 +61,29 @@ func assertCmd(t *testing.T, expectedArgs []string, expectedEnv map[string]strin
 
 	// check environment
 	expectedEnv = envMap(append(defaultEnv(), envSlice(expectedEnv)...))
+	actualEnv := envMap(actual.Env)
 
-	// compare against raw slice len incase of duplication or something
-	if len(expectedEnv) != len(actual.Env) {
-		t.Fatalf("env mismatch\n\nexpected:\n%v\n\ngot:\n%v", envSlice(expectedEnv), actual.Env)
+	if len(actualEnv) != len(actual.Env) {
+		t.Fatalf("duplication in actual env, unable to assert: %v", actual.Env)
 	}
 
-	actualEnv := envMap(actual.Env)
+	// ignore tempdir related env vars from comparison
+	for _, k := range []string{"TMPDIR", "TMP", "TEMP", "USERPROFILE"} {
+		if _, ok := expectedEnv[k]; ok {
+			t.Logf("ignoring env var %q", k)
+			delete(expectedEnv, k)
+		}
+
+		if _, ok := actualEnv[k]; ok {
+			t.Logf("ignoring env var %q", k)
+			delete(actualEnv, k)
+		}
+	}
+
+	// compare against raw slice len incase of duplication or something
+	if len(expectedEnv) != len(actualEnv) {
+		t.Fatalf("env mismatch\n\nexpected:\n%v\n\ngot:\n%v", envSlice(expectedEnv), actual.Env)
+	}
 
 	for k, ev := range expectedEnv {
 		av, ok := actualEnv[k]
