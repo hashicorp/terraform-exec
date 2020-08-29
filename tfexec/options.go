@@ -55,13 +55,13 @@ func Config(path string) *ConfigOption {
 	return &ConfigOption{path}
 }
 
-// CopyStateOption represents the -state flage for terraform workspace new. This flag is used
+// CopyStateOption represents the -state flag for terraform workspace new. This flag is used
 // to copy an existing state file in to the new workspace.
 type CopyStateOption struct {
 	path string
 }
 
-// CopyState represents the -state flage for terraform workspace new. This flag is used
+// CopyState represents the -state flag for terraform workspace new. This flag is used
 // to copy an existing state file in to the new workspace.
 func CopyState(path string) *CopyStateOption {
 	return &CopyStateOption{path}
