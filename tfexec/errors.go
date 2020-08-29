@@ -19,6 +19,8 @@ var (
 	noInitErrRegexp = regexp.MustCompile(`Error: Could not satisfy plugin requirements|Error: Could not load plugin`)
 
 	noConfigErrRegexp = regexp.MustCompile(`Error: No configuration files`)
+
+	workspaceDoesNotExistRegexp = regexp.MustCompile(`Workspace "(.+)" doesn't exist.`)
 )
 
 func parseError(err error, stderr string) error {
@@ -44,9 +46,13 @@ func parseError(err error, stderr string) error {
 		return &ErrNoInit{stderr: stderr}
 	case noConfigErrRegexp.MatchString(stderr):
 		return &ErrNoConfig{stderr: stderr}
-	default:
-		return errors.New(stderr)
+	case workspaceDoesNotExistRegexp.MatchString(stderr):
+		submatches := workspaceDoesNotExistRegexp.FindStringSubmatch(stderr)
+		if len(submatches) == 2 {
+			return &ErrNoWorkspace{submatches[1]}
+		}
 	}
+	return errors.New(stderr)
 }
 
 type ErrNoSuitableBinary struct {
@@ -117,4 +123,12 @@ type ErrMissingVar struct {
 
 func (err *ErrMissingVar) Error() string {
 	return fmt.Sprintf("variable %q was required but not supplied", err.VariableName)
+}
+
+type ErrNoWorkspace struct {
+	Name string
+}
+
+func (err *ErrNoWorkspace) Error() string {
+	return fmt.Sprintf("workspace %q does not exist", err.Name)
 }
