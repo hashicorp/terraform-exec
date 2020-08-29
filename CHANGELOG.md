@@ -5,6 +5,11 @@ BREAKING
  
 FEATURES
  - Added `Terraform.SetAppendUserAgent` for User-Agent management from consuming applications [GH-46]
+ - Added `Terraform.WorkspaceList`, `Terraform.WorkspaceNew`, and `Terraform.WorkspaceSelect` along with the `ErrNoWorkspace` error to indicate a workspace does not exist [GH-56]
+ - Added support for using multiple `VarFile` options [GH-61]
+ 
+BUG FIXES
+ - Fix bug with checking for empty path before executing version command [GH-62]
 
 # 0.7.0 (August 20, 2020)
 
