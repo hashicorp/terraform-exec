@@ -62,3 +62,32 @@ func TestMissingVar(t *testing.T) {
 		}
 	})
 }
+
+func TestTFVersionMismatch(t *testing.T) {
+	runTest(t, "tf99", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		// force cache version for error messaging
+		_, _, err := tf.Version(context.Background(), true)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = tf.Init(context.Background())
+		if err == nil {
+			t.Fatal("expected error, but didn't find one")
+		}
+
+		var e *tfexec.ErrTFVersionMismatch
+		if !errors.As(err, &e) {
+			t.Fatalf("expected ErrTFVersionMismatch, got %T, %s", err, err)
+		}
+
+		// in 0.12, we just return "unknown" as the specifics are not included in the error messaging
+		if e.Constraint != "unknown" && e.Constraint != ">99.0.0" {
+			t.Fatalf("unexpected constraint %q", e.Constraint)
+		}
+
+		if e.TFVersion != tfv.String() {
+			t.Fatalf("expected %q, got %q", tfv.String(), e.TFVersion)
+		}
+	})
+}
