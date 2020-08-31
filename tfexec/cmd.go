@@ -155,7 +155,7 @@ func (tf *Terraform) runTerraformCmd(cmd *exec.Cmd) error {
 
 	err := cmd.Run()
 	if err != nil {
-		return parseError(err, errBuf.String())
+		return tf.parseError(err, errBuf.String())
 	}
 	return nil
 }
