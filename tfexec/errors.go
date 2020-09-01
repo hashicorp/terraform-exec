@@ -26,6 +26,7 @@ var (
 
 	tfVersionMismatchErrRegexp        = regexp.MustCompile(`Error: The currently running version of Terraform doesn't meet the|Error: Unsupported Terraform Core version`)
 	tfVersionMismatchConstraintRegexp = regexp.MustCompile(`required_version = "(.+)"|Required version: (.+)\b`)
+	configInvalidErrRegexp            = regexp.MustCompile(`There are some problems with the configuration, described below.`)
 )
 
 func (tf *Terraform) parseError(err error, stderr string) error {
@@ -87,6 +88,8 @@ func (tf *Terraform) parseError(err error, stderr string) error {
 		if len(submatches) == 2 {
 			return &ErrWorkspaceExists{submatches[1]}
 		}
+	case configInvalidErrRegexp.MatchString(stderr):
+		return &ErrConfigInvalid{stderr: stderr}
 	}
 	errString := strings.TrimSpace(stderr)
 	if errString == "" {
@@ -94,6 +97,14 @@ func (tf *Terraform) parseError(err error, stderr string) error {
 		return ee
 	}
 	return errors.New(stderr)
+}
+
+type ErrConfigInvalid struct {
+	stderr string
+}
+
+func (e *ErrConfigInvalid) Error() string {
+	return "configuration is invalid"
 }
 
 type ErrNoSuitableBinary struct {
