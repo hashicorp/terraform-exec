@@ -1,3 +1,8 @@
+# 0.9.0 (Unreleased)
+
+FEATURES
+ - Add `ErrWorkspaceExists` for when workspaces with the same name already exist when calling `Terraform.WorkspaceNew` [GH-67]
+
 # 0.8.0 (August 29, 2020)
 
 BREAKING
