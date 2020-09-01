@@ -52,6 +52,32 @@ func TestWorkspace_does_not_exist(t *testing.T) {
 	})
 }
 
+func TestWorkspace_already_exists(t *testing.T) {
+	runTest(t, "basic", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		const newWorkspace = "existing-workspace"
+		t.Run("create new workspace", func(t *testing.T) {
+			err := tf.WorkspaceNew(context.Background(), newWorkspace)
+			if err != nil {
+				t.Fatalf("got error creating new workspace: %s", err)
+			}
+
+			assertWorkspaceList(t, tf, newWorkspace, newWorkspace)
+		})
+
+		t.Run("create existing workspace", func(t *testing.T) {
+			err := tf.WorkspaceNew(context.Background(), newWorkspace)
+
+			var wsErr *tfexec.ErrWorkspaceExists
+			if !errors.As(err, &wsErr) {
+				t.Fatalf("expected ErrWorkspaceExists, %T returned: %s", err, err)
+			}
+			if wsErr.Name != newWorkspace {
+				t.Fatalf("expected %q, got %q", newWorkspace, wsErr.Name)
+			}
+		})
+	})
+}
+
 func TestWorkspace_multiple(t *testing.T) {
 	runTest(t, "workspaces", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		assertWorkspaceList(t, tf, "foo", "foo")

@@ -21,6 +21,8 @@ var (
 	noConfigErrRegexp = regexp.MustCompile(`Error: No configuration files`)
 
 	workspaceDoesNotExistRegexp = regexp.MustCompile(`Workspace "(.+)" doesn't exist.`)
+
+	workspaceAlreadyExistsRegexp = regexp.MustCompile(`Workspace "(.+)" already exists`)
 )
 
 func parseError(err error, stderr string) error {
@@ -50,6 +52,11 @@ func parseError(err error, stderr string) error {
 		submatches := workspaceDoesNotExistRegexp.FindStringSubmatch(stderr)
 		if len(submatches) == 2 {
 			return &ErrNoWorkspace{submatches[1]}
+		}
+	case workspaceAlreadyExistsRegexp.MatchString(stderr):
+		submatches := workspaceAlreadyExistsRegexp.FindStringSubmatch(stderr)
+		if len(submatches) == 2 {
+			return &ErrWorkspaceExists{submatches[1]}
 		}
 	}
 	return errors.New(stderr)
@@ -131,4 +138,13 @@ type ErrNoWorkspace struct {
 
 func (err *ErrNoWorkspace) Error() string {
 	return fmt.Sprintf("workspace %q does not exist", err.Name)
+}
+
+// ErrWorkspaceExists is returned when creating a workspace that already exists
+type ErrWorkspaceExists struct {
+	Name string
+}
+
+func (err *ErrWorkspaceExists) Error() string {
+	return fmt.Sprintf("workspace %q already exists", err.Name)
 }
