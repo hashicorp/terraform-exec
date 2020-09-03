@@ -15,7 +15,7 @@ import (
 const (
 	Latest011 = "0.11.14"
 	Latest012 = "0.12.29"
-	Latest013 = "0.13.0"
+	Latest013 = "0.13.2"
 )
 
 type TFCache struct {
