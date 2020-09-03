@@ -1,9 +1,7 @@
 package tfexec
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"os/exec"
 
 	tfjson "github.com/hashicorp/terraform-json"
@@ -13,15 +11,7 @@ func (tf *Terraform) ProvidersSchema(ctx context.Context) (*tfjson.ProviderSchem
 	schemaCmd := tf.providersSchemaCmd(ctx)
 
 	var ret tfjson.ProviderSchemas
-	var outBuf bytes.Buffer
-	schemaCmd.Stdout = &outBuf
-
-	err := tf.runTerraformCmd(schemaCmd)
-	if err != nil {
-		return nil, err
-	}
-
-	err = json.Unmarshal(outBuf.Bytes(), &ret)
+	err := tf.runTerraformCmdJSON(schemaCmd, &ret)
 	if err != nil {
 		return nil, err
 	}
