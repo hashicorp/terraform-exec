@@ -1,7 +1,11 @@
 # 0.9.0 (Unreleased)
 
+BREAKING
+ - `context.Context` added to `tfinstall.Find` to allow for cancellation, timeouts, etc [GH-51]
+
 FEATURES
  - Add `ErrWorkspaceExists` for when workspaces with the same name already exist when calling `Terraform.WorkspaceNew` [GH-67]
+ - Added `tfinstall.GitRef` to support installation of Terraform from a git ref instead of by released version [GH-51]
 
 # 0.8.0 (August 29, 2020)
 
