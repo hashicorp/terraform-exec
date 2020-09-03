@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os/exec"
 	"strconv"
+
+	"github.com/hashicorp/go-version"
 )
 
 type workspaceNewConfig struct {
@@ -21,10 +23,15 @@ var defaultWorkspaceNewOptions = workspaceNewConfig{
 // WorkspaceNewCmdOption represents options that are applicable to the WorkspaceNew method.
 type WorkspaceNewCmdOption interface {
 	configureWorkspaceNew(*workspaceNewConfig)
+	isCompatible(tfv *version.Version) bool
 }
 
 func (opt *LockOption) configureWorkspaceNew(conf *workspaceNewConfig) {
 	conf.lock = opt.lock
+}
+
+func (opt *LockOption) isCompatible(tfv *version.Version) bool {
+	return versionInRange(tfv, tf0_12_0, nil)
 }
 
 func (opt *LockTimeoutOption) configureWorkspaceNew(conf *workspaceNewConfig) {
