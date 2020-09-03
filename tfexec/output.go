@@ -1,7 +1,6 @@
 package tfexec
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"os/exec"
@@ -35,17 +34,8 @@ type OutputMeta struct {
 func (tf *Terraform) Output(ctx context.Context, opts ...OutputOption) (map[string]OutputMeta, error) {
 	outputCmd := tf.outputCmd(ctx, opts...)
 
-	var outBuf bytes.Buffer
-	outputCmd.Stdout = &outBuf
-
 	outputs := map[string]OutputMeta{}
-
-	err := tf.runTerraformCmd(outputCmd)
-	if err != nil {
-		return nil, err
-	}
-
-	err = json.Unmarshal(outBuf.Bytes(), &outputs)
+	err := tf.runTerraformCmdJSON(outputCmd, &outputs)
 	if err != nil {
 		return nil, err
 	}

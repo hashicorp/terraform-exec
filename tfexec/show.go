@@ -1,9 +1,7 @@
 package tfexec
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"os/exec"
 
@@ -21,15 +19,7 @@ func (tf *Terraform) Show(ctx context.Context) (*tfjson.State, error) {
 	showCmd := tf.showCmd(ctx)
 
 	var ret tfjson.State
-	var outBuf bytes.Buffer
-	showCmd.Stdout = &outBuf
-
-	err = tf.runTerraformCmd(showCmd)
-	if err != nil {
-		return nil, err
-	}
-
-	err = json.Unmarshal(outBuf.Bytes(), &ret)
+	err = tf.runTerraformCmdJSON(showCmd, &ret)
 	if err != nil {
 		return nil, err
 	}
@@ -56,15 +46,7 @@ func (tf *Terraform) ShowStateFile(ctx context.Context, statePath string) (*tfjs
 	showCmd := tf.showCmd(ctx, statePath)
 
 	var ret tfjson.State
-	var outBuf bytes.Buffer
-	showCmd.Stdout = &outBuf
-
-	err = tf.runTerraformCmd(showCmd)
-	if err != nil {
-		return nil, err
-	}
-
-	err = json.Unmarshal(outBuf.Bytes(), &ret)
+	err = tf.runTerraformCmdJSON(showCmd, &ret)
 	if err != nil {
 		return nil, err
 	}
@@ -91,15 +73,7 @@ func (tf *Terraform) ShowPlanFile(ctx context.Context, planPath string) (*tfjson
 	showCmd := tf.showCmd(ctx, planPath)
 
 	var ret tfjson.Plan
-	var outBuf bytes.Buffer
-	showCmd.Stdout = &outBuf
-
-	err = tf.runTerraformCmd(showCmd)
-	if err != nil {
-		return nil, err
-	}
-
-	err = json.Unmarshal(outBuf.Bytes(), &ret)
+	err = tf.runTerraformCmdJSON(showCmd, &ret)
 	if err != nil {
 		return nil, err
 	}

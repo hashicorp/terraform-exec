@@ -1,9 +1,12 @@
 package tfexec
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
@@ -115,20 +118,23 @@ func (tf *Terraform) buildTerraformCmd(ctx context.Context, args ...string) *exe
 	return cmd
 }
 
+func (tf *Terraform) runTerraformCmdJSON(cmd *exec.Cmd, v interface{}) error {
+	var outbuf = bytes.Buffer{}
+	cmd.Stdout = mergeWriters(cmd.Stdout, &outbuf)
+
+	err := tf.runTerraformCmd(cmd)
+	if err != nil {
+		return err
+	}
+
+	return json.Unmarshal(outbuf.Bytes(), v)
+}
+
 func (tf *Terraform) runTerraformCmd(cmd *exec.Cmd) error {
 	var errBuf strings.Builder
 
-	stdout := tf.stdout
-	if cmd.Stdout != nil {
-		stdout = io.MultiWriter(stdout, cmd.Stdout)
-	}
-	cmd.Stdout = stdout
-
-	stderr := io.MultiWriter(&errBuf, tf.stderr)
-	if cmd.Stderr != nil {
-		stderr = io.MultiWriter(stderr, cmd.Stderr)
-	}
-	cmd.Stderr = stderr
+	cmd.Stdout = mergeWriters(cmd.Stdout, tf.stdout)
+	cmd.Stderr = mergeWriters(cmd.Stderr, tf.stderr, &errBuf)
 
 	err := cmd.Run()
 	if err != nil {
@@ -155,4 +161,20 @@ func mergeUserAgent(uas ...string) string {
 		merged = append(merged, ua)
 	}
 	return strings.Join(merged, " ")
+}
+
+func mergeWriters(writers ...io.Writer) io.Writer {
+	compact := []io.Writer{}
+	for _, w := range writers {
+		if w != nil {
+			compact = append(compact, w)
+		}
+	}
+	if len(compact) == 0 {
+		return ioutil.Discard
+	}
+	if len(compact) == 1 {
+		return compact[0]
+	}
+	return io.MultiWriter(compact...)
 }

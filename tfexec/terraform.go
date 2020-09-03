@@ -54,8 +54,6 @@ func NewTerraform(workingDir string, execPath string) (*Terraform, error) {
 		workingDir: workingDir,
 		env:        nil, // explicit nil means copy os.Environ
 		logger:     log.New(ioutil.Discard, "", 0),
-		stdout:     ioutil.Discard,
-		stderr:     ioutil.Discard,
 	}
 
 	return &tf, nil
