@@ -2,6 +2,7 @@
 
 BREAKING
  - `context.Context` added to `tfinstall.Find` to allow for cancellation, timeouts, etc [GH-51]
+ - You can no longer use `TF_WORKSPACE` for workspace management, you must use `Terraform.WorkspaceSelect` [GH-75]
 
 FEATURES
  - Add `ErrWorkspaceExists` for when workspaces with the same name already exist when calling `Terraform.WorkspaceNew` [GH-67]
