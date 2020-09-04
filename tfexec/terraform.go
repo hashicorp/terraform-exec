@@ -16,6 +16,22 @@ type printfer interface {
 	Printf(format string, v ...interface{})
 }
 
+// Terraform represents the Terraform CLI executable and working directory.
+//
+// Typically this is constructed against the root module of a Terraform configuration
+// but you can override paths used in some commands depending on the available
+// options.
+//
+// By default, the instance inherits the environment from the calling code (using os.Environ)
+// but it ignores certain environment variables that are managed within the code and prohibits
+// setting them through SetEnv:
+//
+//  - TF_APPEND_USER_AGENT
+//  - TF_IN_AUTOMATION
+//  - TF_INPUT
+//  - TF_LOG
+//  - TF_LOG_PATH
+//  - TF_REATTACH_PROVIDERS
 type Terraform struct {
 	execPath        string
 	workingDir      string

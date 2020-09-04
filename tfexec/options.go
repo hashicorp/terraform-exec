@@ -83,6 +83,7 @@ func DirOrPlan(path string) *DirOrPlanOption {
 	return &DirOrPlanOption{path}
 }
 
+// DestroyFlagOption represents the -destroy flag.
 type DestroyFlagOption struct {
 	// named to prevent conflict with DestroyOption interface
 

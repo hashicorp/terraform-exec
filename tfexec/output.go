@@ -13,6 +13,7 @@ type outputConfig struct {
 
 var defaultOutputOptions = outputConfig{}
 
+// OutputOption represents options used in the Output method.
 type OutputOption interface {
 	configureOutput(*outputConfig)
 }
@@ -31,6 +32,7 @@ type OutputMeta struct {
 	Value     json.RawMessage `json:"value"`
 }
 
+// Output represents the terraform output subcommand.
 func (tf *Terraform) Output(ctx context.Context, opts ...OutputOption) (map[string]OutputMeta, error) {
 	outputCmd := tf.outputCmd(ctx, opts...)
 

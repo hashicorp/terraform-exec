@@ -23,6 +23,7 @@ var defaultRefreshOptions = refreshConfig{
 	lockTimeout: "0s",
 }
 
+// RefreshCmdOption represents options used in the Refresh method.
 type RefreshCmdOption interface {
 	configureRefresh(*refreshConfig)
 }
@@ -63,6 +64,7 @@ func (opt *VarFileOption) configureRefresh(conf *refreshConfig) {
 	conf.varFiles = append(conf.varFiles, opt.path)
 }
 
+// Refresh represents the terraform refresh subcommand.
 func (tf *Terraform) Refresh(ctx context.Context, opts ...RefreshCmdOption) error {
 	return tf.runTerraformCmd(tf.refreshCmd(ctx, opts...))
 }

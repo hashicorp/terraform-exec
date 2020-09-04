@@ -81,6 +81,7 @@ func (opt *VarOption) configureDestroy(conf *destroyConfig) {
 	conf.vars = append(conf.vars, opt.assignment)
 }
 
+// Destroy represents the terraform destroy subcommand.
 func (tf *Terraform) Destroy(ctx context.Context, opts ...DestroyOption) error {
 	return tf.runTerraformCmd(tf.destroyCmd(ctx, opts...))
 }

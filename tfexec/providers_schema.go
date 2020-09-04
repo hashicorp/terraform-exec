@@ -7,6 +7,7 @@ import (
 	tfjson "github.com/hashicorp/terraform-json"
 )
 
+// ProvidersSchema represents the terraform providers schema -json subcommand.
 func (tf *Terraform) ProvidersSchema(ctx context.Context) (*tfjson.ProviderSchemas, error) {
 	schemaCmd := tf.providersSchemaCmd(ctx)
 
