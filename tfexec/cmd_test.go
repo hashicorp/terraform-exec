@@ -36,11 +36,12 @@ func TestMergeUserAgent(t *testing.T) {
 
 func defaultEnv() []string {
 	return []string{
-		"TF_APPEND_USER_AGENT=HashiCorp-terraform-exec/" + version.ModuleVersion(),
-		"TF_LOG=",
-		"TF_LOG_PATH=",
-		"TF_IN_AUTOMATION=1",
 		"CHECKPOINT_DISABLE=",
+		"TF_APPEND_USER_AGENT=HashiCorp-terraform-exec/" + version.ModuleVersion(),
+		"TF_IN_AUTOMATION=1",
+		"TF_LOG_PATH=",
+		"TF_LOG=",
+		"TF_WORKSPACE=",
 	}
 }
 
