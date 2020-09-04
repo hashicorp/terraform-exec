@@ -85,10 +85,15 @@ function commitMain {
   printf "ok!\n"
 }
 
+function createGitHubRelease {
+    curl -sL https://git.io/goreleaser | bash
+}
+
 function main {
   init
   changelogMain
   commitMain
+  createGitHubRelease
 }
 
 main
