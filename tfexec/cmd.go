@@ -22,6 +22,7 @@ const (
 	logPathEnvVar           = "TF_LOG_PATH"
 	reattachEnvVar          = "TF_REATTACH_PROVIDERS"
 	appendUserAgentEnvVar   = "TF_APPEND_USER_AGENT"
+	workspaceEnvVar         = "TF_WORKSPACE"
 
 	varEnvVarPrefix = "TF_VAR_"
 )
@@ -33,6 +34,7 @@ var prohibitedEnvVars = []string{
 	logEnvVar,
 	reattachEnvVar,
 	appendUserAgentEnvVar,
+	workspaceEnvVar,
 }
 
 func envMap(environ []string) map[string]string {
@@ -104,6 +106,9 @@ func (tf *Terraform) buildEnv(mergeEnv map[string]string) []string {
 
 	// constant automation override env vars
 	env[automationEnvVar] = "1"
+
+	// force usage of workspace methods for switching
+	env[workspaceEnvVar] = ""
 
 	return envSlice(env)
 }
