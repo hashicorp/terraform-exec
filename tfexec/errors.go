@@ -29,7 +29,8 @@ var (
 )
 
 func (tf *Terraform) parseError(err error, stderr string) error {
-	if _, ok := err.(*exec.ExitError); !ok {
+	ee, ok := err.(*exec.ExitError)
+	if !ok {
 		return err
 	}
 
@@ -86,6 +87,11 @@ func (tf *Terraform) parseError(err error, stderr string) error {
 		if len(submatches) == 2 {
 			return &ErrWorkspaceExists{submatches[1]}
 		}
+	}
+	errString := strings.TrimSpace(stderr)
+	if errString == "" {
+		// if stderr is empty, return the ExitError directly, as it will have a better message
+		return ee
 	}
 	return errors.New(stderr)
 }

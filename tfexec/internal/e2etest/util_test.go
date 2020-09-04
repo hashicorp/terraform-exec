@@ -1,10 +1,9 @@
 package e2etest
 
 import (
-	"bufio"
-	"bytes"
 	"context"
 	"fmt"
+	"hash/crc32"
 	"io"
 	"io/ioutil"
 	"os"
@@ -163,27 +162,33 @@ func copyFile(path string, dstPath string) error {
 	return nil
 }
 
-// filesEqual returns true iff the two files have the same contents.
-func filesEqual(file1, file2 string) (bool, error) {
-	sf, err := os.Open(file1)
+// filesEqual asserts that two files have the same contents.
+func textFilesEqual(t *testing.T, expected, actual string) {
+	eb, err := ioutil.ReadFile(expected)
 	if err != nil {
-		return false, err
+		t.Fatal(err)
 	}
 
-	df, err := os.Open(file2)
+	ab, err := ioutil.ReadFile(actual)
 	if err != nil {
-		return false, err
+		t.Fatal(err)
 	}
 
-	sscan := bufio.NewScanner(sf)
-	dscan := bufio.NewScanner(df)
+	es := string(eb)
+	es = strings.ReplaceAll(es, "\r\n", "\n")
 
-	for sscan.Scan() {
-		dscan.Scan()
-		if !bytes.Equal(sscan.Bytes(), dscan.Bytes()) {
-			return true, nil
-		}
+	as := string(ab)
+	as = strings.ReplaceAll(as, "\r\n", "\n")
+
+	if as != es {
+		t.Fatalf("expected:\n%s\n\ngot:\n%s\n", es, as)
 	}
+}
 
-	return false, nil
+func checkSum(t *testing.T, filename string) uint32 {
+	b, err := ioutil.ReadFile(filename)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return crc32.ChecksumIEEE(b)
 }
