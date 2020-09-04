@@ -69,6 +69,8 @@ func runTestVersions(t *testing.T, versions []string, fixtureName string, cb fun
 				t.Fatal(err)
 			}
 
+			tf.SetAppendUserAgent("tfexec-e2etest")
+
 			runningVersion, _, err := tf.Version(context.Background(), false)
 			if err != nil {
 				t.Fatalf("unable to determin running version (expected %q): %s", tfv, err)

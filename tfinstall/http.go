@@ -23,8 +23,8 @@ func (rt *userAgentRoundTripper) RoundTrip(req *http.Request) (*http.Response, e
 	return rt.inner.RoundTrip(req)
 }
 
-func newHTTPClient() *http.Client {
-	appendUA := os.Getenv("TF_APPEND_USER_AGENT")
+func newHTTPClient(appendUA string) *http.Client {
+	appendUA = strings.TrimSpace(appendUA + " " + os.Getenv("TF_APPEND_USER_AGENT"))
 	userAgent := strings.TrimSpace(fmt.Sprintf("HashiCorp-tfinstall/%s %s", intversion.ModuleVersion(), appendUA))
 
 	cli := cleanhttp.DefaultPooledClient()

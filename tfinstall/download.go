@@ -25,7 +25,7 @@ func ensureInstallDir(installDir string) (string, error) {
 	return installDir, nil
 }
 
-func downloadWithVerification(ctx context.Context, tfVersion string, installDir string) (string, error) {
+func downloadWithVerification(ctx context.Context, tfVersion string, installDir string, appendUserAgent string) (string, error) {
 	osName := runtime.GOOS
 	archName := runtime.GOARCH
 
@@ -37,7 +37,7 @@ func downloadWithVerification(ctx context.Context, tfVersion string, installDir 
 
 	httpGetter := &getter.HttpGetter{
 		Netrc:  true,
-		Client: newHTTPClient(),
+		Client: newHTTPClient(appendUserAgent),
 	}
 	client := getter.Client{
 		Ctx: ctx,
