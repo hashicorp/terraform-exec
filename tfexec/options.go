@@ -217,6 +217,14 @@ func Reconfigure(reconfigure bool) *ReconfigureOption {
 	return &ReconfigureOption{reconfigure}
 }
 
+type RecursiveOption struct {
+	recursive bool
+}
+
+func Recursive(r bool) *RecursiveOption {
+	return &RecursiveOption{r}
+}
+
 type RefreshOption struct {
 	refresh bool
 }
