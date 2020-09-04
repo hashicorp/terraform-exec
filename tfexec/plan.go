@@ -29,6 +29,7 @@ var defaultPlanOptions = planConfig{
 	refresh:     true,
 }
 
+// PlanOption represents options used in the Plan method.
 type PlanOption interface {
 	configurePlan(*planConfig)
 }

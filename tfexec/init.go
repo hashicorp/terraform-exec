@@ -87,6 +87,7 @@ func (opt *VerifyPluginsOption) configureInit(conf *initConfig) {
 	conf.verifyPlugins = opt.verifyPlugins
 }
 
+// Init represents the terraform init subcommand.
 func (tf *Terraform) Init(ctx context.Context, opts ...InitOption) error {
 	return tf.runTerraformCmd(tf.initCmd(ctx, opts...))
 }

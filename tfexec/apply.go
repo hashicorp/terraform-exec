@@ -80,6 +80,7 @@ func (opt *DirOrPlanOption) configureApply(conf *applyConfig) {
 	conf.dirOrPlan = opt.path
 }
 
+// Apply represents the terraform apply subcommand.
 func (tf *Terraform) Apply(ctx context.Context, opts ...ApplyOption) error {
 	return tf.runTerraformCmd(tf.applyCmd(ctx, opts...))
 }

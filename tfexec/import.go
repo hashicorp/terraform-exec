@@ -67,6 +67,7 @@ func (opt *VarFileOption) configureImport(conf *importConfig) {
 	conf.varFiles = append(conf.varFiles, opt.path)
 }
 
+// Import represents the terraform import subcommand.
 func (tf *Terraform) Import(ctx context.Context, address, id string, opts ...ImportOption) error {
 	return tf.runTerraformCmd(tf.importCmd(ctx, address, id, opts...))
 }
