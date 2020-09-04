@@ -10,6 +10,8 @@ import (
 type LatestVersionOption struct {
 	forceCheckpoint bool
 	installDir      string
+
+	UserAgent string
 }
 
 var _ ExecPathFinder = &LatestVersionOption{}
@@ -29,7 +31,7 @@ func (opt *LatestVersionOption) ExecPath(ctx context.Context) (string, error) {
 		return "", err
 	}
 
-	return downloadWithVerification(ctx, v, opt.installDir)
+	return downloadWithVerification(ctx, v, opt.installDir, opt.UserAgent)
 }
 
 func latestVersion(forceCheckpoint bool) (string, error) {

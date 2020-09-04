@@ -9,6 +9,8 @@ import (
 type ExactVersionOption struct {
 	tfVersion  string
 	installDir string
+
+	UserAgent string
 }
 
 var _ ExecPathFinder = &ExactVersionOption{}
@@ -29,5 +31,5 @@ func (opt *ExactVersionOption) ExecPath(ctx context.Context) (string, error) {
 		return "", err
 	}
 
-	return downloadWithVerification(ctx, opt.tfVersion, opt.installDir)
+	return downloadWithVerification(ctx, opt.tfVersion, opt.installDir, opt.UserAgent)
 }
