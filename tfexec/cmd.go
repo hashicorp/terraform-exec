@@ -15,14 +15,16 @@ import (
 )
 
 const (
-	checkpointDisableEnvVar = "CHECKPOINT_DISABLE"
-	logEnvVar               = "TF_LOG"
-	inputEnvVar             = "TF_INPUT"
-	automationEnvVar        = "TF_IN_AUTOMATION"
-	logPathEnvVar           = "TF_LOG_PATH"
-	reattachEnvVar          = "TF_REATTACH_PROVIDERS"
-	appendUserAgentEnvVar   = "TF_APPEND_USER_AGENT"
-	workspaceEnvVar         = "TF_WORKSPACE"
+	checkpointDisableEnvVar  = "CHECKPOINT_DISABLE"
+	logEnvVar                = "TF_LOG"
+	inputEnvVar              = "TF_INPUT"
+	automationEnvVar         = "TF_IN_AUTOMATION"
+	logPathEnvVar            = "TF_LOG_PATH"
+	reattachEnvVar           = "TF_REATTACH_PROVIDERS"
+	appendUserAgentEnvVar    = "TF_APPEND_USER_AGENT"
+	workspaceEnvVar          = "TF_WORKSPACE"
+	disablePluginTLSEnvVar   = "TF_DISABLE_PLUGIN_TLS"
+	skipProviderVerifyEnvVar = "TF_SKIP_PROVIDER_VERIFY"
 
 	varEnvVarPrefix = "TF_VAR_"
 )
@@ -35,6 +37,8 @@ var prohibitedEnvVars = []string{
 	reattachEnvVar,
 	appendUserAgentEnvVar,
 	workspaceEnvVar,
+	disablePluginTLSEnvVar,
+	skipProviderVerifyEnvVar,
 }
 
 func envMap(environ []string) map[string]string {

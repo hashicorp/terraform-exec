@@ -1,6 +1,7 @@
 package tfexec
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -32,11 +33,15 @@ type printfer interface {
 //  - TF_LOG
 //  - TF_LOG_PATH
 //  - TF_REATTACH_PROVIDERS
+//  - TF_DISABLE_PLUGIN_TLS
+//  - TF_SKIP_PROVIDER_VERIFY
 type Terraform struct {
-	execPath        string
-	workingDir      string
-	appendUserAgent string
-	env             map[string]string
+	execPath           string
+	workingDir         string
+	appendUserAgent    string
+	disablePluginTLS   bool
+	skipProviderVerify bool
+	env                map[string]string
 
 	stdout  io.Writer
 	stderr  io.Writer
@@ -125,8 +130,27 @@ func (tf *Terraform) SetLogPath(path string) error {
 
 // SetAppendUserAgent sets the TF_APPEND_USER_AGENT environment variable for
 // Terraform CLI execution.
-func (tf *Terraform) SetAppendUserAgent(ua string) {
+func (tf *Terraform) SetAppendUserAgent(ua string) error {
 	tf.appendUserAgent = ua
+	return nil
+}
+
+// SetDisablePluginTLS sets the TF_DISABLE_PLUGIN_TLS environment variable for
+// Terraform CLI execution.
+func (tf *Terraform) SetDisablePluginTLS(disabled bool) error {
+	tf.disablePluginTLS = disabled
+	return nil
+}
+
+// SetSkipProviderVerify sets the TF_SKIP_PROVIDER_VERIFY environment variable
+// for Terraform CLI execution. This is no longer used in 0.13.0 and greater.
+func (tf *Terraform) SetSkipProviderVerify(skip bool) error {
+	err := tf.compatible(context.Background(), nil, tf0_13_0)
+	if err != nil {
+		return err
+	}
+	tf.skipProviderVerify = skip
+	return nil
 }
 
 // WorkingDir returns the working directory for Terraform.

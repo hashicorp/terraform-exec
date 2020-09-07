@@ -13,6 +13,7 @@ import (
 
 var (
 	tf0_12_0 = version.Must(version.NewVersion("0.12.0"))
+	tf0_13_0 = version.Must(version.NewVersion("0.13.0"))
 )
 
 // Version returns structured output from the terraform version command including both the Terraform CLI version
