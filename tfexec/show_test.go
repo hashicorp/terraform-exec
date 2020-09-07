@@ -21,7 +21,7 @@ func TestShowCmd(t *testing.T) {
 	tf.SetEnv(map[string]string{})
 
 	// defaults
-	showCmd := tf.showCmd(context.Background())
+	showCmd := tf.showCmd(context.Background(), nil)
 
 	assertCmd(t, []string{
 		"show",
@@ -42,7 +42,7 @@ func TestShowStateFileCmd(t *testing.T) {
 	// empty env, to avoid environ mismatch in testing
 	tf.SetEnv(map[string]string{})
 
-	showCmd := tf.showCmd(context.Background(), "statefilepath")
+	showCmd := tf.showCmd(context.Background(), nil, "statefilepath")
 
 	assertCmd(t, []string{
 		"show",
@@ -64,7 +64,7 @@ func TestShowPlanFileCmd(t *testing.T) {
 	// empty env, to avoid environ mismatch in testing
 	tf.SetEnv(map[string]string{})
 
-	showCmd := tf.showCmd(context.Background(), "planfilepath")
+	showCmd := tf.showCmd(context.Background(), nil, "planfilepath")
 
 	assertCmd(t, []string{
 		"show",

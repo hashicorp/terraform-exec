@@ -29,5 +29,5 @@ func (tf *Terraform) providersSchemaCmd(ctx context.Context, args ...string) *ex
 	allArgs := []string{"providers", "schema", "-json", "-no-color"}
 	allArgs = append(allArgs, args...)
 
-	return tf.buildTerraformCmd(ctx, allArgs...)
+	return tf.buildTerraformCmd(ctx, nil, allArgs...)
 }

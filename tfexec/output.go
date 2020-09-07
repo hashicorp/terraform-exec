@@ -59,5 +59,5 @@ func (tf *Terraform) outputCmd(ctx context.Context, opts ...OutputOption) *exec.
 		args = append(args, "-state="+c.state)
 	}
 
-	return tf.buildTerraformCmd(ctx, args...)
+	return tf.buildTerraformCmd(ctx, nil, args...)
 }

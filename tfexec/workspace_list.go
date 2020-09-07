@@ -9,7 +9,7 @@ import (
 // WorkspaceList represents the workspace list subcommand to the Terraform CLI.
 func (tf *Terraform) WorkspaceList(ctx context.Context) ([]string, string, error) {
 	// TODO: [DIR] param option
-	wlCmd := tf.buildTerraformCmd(ctx, "workspace", "list", "-no-color")
+	wlCmd := tf.buildTerraformCmd(ctx, nil, "workspace", "list", "-no-color")
 
 	var outBuf bytes.Buffer
 	wlCmd.Stdout = &outBuf

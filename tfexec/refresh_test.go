@@ -21,7 +21,10 @@ func TestRefreshCmd(t *testing.T) {
 	tf.SetEnv(map[string]string{})
 
 	t.Run("defaults", func(t *testing.T) {
-		refreshCmd := tf.refreshCmd(context.Background())
+		refreshCmd, err := tf.refreshCmd(context.Background())
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		assertCmd(t, []string{
 			"refresh",
@@ -33,7 +36,10 @@ func TestRefreshCmd(t *testing.T) {
 	})
 
 	t.Run("override all defaults", func(t *testing.T) {
-		refreshCmd := tf.refreshCmd(context.Background(), Backup("testbackup"), LockTimeout("200s"), State("teststate"), StateOut("teststateout"), VarFile("testvarfile"), Lock(false), Target("target1"), Target("target2"), Var("var1=foo"), Var("var2=bar"), Dir("refreshdir"))
+		refreshCmd, err := tf.refreshCmd(context.Background(), Backup("testbackup"), LockTimeout("200s"), State("teststate"), StateOut("teststateout"), VarFile("testvarfile"), Lock(false), Target("target1"), Target("target2"), Var("var1=foo"), Var("var2=bar"), Dir("refreshdir"))
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		assertCmd(t, []string{
 			"refresh",

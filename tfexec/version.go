@@ -38,7 +38,7 @@ func (tf *Terraform) version(ctx context.Context) (*version.Version, map[string]
 	// TODO: 0.13.0-beta2? and above supports a `-json` on the version command, should add support
 	// for that here and fallback to string parsing
 
-	versionCmd := tf.buildTerraformCmd(ctx, "version")
+	versionCmd := tf.buildTerraformCmd(ctx, nil, "version")
 
 	var outBuf bytes.Buffer
 	versionCmd.Stdout = &outBuf

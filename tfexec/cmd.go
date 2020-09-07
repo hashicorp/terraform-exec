@@ -114,12 +114,20 @@ func (tf *Terraform) buildEnv(mergeEnv map[string]string) []string {
 	// force usage of workspace methods for switching
 	env[workspaceEnvVar] = ""
 
+	if tf.disablePluginTLS {
+		env[disablePluginTLSEnvVar] = "1"
+	}
+
+	if tf.skipProviderVerify {
+		env[skipProviderVerifyEnvVar] = "1"
+	}
+
 	return envSlice(env)
 }
 
-func (tf *Terraform) buildTerraformCmd(ctx context.Context, args ...string) *exec.Cmd {
+func (tf *Terraform) buildTerraformCmd(ctx context.Context, mergeEnv map[string]string, args ...string) *exec.Cmd {
 	cmd := exec.CommandContext(ctx, tf.execPath, args...)
-	cmd.Env = tf.buildEnv(nil)
+	cmd.Env = tf.buildEnv(mergeEnv)
 	cmd.Dir = tf.workingDir
 
 	tf.logger.Printf("[INFO] running Terraform command: %s", cmdString(cmd))

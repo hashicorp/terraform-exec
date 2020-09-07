@@ -14,6 +14,7 @@ type importConfig struct {
 	allowMissingConfig bool
 	lock               bool
 	lockTimeout        string
+	reattachInfo       ReattachInfo
 	state              string
 	stateOut           string
 	vars               []string
@@ -51,6 +52,10 @@ func (opt *LockTimeoutOption) configureImport(conf *importConfig) {
 	conf.lockTimeout = opt.timeout
 }
 
+func (opt *ReattachOption) configureImport(conf *importConfig) {
+	conf.reattachInfo = opt.info
+}
+
 func (opt *StateOption) configureImport(conf *importConfig) {
 	conf.state = opt.path
 }
@@ -69,10 +74,14 @@ func (opt *VarFileOption) configureImport(conf *importConfig) {
 
 // Import represents the terraform import subcommand.
 func (tf *Terraform) Import(ctx context.Context, address, id string, opts ...ImportOption) error {
-	return tf.runTerraformCmd(tf.importCmd(ctx, address, id, opts...))
+	cmd, err := tf.importCmd(ctx, address, id, opts...)
+	if err != nil {
+		return err
+	}
+	return tf.runTerraformCmd(cmd)
 }
 
-func (tf *Terraform) importCmd(ctx context.Context, address, id string, opts ...ImportOption) *exec.Cmd {
+func (tf *Terraform) importCmd(ctx context.Context, address, id string, opts ...ImportOption) (*exec.Cmd, error) {
 	c := defaultImportOptions
 
 	for _, o := range opts {
@@ -119,5 +128,14 @@ func (tf *Terraform) importCmd(ctx context.Context, address, id string, opts ...
 	// required args, always pass
 	args = append(args, address, id)
 
-	return tf.buildTerraformCmd(ctx, args...)
+	mergeEnv := map[string]string{}
+	if c.reattachInfo != nil {
+		reattachStr, err := c.reattachInfo.marshalString()
+		if err != nil {
+			return nil, err
+		}
+		mergeEnv[reattachEnvVar] = reattachStr
+	}
+
+	return tf.buildTerraformCmd(ctx, mergeEnv, args...), nil
 }
