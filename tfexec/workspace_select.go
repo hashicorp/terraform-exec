@@ -6,5 +6,5 @@ import "context"
 func (tf *Terraform) WorkspaceSelect(ctx context.Context, workspace string) error {
 	// TODO: [DIR] param option
 
-	return tf.runTerraformCmd(tf.buildTerraformCmd(ctx, "workspace", "select", "-no-color", workspace))
+	return tf.runTerraformCmd(tf.buildTerraformCmd(ctx, nil, "workspace", "select", "-no-color", workspace))
 }

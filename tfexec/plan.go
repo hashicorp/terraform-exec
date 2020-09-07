@@ -8,17 +8,18 @@ import (
 )
 
 type planConfig struct {
-	destroy     bool
-	dir         string
-	lock        bool
-	lockTimeout string
-	out         string
-	parallelism int
-	refresh     bool
-	state       string
-	targets     []string
-	vars        []string
-	varFiles    []string
+	destroy      bool
+	dir          string
+	lock         bool
+	lockTimeout  string
+	out          string
+	parallelism  int
+	reattachInfo ReattachInfo
+	refresh      bool
+	state        string
+	targets      []string
+	vars         []string
+	varFiles     []string
 }
 
 var defaultPlanOptions = planConfig{
@@ -54,6 +55,10 @@ func (opt *StateOption) configurePlan(conf *planConfig) {
 	conf.state = opt.path
 }
 
+func (opt *ReattachOption) configurePlan(conf *planConfig) {
+	conf.reattachInfo = opt.info
+}
+
 func (opt *RefreshOption) configurePlan(conf *planConfig) {
 	conf.refresh = opt.refresh
 }
@@ -87,15 +92,18 @@ func (opt *DestroyFlagOption) configurePlan(conf *planConfig) {
 // The returned error is nil if `terraform plan` has been executed and exits
 // with either 0 or 2.
 func (tf *Terraform) Plan(ctx context.Context, opts ...PlanOption) (bool, error) {
-	cmd := tf.planCmd(ctx, opts...)
-	err := tf.runTerraformCmd(cmd)
+	cmd, err := tf.planCmd(ctx, opts...)
+	if err != nil {
+		return false, err
+	}
+	err = tf.runTerraformCmd(cmd)
 	if err != nil && cmd.ProcessState.ExitCode() == 2 {
 		return true, nil
 	}
 	return false, err
 }
 
-func (tf *Terraform) planCmd(ctx context.Context, opts ...PlanOption) *exec.Cmd {
+func (tf *Terraform) planCmd(ctx context.Context, opts ...PlanOption) (*exec.Cmd, error) {
 	c := defaultPlanOptions
 
 	for _, o := range opts {
@@ -145,5 +153,14 @@ func (tf *Terraform) planCmd(ctx context.Context, opts ...PlanOption) *exec.Cmd 
 		args = append(args, c.dir)
 	}
 
-	return tf.buildTerraformCmd(ctx, args...)
+	mergeEnv := map[string]string{}
+	if c.reattachInfo != nil {
+		reattachStr, err := c.reattachInfo.marshalString()
+		if err != nil {
+			return nil, err
+		}
+		mergeEnv[reattachEnvVar] = reattachStr
+	}
+
+	return tf.buildTerraformCmd(ctx, mergeEnv, args...), nil
 }

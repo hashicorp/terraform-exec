@@ -21,7 +21,7 @@ func TestApplyCmd(t *testing.T) {
 	tf.SetEnv(map[string]string{})
 
 	t.Run("basic", func(t *testing.T) {
-		applyCmd := tf.applyCmd(context.Background(),
+		applyCmd, err := tf.applyCmd(context.Background(),
 			Backup("testbackup"),
 			LockTimeout("200s"),
 			State("teststate"),
@@ -37,6 +37,9 @@ func TestApplyCmd(t *testing.T) {
 			Var("var2=bar"),
 			DirOrPlan("testfile"),
 		)
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		assertCmd(t, []string{
 			"apply",

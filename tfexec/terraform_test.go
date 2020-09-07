@@ -85,7 +85,10 @@ func TestCheckpointDisablePropagation(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		initCmd := tf.initCmd(context.Background())
+		initCmd, err := tf.initCmd(context.Background())
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		assertCmd(t, []string{
 			"init",
@@ -114,7 +117,10 @@ func TestCheckpointDisablePropagation(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		initCmd := tf.initCmd(context.Background())
+		initCmd, err := tf.initCmd(context.Background())
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		assertCmd(t, []string{
 			"init",

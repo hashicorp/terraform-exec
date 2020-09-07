@@ -21,7 +21,10 @@ func TestImportCmd(t *testing.T) {
 	tf.SetEnv(map[string]string{})
 
 	t.Run("defaults", func(t *testing.T) {
-		importCmd := tf.importCmd(context.Background(), "my-addr", "my-id")
+		importCmd, err := tf.importCmd(context.Background(), "my-addr", "my-id")
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		assertCmd(t, []string{
 			"import",
@@ -35,7 +38,7 @@ func TestImportCmd(t *testing.T) {
 	})
 
 	t.Run("override all defaults", func(t *testing.T) {
-		importCmd := tf.importCmd(context.Background(), "my-addr2", "my-id2",
+		importCmd, err := tf.importCmd(context.Background(), "my-addr2", "my-id2",
 			Backup("testbackup"),
 			LockTimeout("200s"),
 			State("teststate"),
@@ -46,6 +49,9 @@ func TestImportCmd(t *testing.T) {
 			Var("var2=bar"),
 			AllowMissingConfig(true),
 		)
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		assertCmd(t, []string{
 			"import",

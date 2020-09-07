@@ -1,5 +1,9 @@
 package tfexec
 
+import (
+	"encoding/json"
+)
+
 // AllowMissingConfigOption represents the -allow-missing-config flag.
 type AllowMissingConfigOption struct {
 	allowMissingConfig bool
@@ -170,6 +174,39 @@ type PluginDirOption struct {
 
 func PluginDir(pluginDir string) *PluginDirOption {
 	return &PluginDirOption{pluginDir}
+}
+
+type ReattachInfo map[string]ReattachConfig
+
+// ReattachConfig holds the information Terraform needs to be able to attach
+// itself to a provider process, so it can drive the process.
+type ReattachConfig struct {
+	Protocol string
+	Pid      int
+	Test     bool
+	Addr     ReattachConfigAddr
+}
+
+// ReattachConfigAddr is a JSON-encoding friendly version of net.Addr.
+type ReattachConfigAddr struct {
+	Network string
+	String  string
+}
+
+type ReattachOption struct {
+	info ReattachInfo
+}
+
+func (info ReattachInfo) marshalString() (string, error) {
+	reattachStr, err := json.Marshal(info)
+	if err != nil {
+		return "", err
+	}
+	return string(reattachStr), nil
+}
+
+func Reattach(info ReattachInfo) *ReattachOption {
+	return &ReattachOption{info}
 }
 
 type ReconfigureOption struct {

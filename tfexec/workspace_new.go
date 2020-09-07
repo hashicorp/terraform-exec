@@ -77,7 +77,7 @@ func (tf *Terraform) workspaceNewCmd(ctx context.Context, workspace string, opts
 
 	args = append(args, workspace)
 
-	cmd := tf.buildTerraformCmd(ctx, args...)
+	cmd := tf.buildTerraformCmd(ctx, nil, args...)
 
 	return cmd, nil
 }
