@@ -8,6 +8,7 @@ FEATURES
  - Add `ErrWorkspaceExists` for when workspaces with the same name already exist when calling `Terraform.WorkspaceNew` [GH-67]
  - Added `tfinstall.GitRef` to support installation of Terraform from a git ref instead of by released version [GH-51]
  - Created the **tfinstall** CLI utility (this is mostly for use in things like CI automation) [GH-29]
+ - Added `ReattachOption` for plugin reattach functionality [GH-78]
 
 # 0.8.0 (August 29, 2020)
 
