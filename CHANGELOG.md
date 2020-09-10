@@ -1,3 +1,8 @@
+# 0.10.0 (Unreleased)
+
+FEATURES
+ - Added the ability to customize the `User-Agent` header for some `tfinstall` finders [GH-76]
+
 # 0.9.0 (September 09, 2020)
 
 BREAKING
