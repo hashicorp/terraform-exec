@@ -6,11 +6,16 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/hashicorp/logutils"
-	"github.com/hashicorp/terraform-exec/tfinstall"
 	"github.com/mitchellh/cli"
+
+	"github.com/hashicorp/terraform-exec/tfinstall"
 )
+
+// TODO: add versioning to this?
+const userAgentAppend = "tfinstall-cli"
 
 func main() {
 	filter := &logutils.LevelFilter{
@@ -36,11 +41,17 @@ func main() {
 }
 
 func help() string {
-	return `Usage: tfinstall [--dir=DIR] VERSION
+	return `Usage: tfinstall [--dir=DIR] VERSION-OR-REF
 
-  Downloads, verifies, and installs a terraform binary of version
-  VERSION from releases.hashicorp.com. VERSION must be a valid version under
-  semantic versioning, or "latest".
+  Downloads, verifies, and installs a official releases of the Terraform binary
+  from releases.hashicorp.com or downloads, compiles, and installs a version of
+  the Terraform binary from the GitHub repository.
+
+  To download an official release, pass "latest" or a valid semantic versioning
+  version string.
+
+  To download and compile a version of the Terraform binary from the GitHub
+  repository pass a ref in the form "refs/...", some examples are shown below.
 
   If a binary is successfully installed, its path will be printed to stdout.
 
@@ -55,6 +66,9 @@ Examples:
   tfinstall latest
   tfinstall 0.13.0-beta3
   tfinstall --dir=/home/kmoe/bin 0.12.28
+  tfinstall refs/heads/master
+  tfinstall refs/tags/v0.12.29
+  tfinstall refs/pull/25633/head
 `
 }
 
@@ -73,7 +87,7 @@ func run(ui cli.Ui, args []string) int {
 	}
 
 	if flags.NArg() != 1 {
-		ui.Error("Please specify VERSION")
+		ui.Error("Please specify VERSION-OR-REF")
 		ui.Output(help())
 		return 127
 	}
@@ -90,10 +104,20 @@ func run(ui cli.Ui, args []string) int {
 
 	var findArgs []tfinstall.ExecPathFinder
 
-	if tfVersion == "latest" {
-		findArgs = append(findArgs, tfinstall.LatestVersion(tfDir, false))
-	} else {
-		findArgs = append(findArgs, tfinstall.ExactVersion(tfVersion, tfDir))
+	switch {
+	case tfVersion == "latest":
+		finder := tfinstall.LatestVersion(tfDir, false)
+		finder.UserAgent = userAgentAppend
+		findArgs = append(findArgs, finder)
+	case strings.HasPrefix(tfVersion, "refs/"):
+		findArgs = append(findArgs, tfinstall.GitRef(tfVersion, "", tfDir))
+	default:
+		if strings.HasPrefix(tfVersion, "v") {
+			tfVersion = tfVersion[1:]
+		}
+		finder := tfinstall.ExactVersion(tfVersion, tfDir)
+		finder.UserAgent = userAgentAppend
+		findArgs = append(findArgs, finder)
 	}
 
 	tfPath, err := tfinstall.Find(ctx, findArgs...)
