@@ -147,9 +147,9 @@ func (tf *Terraform) ShowPlanFile(ctx context.Context, planPath string, opts ...
 
 }
 
-// ShowRawPlanFile reads a given plan file and outputs the plan in a
+// ShowPlanFileRaw reads a given plan file and outputs the plan in a
 // human-friendly, opaque format.
-func (tf *Terraform) ShowRawPlanFile(ctx context.Context, planPath string, opts ...ShowOption) (string, error) {
+func (tf *Terraform) ShowPlanFileRaw(ctx context.Context, planPath string, opts ...ShowOption) (string, error) {
 	if planPath == "" {
 		return "", fmt.Errorf("planPath cannot be blank: use Show() if not passing planPath")
 	}
