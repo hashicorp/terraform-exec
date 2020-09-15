@@ -73,3 +73,24 @@ func TestShowPlanFileCmd(t *testing.T) {
 		"planfilepath",
 	}, nil, showCmd)
 }
+
+func TestShowPlanFileRawCmd(t *testing.T) {
+	td := testTempDir(t)
+	defer os.RemoveAll(td)
+
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest012))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// empty env, to avoid environ mismatch in testing
+	tf.SetEnv(map[string]string{})
+
+	showCmd := tf.showCmd(context.Background(), false, nil, "planfilepath")
+
+	assertCmd(t, []string{
+		"show",
+		"-no-color",
+		"planfilepath",
+	}, nil, showCmd)
+}

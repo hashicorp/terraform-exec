@@ -3,8 +3,10 @@ package e2etest
 import (
 	"context"
 	"errors"
+	"io/ioutil"
 	"reflect"
 	"runtime"
+	"strings"
 	"testing"
 
 	"github.com/davecgh/go-spew/spew"
@@ -314,6 +316,58 @@ func TestShowPlanFile013(t *testing.T) {
 
 		if !reflect.DeepEqual(actual, &expected) {
 			t.Fatalf("actual: %s\nexpected: %s", spew.Sdump(actual), spew.Sdump(expected))
+		}
+	})
+}
+
+func TestShowPlanFileRaw012(t *testing.T) {
+	runTestVersions(t, []string{testutil.Latest012}, "non_default_planfile_012", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		// plan file fixture was created in Linux, and is
+		// not compatible with Windows
+		if runtime.GOOS == "windows" {
+			t.Skip("plan file created in 0.12 on Linux is not compatible with Windows")
+		}
+
+		expected, err := ioutil.ReadFile("testdata/non_default_planfile_012/human_readable_output.txt")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = tf.Init(context.Background())
+		if err != nil {
+			t.Fatalf("error running Init in test directory: %s", err)
+		}
+
+		actual, err := tf.ShowPlanFileRaw(context.Background(), "planfilefoo")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if strings.TrimSpace(actual) != strings.TrimSpace(string(expected)) {
+			t.Fatalf("actual:\n\n%s\n\nexpected:\n\n%s", actual, string(expected))
+		}
+	})
+}
+
+func TestShowPlanFileRaw013(t *testing.T) {
+	runTestVersions(t, []string{testutil.Latest013}, "non_default_planfile_013", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		expected, err := ioutil.ReadFile("testdata/non_default_planfile_013/human_readable_output.txt")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = tf.Init(context.Background())
+		if err != nil {
+			t.Fatalf("error running Init in test directory: %s", err)
+		}
+
+		actual, err := tf.ShowPlanFileRaw(context.Background(), "planfilefoo")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if strings.TrimSpace(actual) != strings.TrimSpace(string(expected)) {
+			t.Fatalf("actual:\n\n%s\n\nexpected:\n\n%s", actual, string(expected))
 		}
 	})
 }
