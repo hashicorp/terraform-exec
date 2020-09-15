@@ -12,6 +12,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/go-version"
 	tfjson "github.com/hashicorp/terraform-json"
+	"github.com/sergi/go-diff/diffmatchpatch"
 
 	"github.com/hashicorp/terraform-exec/tfexec"
 	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
@@ -344,7 +345,9 @@ func TestShowPlanFileRaw012(t *testing.T) {
 		}
 
 		if strings.TrimSpace(actual) != strings.TrimSpace(string(expected)) {
-			t.Fatalf("actual:\n\n%s\n\nexpected:\n\n%s", actual, string(expected))
+			dmp := diffmatchpatch.New()
+			diffs := dmp.DiffMain(strings.TrimSpace(actual), strings.TrimSpace(string(expected)), false)
+			t.Fatalf("actual:\n\n%s\n\nexpected:\n\n%s\n\ndiff:\n\n%s", actual, string(expected), dmp.DiffPrettyText(diffs))
 		}
 	})
 }
@@ -367,7 +370,9 @@ func TestShowPlanFileRaw013(t *testing.T) {
 		}
 
 		if strings.TrimSpace(actual) != strings.TrimSpace(string(expected)) {
-			t.Fatalf("actual:\n\n%s\n\nexpected:\n\n%s", actual, string(expected))
+			dmp := diffmatchpatch.New()
+			diffs := dmp.DiffMain(strings.TrimSpace(actual), strings.TrimSpace(string(expected)), false)
+			t.Fatalf("actual:\n\n%s\n\nexpected:\n\n%s\n\ndiff:\n\n%s", actual, string(expected), dmp.DiffPrettyText(diffs))
 		}
 	})
 }
