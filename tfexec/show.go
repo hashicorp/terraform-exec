@@ -1,6 +1,7 @@
 package tfexec
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"os/exec"
@@ -45,7 +46,7 @@ func (tf *Terraform) Show(ctx context.Context, opts ...ShowOption) (*tfjson.Stat
 		mergeEnv[reattachEnvVar] = reattachStr
 	}
 
-	showCmd := tf.showCmd(ctx, mergeEnv)
+	showCmd := tf.showCmd(ctx, true, mergeEnv)
 
 	var ret tfjson.State
 	err = tf.runTerraformCmdJSON(showCmd, &ret)
@@ -87,7 +88,7 @@ func (tf *Terraform) ShowStateFile(ctx context.Context, statePath string, opts .
 		mergeEnv[reattachEnvVar] = reattachStr
 	}
 
-	showCmd := tf.showCmd(ctx, mergeEnv, statePath)
+	showCmd := tf.showCmd(ctx, true, mergeEnv, statePath)
 
 	var ret tfjson.State
 	err = tf.runTerraformCmdJSON(showCmd, &ret)
@@ -129,7 +130,7 @@ func (tf *Terraform) ShowPlanFile(ctx context.Context, planPath string, opts ...
 		mergeEnv[reattachEnvVar] = reattachStr
 	}
 
-	showCmd := tf.showCmd(ctx, mergeEnv, planPath)
+	showCmd := tf.showCmd(ctx, true, mergeEnv, planPath)
 
 	var ret tfjson.Plan
 	err = tf.runTerraformCmdJSON(showCmd, &ret)
@@ -146,8 +147,47 @@ func (tf *Terraform) ShowPlanFile(ctx context.Context, planPath string, opts ...
 
 }
 
-func (tf *Terraform) showCmd(ctx context.Context, mergeEnv map[string]string, args ...string) *exec.Cmd {
-	allArgs := []string{"show", "-json", "-no-color"}
+// ShowPlanFileRaw reads a given plan file and outputs the plan in a
+// human-friendly, opaque format.
+func (tf *Terraform) ShowPlanFileRaw(ctx context.Context, planPath string, opts ...ShowOption) (string, error) {
+	if planPath == "" {
+		return "", fmt.Errorf("planPath cannot be blank: use Show() if not passing planPath")
+	}
+
+	c := defaultShowOptions
+
+	for _, o := range opts {
+		o.configureShow(&c)
+	}
+
+	mergeEnv := map[string]string{}
+	if c.reattachInfo != nil {
+		reattachStr, err := c.reattachInfo.marshalString()
+		if err != nil {
+			return "", err
+		}
+		mergeEnv[reattachEnvVar] = reattachStr
+	}
+
+	showCmd := tf.showCmd(ctx, false, mergeEnv, planPath)
+
+	var ret bytes.Buffer
+	showCmd.Stdout = &ret
+	err := tf.runTerraformCmd(showCmd)
+	if err != nil {
+		return "", err
+	}
+
+	return ret.String(), nil
+
+}
+
+func (tf *Terraform) showCmd(ctx context.Context, jsonOutput bool, mergeEnv map[string]string, args ...string) *exec.Cmd {
+	allArgs := []string{"show"}
+	if jsonOutput {
+		allArgs = append(allArgs, "-json")
+	}
+	allArgs = append(allArgs, "-no-color")
 	allArgs = append(allArgs, args...)
 
 	return tf.buildTerraformCmd(ctx, mergeEnv, allArgs...)
