@@ -3,6 +3,7 @@ module github.com/hashicorp/terraform-exec
 go 1.14
 
 require (
+	github.com/andybalholm/crlf v0.0.0-20171020200849-670099aa064f
 	github.com/davecgh/go-spew v1.1.1
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/hashicorp/go-checkpoint v0.5.0
