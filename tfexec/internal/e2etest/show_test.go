@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/andybalholm/crlf"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/go-version"
 	tfjson "github.com/hashicorp/terraform-json"
@@ -329,7 +330,13 @@ func TestShowPlanFileRaw012(t *testing.T) {
 			t.Skip("plan file created in 0.12 on Linux is not compatible with Windows")
 		}
 
-		expected, err := ioutil.ReadFile("testdata/non_default_planfile_012/human_readable_output.txt")
+		// crlf will standardize our line endings for us
+		f, err := crlf.Open("testdata/non_default_planfile_012/human_readable_output.txt")
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer f.Close()
+		expected, err := ioutil.ReadAll(f)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -354,7 +361,13 @@ func TestShowPlanFileRaw012(t *testing.T) {
 
 func TestShowPlanFileRaw013(t *testing.T) {
 	runTestVersions(t, []string{testutil.Latest013}, "non_default_planfile_013", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
-		expected, err := ioutil.ReadFile("testdata/non_default_planfile_013/human_readable_output.txt")
+		// crlf will standardize our line endings for us
+		f, err := crlf.Open("testdata/non_default_planfile_013/human_readable_output.txt")
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer f.Close()
+		expected, err := ioutil.ReadAll(f)
 		if err != nil {
 			t.Fatal(err)
 		}
