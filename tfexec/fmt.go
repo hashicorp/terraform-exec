@@ -30,6 +30,7 @@ func (opt *DirOption) configureFormat(conf *formatConfig) {
 	conf.dir = opt.path
 }
 
+// FormatString formats a passed string, given a path to Terraform.
 func FormatString(ctx context.Context, execPath string, content string) (string, error) {
 	tf, err := NewTerraform(filepath.Dir(execPath), execPath)
 	if err != nil {
@@ -39,6 +40,7 @@ func FormatString(ctx context.Context, execPath string, content string) (string,
 	return tf.FormatString(ctx, content)
 }
 
+// FormatString formats a passed string.
 func (tf *Terraform) FormatString(ctx context.Context, content string) (string, error) {
 	cmd, err := tf.formatCmd(ctx, nil, Dir("-"))
 	if err != nil {
@@ -58,6 +60,7 @@ func (tf *Terraform) FormatString(ctx context.Context, content string) (string, 
 	return outBuf.String(), nil
 }
 
+// FormatWrite attempts to format and modify all config files in the working or selected (via DirOption) directory.
 func (tf *Terraform) FormatWrite(ctx context.Context, opts ...FormatOption) error {
 	for _, o := range opts {
 		switch o := o.(type) {
@@ -76,6 +79,7 @@ func (tf *Terraform) FormatWrite(ctx context.Context, opts ...FormatOption) erro
 	return tf.runTerraformCmd(cmd)
 }
 
+// FormatCheck returns true if the config files in the working or selected (via DirOption) directory are already formatted.
 func (tf *Terraform) FormatCheck(ctx context.Context, opts ...FormatOption) (bool, []string, error) {
 	for _, o := range opts {
 		switch o := o.(type) {
