@@ -1,3 +1,8 @@
+# 0.11.0 (Unreleased)
+
+FEATURES
+ - Added Terraform fmt support with the ability to format and write files/folders, check if files/folders need formatting, and format strings directly [GH-82]
+
 # 0.10.0 (September 15, 2020)
 
 FEATURES
