@@ -2,6 +2,9 @@
 
 FEATURES
  - Added Terraform fmt support with the ability to format and write files/folders, check if files/folders need formatting, and format strings directly [GH-82]
+ - Added support for refs in the tfinstall CLI [GH-80]
+
+N.B. tfinstall binaries for all supported platforms are now available via GitHub Releases.
 
 # 0.10.0 (September 15, 2020)
 
