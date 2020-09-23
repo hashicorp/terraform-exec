@@ -1,8 +1,8 @@
-# 0.11.0 (Unreleased)
+# 0.11.0 (September 23, 2020)
 
 FEATURES
- - Added Terraform fmt support with the ability to format and write files/folders, check if files/folders need formatting, and format strings directly [GH-82]
- - Added support for refs in the tfinstall CLI [GH-80]
+ - Added Terraform fmt support with the ability to format and write files/folders, check if files/folders need formatting, and format strings directly ([#82](https://github.com/hashicorp/terraform-exec/issues/82))
+ - Added support for refs in the tfinstall CLI ([#80](https://github.com/hashicorp/terraform-exec/issues/80))
 
 N.B. tfinstall binaries for all supported platforms are now available via GitHub Releases.
 
