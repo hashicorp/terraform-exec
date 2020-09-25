@@ -129,11 +129,6 @@ func (e *ErrVersionMismatch) Error() string {
 	return fmt.Sprintf("unexpected version %s (min: %s, max: %s)", e.Actual, e.MinInclusive, e.MaxExclusive)
 }
 
-func (e *ErrVersionMismatch) Is(target error) bool {
-	_, ok := target.(*ErrVersionMismatch)
-	return ok
-}
-
 type ErrNoInit struct {
 	stderr string
 }

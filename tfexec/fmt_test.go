@@ -25,12 +25,8 @@ func TestFormat(t *testing.T) {
 			t.Fatal("expected old version to fail")
 		}
 
-		expectedErr := &ErrVersionMismatch{
-			Actual:       "0.7.6",
-			MinInclusive: "0.7.7",
-			MaxExclusive: "-",
-		}
-		if !errors.Is(err, expectedErr) {
+		var expectedErr *ErrVersionMismatch
+		if !errors.As(err, &expectedErr) {
 			t.Fatalf("error doesn't match: %#v", err)
 		}
 	})
