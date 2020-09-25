@@ -121,6 +121,11 @@ func (tf *Terraform) FormatCheck(ctx context.Context, opts ...FormatOption) (boo
 }
 
 func (tf *Terraform) formatCmd(ctx context.Context, args []string, opts ...FormatOption) (*exec.Cmd, error) {
+	err := tf.compatible(ctx, tf0_7_7, nil)
+	if err != nil {
+		return nil, fmt.Errorf("fmt was first introduced in Terraform 0.7.7: %w", err)
+	}
+
 	c := defaultFormatConfig
 
 	for _, o := range opts {
