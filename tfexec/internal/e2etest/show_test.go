@@ -192,12 +192,10 @@ func TestShowStateFile013(t *testing.T) {
 
 // Plan files cannot be transferred between different Terraform versions,
 // so we maintain one fixture per supported version
-func TestShowPlanFile012(t *testing.T) {
+func TestShowPlanFile012_linux(t *testing.T) {
 	runTestVersions(t, []string{testutil.Latest012}, "non_default_planfile_012", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
-		// plan file fixture was created in Linux, and is
-		// not compatible with Windows
-		if runtime.GOOS == "windows" {
-			t.Skip("plan file created in 0.12 on Linux is not compatible with Windows")
+		if runtime.GOOS != "linux" {
+			t.Skip("plan file created in 0.12 on Linux is not compatible with other systems")
 		}
 
 		providerName := "null"
@@ -322,12 +320,10 @@ func TestShowPlanFile013(t *testing.T) {
 	})
 }
 
-func TestShowPlanFileRaw012(t *testing.T) {
+func TestShowPlanFileRaw012_linux(t *testing.T) {
 	runTestVersions(t, []string{testutil.Latest012}, "non_default_planfile_012", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
-		// plan file fixture was created in Linux, and is
-		// not compatible with Windows
-		if runtime.GOOS == "windows" {
-			t.Skip("plan file created in 0.12 on Linux is not compatible with Windows")
+		if runtime.GOOS != "linux" {
+			t.Skip("plan file created in 0.12 on Linux is not compatible with other systems")
 		}
 
 		// crlf will standardize our line endings for us
