@@ -1,3 +1,8 @@
+# 0.12.0 (Unreleased)
+
+BUG FIXES
+ - Fix issue in tfinstall.GitRef where it assumed a `vendor` directory was present [GH-89]
+
 # 0.11.0 (September 23, 2020)
 
 FEATURES
