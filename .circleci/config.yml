@@ -6,7 +6,20 @@ orbs:
 commands:
   win_install_go:
     steps:
-      - run: choco install golang --version 1.14.6 --yes
+      - run:
+          command: |
+            choco install golang --version 1.14.6 --yes
+            go version
+  macos_install_go:
+    steps:
+      - run:
+          # just latest stable version of Go as a sanity check
+          # version specification would require a brew update probably
+          # so this keeps it faster
+          command: |
+            brew install golang
+            go version
+
   go_build:
     steps:
       - run: go build ./...
@@ -15,19 +28,24 @@ commands:
       - run: go test -v ./...
 
 jobs:
-  winbuild:
-    executor:
-      name: win/default
+  # combined due to slowness of Go install
+  macosbuildtest:
+    macos:
+      xcode: "12.0.0"
     steps:
+      - macos_install_go
       - checkout
-      - win_install_go
       - go_build
-  wintest:
+      - go_test
+    
+  # combined due to slowness of Go install
+  winbuildtest:
     executor:
       name: win/default
     steps:
-      - checkout
       - win_install_go
+      - checkout
+      - go_build
       - go_test
 
   go112_build:
@@ -104,10 +122,8 @@ workflows:
   # TODO: add a `nightly` run for checking against TF master branch using TFEXEC_E2ETEST_VERSIONS
   pr:
     jobs:
-      - winbuild
-      - wintest:
-          requires:
-            - winbuild
+      - winbuildtest
+      - macosbuildtest
 
       # build only for these versions
       - go112_build
@@ -130,10 +146,8 @@ workflows:
             - go115_build
   release:
     jobs:
-      - winbuild
-      - wintest:
-          requires:
-            - winbuild
+      - winbuildtest
+      - macosbuildtest
 
       # build only for these versions
       - go112_build
@@ -175,4 +189,5 @@ workflows:
             - go115_test
             - go115_vet
             - go115_fmt
-            - wintest
+            - winbuildtest
+            - macosbuildtest
