@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 
 	"github.com/go-git/go-git/v5"
@@ -72,7 +74,14 @@ func (opt *GitRefOption) ExecPath(ctx context.Context) (string, error) {
 		binFile.Close()
 	}
 
-	cmd := exec.CommandContext(ctx, "go", "build", "-mod", "vendor", "-o", binName)
+	goArgs := []string{"build", "-o", binName}
+
+	vendorDir := filepath.Join(installDir, "vendor")
+	if fi, err := os.Stat(vendorDir); err == nil && fi.IsDir() {
+		goArgs = append(goArgs, "-mod", "vendor")
+	}
+
+	cmd := exec.CommandContext(ctx, "go", goArgs...)
 	cmd.Dir = installDir
 	out, err := cmd.CombinedOutput()
 	log.Print(string(out))
