@@ -1,4 +1,4 @@
-# 0.12.0 (Unreleased)
+# 0.11.1 (Unreleased)
 
 BUG FIXES
  - Fix issue in tfinstall.GitRef where it assumed a `vendor` directory was present [GH-89]
