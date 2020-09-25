@@ -130,13 +130,8 @@ func (e *ErrVersionMismatch) Error() string {
 }
 
 func (e *ErrVersionMismatch) Is(target error) bool {
-	err, ok := target.(*ErrVersionMismatch)
-	if !ok {
-		return false
-	}
-	return err.Actual == e.Actual &&
-		err.MaxExclusive == e.MaxExclusive &&
-		err.MinInclusive == e.MinInclusive
+	_, ok := target.(*ErrVersionMismatch)
+	return ok
 }
 
 type ErrNoInit struct {
