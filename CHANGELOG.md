@@ -1,4 +1,7 @@
-# 0.11.1 (Unreleased)
+# 0.12.0 (Unreleased)
+
+ENHANCEMENTS:
+ - Improve error handling for formatting command on unsupported version (`<0.7.7`) [GH-88]
 
 BUG FIXES
  - Fix issue in tfinstall.GitRef where it assumed a `vendor` directory was present [GH-89]
