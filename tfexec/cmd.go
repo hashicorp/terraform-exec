@@ -135,11 +135,11 @@ func (tf *Terraform) buildTerraformCmd(ctx context.Context, mergeEnv map[string]
 	return cmd
 }
 
-func (tf *Terraform) runTerraformCmdJSON(cmd *exec.Cmd, v interface{}) error {
+func (tf *Terraform) runTerraformCmdJSON(ctx context.Context, cmd *exec.Cmd, v interface{}) error {
 	var outbuf = bytes.Buffer{}
 	cmd.Stdout = mergeWriters(cmd.Stdout, &outbuf)
 
-	err := tf.runTerraformCmd(cmd)
+	err := tf.runTerraformCmd(ctx, cmd)
 	if err != nil {
 		return err
 	}
@@ -147,7 +147,7 @@ func (tf *Terraform) runTerraformCmdJSON(cmd *exec.Cmd, v interface{}) error {
 	return json.Unmarshal(outbuf.Bytes(), v)
 }
 
-func (tf *Terraform) runTerraformCmd(cmd *exec.Cmd) error {
+func (tf *Terraform) runTerraformCmd(ctx context.Context, cmd *exec.Cmd) error {
 	var errBuf strings.Builder
 
 	cmd.Stdout = mergeWriters(cmd.Stdout, tf.stdout)
@@ -155,7 +155,7 @@ func (tf *Terraform) runTerraformCmd(cmd *exec.Cmd) error {
 
 	err := cmd.Run()
 	if err != nil {
-		return tf.decodeError(cmd, err, errBuf.String())
+		return tf.decodeError(ctx, cmd, err, errBuf.String())
 	}
 	return nil
 }

@@ -1,6 +1,8 @@
 package tfexec
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"os/exec"
 	"regexp"
@@ -27,9 +29,10 @@ var (
 	tfVersionMismatchConstraintRegexp = regexp.MustCompile(`required_version = "(.+)"|Required version: (.+)\b`)
 )
 
-func (tf *Terraform) decodeError(cmd *exec.Cmd, err error, stderr string) error {
+func (tf *Terraform) decodeError(ctx context.Context, cmd *exec.Cmd, err error, stderr string) error {
 	exitErr := &ExitError{
 		err:    err,
+		ctxErr: ctx.Err(),
 		args:   cmd.Args,
 		stderr: stderr,
 	}
@@ -205,6 +208,7 @@ func (err *ErrWorkspaceExists) Error() string {
 
 type ExitError struct {
 	err    error
+	ctxErr error
 	args   []string
 	stderr string
 }
@@ -214,8 +218,7 @@ func (e *ExitError) Unwrap() error {
 }
 
 func (e *ExitError) Error() string {
-	out := fmt.Sprintf("%q exited: %s\nstderr: %q", e.args, e.err.Error(), e.stderr)
-
+	var out string
 	ee, ok := e.err.(*exec.ExitError)
 	if ok {
 		out = fmt.Sprintf("%q (pid %d) exited (code %d): %s",
@@ -223,6 +226,14 @@ func (e *ExitError) Error() string {
 			ee.Pid(),
 			ee.ExitCode(),
 			ee.ProcessState.String())
+		if e.ctxErr != nil {
+			out += fmt.Sprintf("\n%s", e.ctxErr)
+		}
+	} else {
+		out = fmt.Sprintf("%q exited: %s", e.args, e.err.Error())
+		if e.ctxErr != nil && !errors.Is(e.err, e.ctxErr) {
+			out += fmt.Sprintf("\n%s", e.ctxErr)
+		}
 	}
 
 	if e.stderr != "" {

@@ -98,7 +98,7 @@ func (tf *Terraform) Init(ctx context.Context, opts ...InitOption) error {
 	if err != nil {
 		return err
 	}
-	return tf.runTerraformCmd(cmd)
+	return tf.runTerraformCmd(ctx, cmd)
 }
 
 func (tf *Terraform) initCmd(ctx context.Context, opts ...InitOption) (*exec.Cmd, error) {
