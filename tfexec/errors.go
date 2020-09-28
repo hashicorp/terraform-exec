@@ -1,7 +1,6 @@
 package tfexec
 
 import (
-	"errors"
 	"fmt"
 	"os/exec"
 	"regexp"
@@ -28,10 +27,22 @@ var (
 	tfVersionMismatchConstraintRegexp = regexp.MustCompile(`required_version = "(.+)"|Required version: (.+)\b`)
 )
 
-func (tf *Terraform) parseError(err error, stderr string) error {
-	ee, ok := err.(*exec.ExitError)
+func (tf *Terraform) decodeError(cmd *exec.Cmd, err error, stderr string) error {
+	exitErr := &ExitError{
+		err:    err,
+		args:   cmd.Args,
+		stderr: stderr,
+	}
+
+	_, ok := err.(*exec.ExitError)
 	if !ok {
-		return err
+		return exitErr
+	}
+
+	// nothing to parse, return early
+	errString := strings.TrimSpace(stderr)
+	if errString == "" {
+		return exitErr
 	}
 
 	switch {
@@ -88,12 +99,8 @@ func (tf *Terraform) parseError(err error, stderr string) error {
 			return &ErrWorkspaceExists{submatches[1]}
 		}
 	}
-	errString := strings.TrimSpace(stderr)
-	if errString == "" {
-		// if stderr is empty, return the ExitError directly, as it will have a better message
-		return ee
-	}
-	return errors.New(stderr)
+
+	return exitErr
 }
 
 type ErrNoSuitableBinary struct {
@@ -194,4 +201,33 @@ type ErrWorkspaceExists struct {
 
 func (err *ErrWorkspaceExists) Error() string {
 	return fmt.Sprintf("workspace %q already exists", err.Name)
+}
+
+type ExitError struct {
+	err    error
+	args   []string
+	stderr string
+}
+
+func (e *ExitError) Unwrap() error {
+	return e.err
+}
+
+func (e *ExitError) Error() string {
+	out := fmt.Sprintf("%q exited: %s\nstderr: %q", e.args, e.err.Error(), e.stderr)
+
+	ee, ok := e.err.(*exec.ExitError)
+	if ok {
+		out = fmt.Sprintf("%q (pid %d) exited (code %d): %s",
+			e.args,
+			ee.Pid(),
+			ee.ExitCode(),
+			ee.ProcessState.String())
+	}
+
+	if e.stderr != "" {
+		out += fmt.Sprintf("\nstderr: %q", e.stderr)
+	}
+
+	return out
 }
