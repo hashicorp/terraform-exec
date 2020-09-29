@@ -47,7 +47,7 @@ func (tf *Terraform) runTerraformCmd(ctx context.Context, cmd *exec.Cmd) error {
 		err = ctx.Err()
 	}
 	if err != nil {
-		return tf.parseError(err, errBuf.String())
+		return tf.wrapExitError(ctx, err, errBuf.String())
 	}
 
 	return nil
