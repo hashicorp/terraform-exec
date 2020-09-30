@@ -10,7 +10,6 @@ import (
 
 func TestWorkspaceNewCmd(t *testing.T) {
 	td := testTempDir(t)
-	defer os.RemoveAll(td)
 
 	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest013))
 	if err != nil {

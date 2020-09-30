@@ -2,7 +2,6 @@ package tfexec
 
 import (
 	"context"
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
@@ -10,7 +9,6 @@ import (
 
 func TestPlanCmd(t *testing.T) {
 	td := testTempDir(t)
-	defer os.RemoveAll(td)
 
 	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest012))
 	if err != nil {
