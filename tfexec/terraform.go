@@ -51,6 +51,8 @@ type Terraform struct {
 	versionLock  sync.Mutex
 	execVersion  *version.Version
 	provVersions map[string]*version.Version
+
+	mockData MockItemDispenser
 }
 
 // NewTerraform returns a Terraform struct with default values for all fields.

@@ -130,6 +130,10 @@ func (tf *Terraform) buildTerraformCmd(ctx context.Context, mergeEnv map[string]
 	cmd.Env = tf.buildEnv(mergeEnv)
 	cmd.Dir = tf.workingDir
 
+	if tf.mockData != nil {
+		cmd = mockCommand(cmd, tf.mockData)
+	}
+
 	tf.logger.Printf("[INFO] running Terraform command: %s", cmdString(cmd))
 
 	return cmd
