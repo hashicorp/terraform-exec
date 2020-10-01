@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -42,22 +43,27 @@ func FormatString(ctx context.Context, execPath string, content string) (string,
 
 // FormatString formats a passed string.
 func (tf *Terraform) FormatString(ctx context.Context, content string) (string, error) {
+	in := strings.NewReader(content)
+	var outBuf bytes.Buffer
+	err := tf.Format(ctx, in, &outBuf)
+	if err != nil {
+		return "", err
+	}
+	return outBuf.String(), nil
+}
+
+// Format performs formatting on the unformatted io.Reader (as stdin to the CLI) and returns
+// the formatted result on the formatted io.Writer.
+func (tf *Terraform) Format(ctx context.Context, unformatted io.Reader, formatted io.Writer) error {
 	cmd, err := tf.formatCmd(ctx, nil, Dir("-"))
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	cmd.Stdin = strings.NewReader(content)
+	cmd.Stdin = unformatted
+	cmd.Stdout = mergeWriters(cmd.Stdout, formatted)
 
-	var outBuf bytes.Buffer
-	cmd.Stdout = mergeWriters(cmd.Stdout, &outBuf)
-
-	err = tf.runTerraformCmd(cmd)
-	if err != nil {
-		return "", err
-	}
-
-	return outBuf.String(), nil
+	return tf.runTerraformCmd(cmd)
 }
 
 // FormatWrite attempts to format and modify all config files in the working or selected (via DirOption) directory.
