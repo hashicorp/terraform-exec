@@ -2,6 +2,7 @@
 
 ENHANCEMENTS:
  - Improve error handling for formatting command on unsupported version (`<0.7.7`) [GH-88]
+ - Introduce `Format` method with `io.Reader`/`io.Writer` interfaces [GH-96]
 
 BUG FIXES
  - Fix issue in tfinstall.GitRef where it assumed a `vendor` directory was present [GH-89]
