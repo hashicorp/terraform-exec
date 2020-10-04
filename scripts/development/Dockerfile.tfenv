@@ -1,0 +1,21 @@
+FROM golang:1.15-alpine
+
+RUN apk update && apk add bash git unzip curl
+
+# install tfenv
+RUN git clone https://github.com/tfutils/tfenv.git ~/.tfenv && \
+    ln -s ~/.tfenv/bin/* /usr/local/bin
+
+# initialise go program
+RUN mkdir ~/example
+COPY main.go ~/example/
+WORKDIR ~/example
+RUN go mod init github.com/kmoe/example
+
+# run test program without any terraform version installed
+RUN go run main.go
+
+# install 0.13.4 via tfenv
+RUN tfenv install 0.13.4 && tfenv use 0.13.4
+
+RUN go run main.go
