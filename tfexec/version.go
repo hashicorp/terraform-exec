@@ -44,7 +44,7 @@ func (tf *Terraform) version(ctx context.Context) (*version.Version, map[string]
 	var outBuf bytes.Buffer
 	versionCmd.Stdout = &outBuf
 
-	err := tf.runTerraformCmd(versionCmd)
+	err := tf.runTerraformCmd(ctx, versionCmd)
 	if err != nil {
 		return nil, nil, err
 	}
