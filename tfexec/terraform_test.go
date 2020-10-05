@@ -5,22 +5,23 @@ import (
 	"errors"
 	"io/ioutil"
 	"os"
-	"path/filepath"
-	"sync"
 	"testing"
 
 	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
-	"github.com/hashicorp/terraform-exec/tfinstall"
 )
+
+var tfCache *testutil.TFCache
 
 func TestMain(m *testing.M) {
 	os.Exit(func() int {
 		var err error
-		installDir, err = ioutil.TempDir("", "tfinstall")
+		installDir, err := ioutil.TempDir("", "tfinstall")
 		if err != nil {
 			panic(err)
 		}
 		defer os.RemoveAll(installDir)
+
+		tfCache = testutil.NewTFCache(installDir)
 
 		return m.Run()
 	}())
@@ -28,7 +29,6 @@ func TestMain(m *testing.M) {
 
 func TestSetEnv(t *testing.T) {
 	td := testTempDir(t)
-	defer os.RemoveAll(td)
 
 	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest012))
 	if err != nil {
@@ -63,7 +63,6 @@ func TestSetEnv(t *testing.T) {
 
 func TestCheckpointDisablePropagation(t *testing.T) {
 	td := testTempDir(t)
-	defer os.RemoveAll(td)
 
 	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest012))
 	if err != nil {
@@ -141,49 +140,30 @@ func TestCheckpointDisablePropagation(t *testing.T) {
 	})
 }
 
-func testTempDir(t *testing.T) string {
-	d, err := ioutil.TempDir("", "tf")
-	if err != nil {
-		t.Fatalf("error creating temporary test directory: %s", err)
+// test that a suitable error is returned if NewTerraform is called without a valid
+// executable path
+func TestNoTerraformBinary(t *testing.T) {
+	td := testTempDir(t)
+
+	_, err := NewTerraform(td, "")
+	if err == nil {
+		t.Fatal("expected NewTerraform to error, but it did not")
 	}
-	// TODO: add t.Cleanup so we can remove the defers
 
-	return d
+	var e *ErrNoSuitableBinary
+	if !errors.As(err, &e) {
+		t.Fatal("expected error to be ErrNoSuitableBinary")
+	}
 }
 
-type installedVersion struct {
-	path string
-	err  error
+func testTempDir(t *testing.T) string {
+	return testutil.TempDir(t)
 }
-
-var (
-	installDir           string
-	installedVersionLock sync.Mutex
-	installedVersions    = map[string]installedVersion{}
-)
 
 func tfVersion(t *testing.T, v string) string {
-	if installDir == "" {
-		t.Fatalf("installDir not yet configured, TestMain must run first")
+	if tfCache == nil {
+		t.Fatalf("tfCache not yet configured, TestMain must run first")
 	}
 
-	installedVersionLock.Lock()
-	defer installedVersionLock.Unlock()
-
-	iv, ok := installedVersions[v]
-	if !ok {
-		dir := filepath.Join(installDir, v)
-		err := os.MkdirAll(dir, 0777)
-		if err != nil {
-			t.Fatal(err)
-		}
-		iv.path, iv.err = tfinstall.Find(context.Background(), tfinstall.ExactVersion(v, dir))
-		installedVersions[v] = iv
-	}
-
-	if iv.err != nil {
-		t.Fatalf("error installing terraform version %q: %s", v, iv.err)
-	}
-
-	return iv.path
+	return tfCache.Version(t, v)
 }

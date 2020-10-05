@@ -3,13 +3,11 @@ package tfexec
 import (
 	"context"
 	"errors"
-	"os"
 	"testing"
 )
 
 func TestFormat(t *testing.T) {
 	td := testTempDir(t)
-	defer os.RemoveAll(td)
 
 	tf, err := NewTerraform(td, tfVersion(t, "0.7.6"))
 	if err != nil {
