@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-exec/tfinstall"
+	"github.com/hashicorp/terraform-exec/tfinstall/gitref"
 )
 
 const (
@@ -32,7 +33,7 @@ func NewTFCache(dir string) *TFCache {
 func (tf *TFCache) GitRef(t *testing.T, ref string) string {
 	t.Helper()
 	return tf.find(t, "gitref:"+ref, func(dir string) tfinstall.ExecPathFinder {
-		return tfinstall.GitRef(ref, "", dir)
+		return gitref.Install(ref, "", dir)
 	})
 }
 
