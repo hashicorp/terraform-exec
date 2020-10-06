@@ -1,4 +1,4 @@
-package tfinstall
+package gitref_test
 
 import (
 	"context"
@@ -7,7 +7,13 @@ import (
 	"os/exec"
 	"strings"
 	"testing"
+
+	"github.com/hashicorp/terraform-exec/tfinstall"
+	"github.com/hashicorp/terraform-exec/tfinstall/gitref"
 )
+
+// ensure the option satisfies the interface
+var _ tfinstall.ExecPathFinder = &gitref.Option{}
 
 func TestGitRef(t *testing.T) {
 	if testing.Short() {
@@ -49,7 +55,7 @@ func TestGitRef(t *testing.T) {
 			})
 
 			t.Logf("finding / building ref %q...", c.ref)
-			tfpath, err := Find(ctx, GitRef(c.ref, "", tmpDir))
+			tfpath, err := tfinstall.Find(ctx, gitref.Install(c.ref, "", tmpDir))
 			if err != nil {
 				t.Fatalf("%T %s", err, err)
 			}

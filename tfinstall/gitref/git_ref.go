@@ -1,4 +1,4 @@
-package tfinstall
+package gitref
 
 import (
 	"context"
@@ -14,23 +14,21 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 )
 
-type GitRefOption struct {
+type Option struct {
 	installDir string
 	repoURL    string
 	ref        string
 }
 
-var _ ExecPathFinder = &GitRefOption{}
-
-func GitRef(ref, repo, installDir string) *GitRefOption {
-	return &GitRefOption{
+func Install(ref, repo, installDir string) *Option {
+	return &Option{
 		installDir: installDir,
 		repoURL:    repo,
 		ref:        ref,
 	}
 }
 
-func (opt *GitRefOption) ExecPath(ctx context.Context) (string, error) {
+func (opt *Option) ExecPath(ctx context.Context) (string, error) {
 	installDir, err := ensureInstallDir(opt.installDir)
 	if err != nil {
 		return "", err
@@ -90,4 +88,16 @@ func (opt *GitRefOption) ExecPath(ctx context.Context) (string, error) {
 	}
 
 	return binName, nil
+}
+
+func ensureInstallDir(installDir string) (string, error) {
+	if installDir == "" {
+		return ioutil.TempDir("", "tfexec")
+	}
+
+	if _, err := os.Stat(installDir); err != nil {
+		return "", fmt.Errorf("could not access directory %s for installing Terraform: %w", installDir, err)
+	}
+
+	return installDir, nil
 }

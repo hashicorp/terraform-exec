@@ -12,6 +12,7 @@ import (
 	"github.com/mitchellh/cli"
 
 	"github.com/hashicorp/terraform-exec/tfinstall"
+	"github.com/hashicorp/terraform-exec/tfinstall/gitref"
 )
 
 // TODO: add versioning to this?
@@ -110,7 +111,7 @@ func run(ui cli.Ui, args []string) int {
 		finder.UserAgent = userAgentAppend
 		findArgs = append(findArgs, finder)
 	case strings.HasPrefix(tfVersion, "refs/"):
-		findArgs = append(findArgs, tfinstall.GitRef(tfVersion, "", tfDir))
+		findArgs = append(findArgs, gitref.Install(tfVersion, "", tfDir))
 	default:
 		if strings.HasPrefix(tfVersion, "v") {
 			tfVersion = tfVersion[1:]
