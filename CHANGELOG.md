@@ -1,9 +1,11 @@
 # 0.12.0 (Unreleased)
 
+BREAKING
+ - Move Git ref installation to subpackage so that consumers can limit dependencies [GH-98]
+
 ENHANCEMENTS:
  - Improve error handling for formatting command on unsupported version (`<0.7.7`) [GH-88]
  - Introduce `Format` method with `io.Reader`/`io.Writer` interfaces [GH-96]
- - Move Git ref installation to subpackage so that consumers can limit dependencies [GH-98]
 
 BUG FIXES
  - Fix issue in tfinstall.GitRef where it assumed a `vendor` directory was present [GH-89]
