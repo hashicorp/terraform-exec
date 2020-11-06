@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/davecgh/go-spew/spew"
+	"github.com/google/go-cmp/cmp"
 	"github.com/hashicorp/go-version"
 	tfjson "github.com/hashicorp/terraform-json"
 	"github.com/zclconf/go-cty/cty"
@@ -136,8 +136,9 @@ func TestProvidersSchema(t *testing.T) {
 				}
 
 				expected := c.expected(tfv)
-				if !reflect.DeepEqual(schemas, expected) {
-					t.Fatalf("expected %+v, but got %+v", spew.Sdump(expected), spew.Sdump(schemas))
+
+				if diff := cmp.Diff(expected, schemas, cmp.Exporter(func(_ reflect.Type) bool { return true })); diff != "" {
+					t.Fatalf("mismatch (-want +got):\n%s", diff)
 				}
 			})
 		})
