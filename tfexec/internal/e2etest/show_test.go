@@ -4,13 +4,13 @@ import (
 	"context"
 	"errors"
 	"io/ioutil"
-	"reflect"
 	"runtime"
 	"strings"
 	"testing"
 
 	"github.com/andybalholm/crlf"
-	"github.com/davecgh/go-spew/spew"
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/hashicorp/go-version"
 	tfjson "github.com/hashicorp/terraform-json"
 	"github.com/sergi/go-diff/diffmatchpatch"
@@ -36,10 +36,9 @@ func TestShow(t *testing.T) {
 			providerName = "null"
 		}
 
-		expected := tfjson.State{
+		expected := &tfjson.State{
 			FormatVersion: "0.1",
-			// this is the version that wrote state, not the version that is running
-			TerraformVersion: "0.12.24",
+			// TerraformVersion is ignored to facilitate latest version testing
 			Values: &tfjson.StateValues{
 				RootModule: &tfjson.StateModule{
 					Resources: []*tfjson.StateResource{{
@@ -67,8 +66,8 @@ func TestShow(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if !reflect.DeepEqual(actual, &expected) {
-			t.Fatalf("actual: %s\nexpected: %s", spew.Sdump(actual), spew.Sdump(expected))
+		if diff := cmp.Diff(expected, actual, cmpopts.IgnoreFields(tfjson.State{}, "TerraformVersion")); diff != "" {
+			t.Fatalf("mismatch (-want +got):\n%s", diff)
 		}
 	})
 }
@@ -116,9 +115,9 @@ func TestShow_versionMismatch(t *testing.T) {
 // See github.com/hashicorp/terraform/25920
 func TestShowStateFile012(t *testing.T) {
 	runTestVersions(t, []string{testutil.Latest012}, "non_default_statefile_012", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
-		expected := tfjson.State{
-			FormatVersion:    "0.1",
-			TerraformVersion: "0.12.29",
+		expected := &tfjson.State{
+			FormatVersion: "0.1",
+			// TerraformVersion is ignored to facilitate latest version testing
 			Values: &tfjson.StateValues{
 				RootModule: &tfjson.StateModule{
 					Resources: []*tfjson.StateResource{{
@@ -146,17 +145,17 @@ func TestShowStateFile012(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if !reflect.DeepEqual(actual, &expected) {
-			t.Fatalf("actual: %s\nexpected: %s", spew.Sdump(actual), spew.Sdump(expected))
+		if diff := cmp.Diff(expected, actual, cmpopts.IgnoreFields(tfjson.State{}, "TerraformVersion")); diff != "" {
+			t.Fatalf("mismatch (-want +got):\n%s", diff)
 		}
 	})
 }
 
 func TestShowStateFile013(t *testing.T) {
 	runTestVersions(t, []string{testutil.Latest013}, "non_default_statefile_013", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
-		expected := tfjson.State{
-			FormatVersion:    "0.1",
-			TerraformVersion: "0.13.0",
+		expected := &tfjson.State{
+			FormatVersion: "0.1",
+			// TerraformVersion is ignored to facilitate latest version testing
 			Values: &tfjson.StateValues{
 				RootModule: &tfjson.StateModule{
 					Resources: []*tfjson.StateResource{{
@@ -184,8 +183,8 @@ func TestShowStateFile013(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if !reflect.DeepEqual(actual, &expected) {
-			t.Fatalf("actual: %s\nexpected: %s", spew.Sdump(actual), spew.Sdump(expected))
+		if diff := cmp.Diff(expected, actual, cmpopts.IgnoreFields(tfjson.State{}, "TerraformVersion")); diff != "" {
+			t.Fatalf("mismatch (-want +got):\n%s", diff)
 		}
 	})
 }
@@ -200,9 +199,9 @@ func TestShowPlanFile012_linux(t *testing.T) {
 
 		providerName := "null"
 
-		expected := tfjson.Plan{
-			FormatVersion:    "0.1",
-			TerraformVersion: "0.12.29",
+		expected := &tfjson.Plan{
+			FormatVersion: "0.1",
+			// TerraformVersion is ignored to facilitate latest version testing
 			PlannedValues: &tfjson.StateValues{
 				RootModule: &tfjson.StateModule{
 					Resources: []*tfjson.StateResource{{
@@ -252,8 +251,8 @@ func TestShowPlanFile012_linux(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if !reflect.DeepEqual(actual, &expected) {
-			t.Fatalf("actual: %s\nexpected: %s", spew.Sdump(actual), spew.Sdump(expected))
+		if diff := cmp.Diff(expected, actual, cmpopts.IgnoreFields(tfjson.Plan{}, "TerraformVersion")); diff != "" {
+			t.Fatalf("mismatch (-want +got):\n%s", diff)
 		}
 	})
 }
@@ -262,9 +261,9 @@ func TestShowPlanFile013(t *testing.T) {
 	runTestVersions(t, []string{testutil.Latest013}, "non_default_planfile_013", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		providerName := "registry.terraform.io/hashicorp/null"
 
-		expected := tfjson.Plan{
-			FormatVersion:    "0.1",
-			TerraformVersion: "0.13.0",
+		expected := &tfjson.Plan{
+			// TerraformVersion is ignored to facilitate latsest version testing
+			FormatVersion: "0.1",
 			PlannedValues: &tfjson.StateValues{
 				RootModule: &tfjson.StateModule{
 					Resources: []*tfjson.StateResource{{
@@ -314,8 +313,8 @@ func TestShowPlanFile013(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if !reflect.DeepEqual(actual, &expected) {
-			t.Fatalf("actual: %s\nexpected: %s", spew.Sdump(actual), spew.Sdump(expected))
+		if diff := cmp.Diff(expected, actual, cmpopts.IgnoreFields(tfjson.Plan{}, "TerraformVersion")); diff != "" {
+			t.Fatalf("mismatch (-want +got):\n%s", diff)
 		}
 	})
 }
