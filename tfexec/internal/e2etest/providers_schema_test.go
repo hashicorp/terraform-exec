@@ -25,88 +25,163 @@ func TestProvidersSchema(t *testing.T) {
 	}{
 		{
 			"basic", func(tfv *version.Version) *tfjson.ProviderSchemas {
-				dk := tfjson.SchemaDescriptionKindPlain
-				// HACK: this is a bug? the contstant value is "plaintext" but "plain" is output,
-				// not sure if its in tfjson or what
-				dk = "plain"
-
-				providerName := "registry.terraform.io/hashicorp/null"
+				var providerSchema *tfjson.ProviderSchemas
 
 				if tfv.LessThan(version.Must(version.NewVersion("0.13.0"))) {
-					providerName = "null"
-					dk = ""
+					providerSchema = &tfjson.ProviderSchemas{
+						FormatVersion: "0.1",
+						Schemas: map[string]*tfjson.ProviderSchema{
+							"null": {
+								ConfigSchema: &tfjson.Schema{
+									Version: 0,
+									Block:   &tfjson.SchemaBlock{},
+								},
+								ResourceSchemas: map[string]*tfjson.Schema{
+									"null_resource": {
+										Version: 0,
+										Block: &tfjson.SchemaBlock{
+											DescriptionKind: "",
+											Attributes: map[string]*tfjson.SchemaAttribute{
+												"id": {
+													AttributeType: cty.String,
+													Optional:      true,
+													Computed:      true,
+												},
+												"triggers": {
+													AttributeType:   cty.Map(cty.String),
+													Optional:        true,
+													DescriptionKind: "",
+													Description:     "A map of arbitrary strings that, when changed, will force the null resource to be replaced, re-running any associated provisioners.",
+												},
+											},
+										},
+									},
+								},
+								DataSourceSchemas: map[string]*tfjson.Schema{
+									"null_data_source": {
+										Version: 0,
+										Block: &tfjson.SchemaBlock{
+											DescriptionKind: "",
+											Description:     "",
+											Attributes: map[string]*tfjson.SchemaAttribute{
+												"has_computed_default": {
+													AttributeType:   cty.String,
+													Optional:        true,
+													Computed:        true,
+													DescriptionKind: "",
+													Description:     "If set, its literal value will be stored and returned. If not, its value defaults to `\"default\"`. This argument exists primarily for testing and has little practical use.",
+												},
+												"id": {
+													AttributeType:   cty.String,
+													Optional:        true,
+													Computed:        true,
+													DescriptionKind: "",
+												},
+												"inputs": {
+													AttributeType:   cty.Map(cty.String),
+													Optional:        true,
+													DescriptionKind: "",
+													Description:     "A map of arbitrary strings that is copied into the `outputs` attribute, and accessible directly for interpolation.",
+												},
+												"outputs": {
+													AttributeType:   cty.Map(cty.String),
+													Computed:        true,
+													DescriptionKind: "",
+													Description:     "After the data source is \"read\", a copy of the `inputs` map.",
+												},
+												"random": {
+													AttributeType:   cty.String,
+													Computed:        true,
+													DescriptionKind: "",
+													Description:     "A random value. This is primarily for testing and has little practical use; prefer the [random provider](https://www.terraform.io/docs/providers/random/) for more practical random number use-cases.",
+												},
+											},
+										},
+									},
+								},
+							}},
+					}
+				} else {
+					providerSchema = &tfjson.ProviderSchemas{
+						FormatVersion: "0.1",
+						Schemas: map[string]*tfjson.ProviderSchema{
+							"registry.terraform.io/hashicorp/null": {
+								ConfigSchema: &tfjson.Schema{
+									Version: 0,
+									Block: &tfjson.SchemaBlock{
+										DescriptionKind: "plain",
+									},
+								},
+								ResourceSchemas: map[string]*tfjson.Schema{
+									"null_resource": {
+										Version: 0,
+										Block: &tfjson.SchemaBlock{
+											DescriptionKind: "markdown",
+											Description:     "The `null_resource` resource implements the standard resource lifecycle but takes no further action.\n\nThe `triggers` argument allows specifying an arbitrary set of values that, when changed, will cause the resource to be replaced.",
+											Attributes: map[string]*tfjson.SchemaAttribute{
+												"id": {
+													AttributeType:   cty.String,
+													Optional:        true,
+													Computed:        true,
+													DescriptionKind: "plain",
+												},
+												"triggers": {
+													AttributeType:   cty.Map(cty.String),
+													Optional:        true,
+													DescriptionKind: "markdown",
+													Description:     "A map of arbitrary strings that, when changed, will force the null resource to be replaced, re-running any associated provisioners.",
+												},
+											},
+										},
+									},
+								},
+								DataSourceSchemas: map[string]*tfjson.Schema{
+									"null_data_source": {
+										Version: 0,
+										Block: &tfjson.SchemaBlock{
+											DescriptionKind: "markdown",
+											Description:     "The `null_data_source` data source implements the standard data source lifecycle but does not interact with any external APIs.",
+											Attributes: map[string]*tfjson.SchemaAttribute{
+												"has_computed_default": {
+													AttributeType:   cty.String,
+													Optional:        true,
+													Computed:        true,
+													DescriptionKind: "markdown",
+													Description:     "If set, its literal value will be stored and returned. If not, its value defaults to `\"default\"`. This argument exists primarily for testing and has little practical use.",
+												},
+												"id": {
+													AttributeType:   cty.String,
+													Optional:        true,
+													Computed:        true,
+													DescriptionKind: "plain",
+												},
+												"inputs": {
+													AttributeType:   cty.Map(cty.String),
+													Optional:        true,
+													DescriptionKind: "markdown",
+													Description:     "A map of arbitrary strings that is copied into the `outputs` attribute, and accessible directly for interpolation.",
+												},
+												"outputs": {
+													AttributeType:   cty.Map(cty.String),
+													Computed:        true,
+													DescriptionKind: "markdown",
+													Description:     "After the data source is \"read\", a copy of the `inputs` map.",
+												},
+												"random": {
+													AttributeType:   cty.String,
+													Computed:        true,
+													DescriptionKind: "markdown",
+													Description:     "A random value. This is primarily for testing and has little practical use; prefer the [random provider](https://www.terraform.io/docs/providers/random/) for more practical random number use-cases.",
+												},
+											},
+										},
+									},
+								},
+							}},
+					}
 				}
 
-				return &tfjson.ProviderSchemas{
-					FormatVersion: "0.1",
-					Schemas: map[string]*tfjson.ProviderSchema{
-						providerName: {
-							ConfigSchema: &tfjson.Schema{
-								Version: 0,
-								Block: &tfjson.SchemaBlock{
-									DescriptionKind: dk,
-								},
-							},
-							ResourceSchemas: map[string]*tfjson.Schema{
-								"null_resource": {
-									Version: 0,
-									Block: &tfjson.SchemaBlock{
-										DescriptionKind: dk,
-										Attributes: map[string]*tfjson.SchemaAttribute{
-											"id": {
-												AttributeType:   cty.String,
-												Optional:        true,
-												Computed:        true,
-												DescriptionKind: dk,
-											},
-											"triggers": {
-												AttributeType:   cty.Map(cty.String),
-												Optional:        true,
-												DescriptionKind: dk,
-											},
-										},
-									},
-								},
-							},
-							DataSourceSchemas: map[string]*tfjson.Schema{
-								"null_data_source": {
-									Version: 0,
-									Block: &tfjson.SchemaBlock{
-										DescriptionKind: dk,
-										Attributes: map[string]*tfjson.SchemaAttribute{
-											"has_computed_default": {
-												AttributeType:   cty.String,
-												Optional:        true,
-												Computed:        true,
-												DescriptionKind: dk,
-											},
-											"id": {
-												AttributeType:   cty.String,
-												Optional:        true,
-												Computed:        true,
-												DescriptionKind: dk,
-											},
-											"inputs": {
-												AttributeType:   cty.Map(cty.String),
-												Optional:        true,
-												DescriptionKind: dk,
-											},
-											"outputs": {
-												AttributeType:   cty.Map(cty.String),
-												Computed:        true,
-												DescriptionKind: dk,
-											},
-											"random": {
-												AttributeType:   cty.String,
-												Computed:        true,
-												DescriptionKind: dk,
-											},
-										},
-									},
-								},
-							},
-						}},
-				}
+				return providerSchema
 			},
 		},
 		{
