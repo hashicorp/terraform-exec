@@ -9,8 +9,6 @@ import (
 	"testing"
 
 	"github.com/andybalholm/crlf"
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/hashicorp/go-version"
 	tfjson "github.com/hashicorp/terraform-json"
 	"github.com/sergi/go-diff/diffmatchpatch"
@@ -66,7 +64,7 @@ func TestShow(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if diff := cmp.Diff(expected, actual, cmpopts.IgnoreFields(tfjson.State{}, "TerraformVersion")); diff != "" {
+		if diff := diffState(expected, actual); diff != "" {
 			t.Fatalf("mismatch (-want +got):\n%s", diff)
 		}
 	})
@@ -145,7 +143,7 @@ func TestShowStateFile012(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if diff := cmp.Diff(expected, actual, cmpopts.IgnoreFields(tfjson.State{}, "TerraformVersion")); diff != "" {
+		if diff := diffState(expected, actual); diff != "" {
 			t.Fatalf("mismatch (-want +got):\n%s", diff)
 		}
 	})
@@ -183,7 +181,7 @@ func TestShowStateFile013(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if diff := cmp.Diff(expected, actual, cmpopts.IgnoreFields(tfjson.State{}, "TerraformVersion")); diff != "" {
+		if diff := diffState(expected, actual); diff != "" {
 			t.Fatalf("mismatch (-want +got):\n%s", diff)
 		}
 	})
@@ -251,7 +249,7 @@ func TestShowPlanFile012_linux(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if diff := cmp.Diff(expected, actual, cmpopts.IgnoreFields(tfjson.Plan{}, "TerraformVersion")); diff != "" {
+		if diff := diffPlan(expected, actual); diff != "" {
 			t.Fatalf("mismatch (-want +got):\n%s", diff)
 		}
 	})
@@ -313,7 +311,7 @@ func TestShowPlanFile013(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if diff := cmp.Diff(expected, actual, cmpopts.IgnoreFields(tfjson.Plan{}, "TerraformVersion")); diff != "" {
+		if diff := diffPlan(expected, actual); diff != "" {
 			t.Fatalf("mismatch (-want +got):\n%s", diff)
 		}
 	})
