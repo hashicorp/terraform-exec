@@ -5,10 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
 	"github.com/hashicorp/go-version"
 	tfjson "github.com/hashicorp/terraform-json"
-	"github.com/zclconf/go-cty-debug/ctydebug"
 	"github.com/zclconf/go-cty/cty"
 
 	"github.com/hashicorp/terraform-exec/tfexec"
@@ -212,7 +210,7 @@ func TestProvidersSchema(t *testing.T) {
 
 				expected := c.expected(tfv)
 
-				if diff := cmp.Diff(expected, schemas, ctydebug.CmpOptions); diff != "" {
+				if diff := diffSchema(expected, schemas); diff != "" {
 					t.Fatalf("mismatch (-want +got):\n%s", diff)
 				}
 			})
