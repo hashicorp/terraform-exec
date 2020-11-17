@@ -99,6 +99,14 @@ func Destroy(destroy bool) *DestroyFlagOption {
 	return &DestroyFlagOption{destroy}
 }
 
+type ForceOption struct {
+	force bool
+}
+
+func Force(force bool) *ForceOption {
+	return &ForceOption{force}
+}
+
 type ForceCopyOption struct {
 	forceCopy bool
 }
@@ -293,4 +301,12 @@ type VerifyPluginsOption struct {
 
 func VerifyPlugins(verifyPlugins bool) *VerifyPluginsOption {
 	return &VerifyPluginsOption{verifyPlugins}
+}
+
+type YesOption struct {
+	yes bool
+}
+
+func Yes(yes bool) *YesOption {
+	return &YesOption{yes}
 }
