@@ -7,8 +7,9 @@ import (
 )
 
 type upgrade012Config struct {
-	yes   bool
+	dir   string
 	force bool
+	yes   bool
 
 	reattachInfo ReattachInfo
 }
@@ -21,6 +22,10 @@ var defaultUpgrade012Options = upgrade012Config{
 // Upgrade012Option represents options used in the Destroy method.
 type Upgrade012Option interface {
 	configureUpgrade012(*upgrade012Config)
+}
+
+func (opt *DirOption) configureUpgrade012(conf *upgrade012Config) {
+	conf.dir = opt.path
 }
 
 func (opt *ForceOption) configureUpgrade012(conf *upgrade012Config) {
@@ -64,6 +69,11 @@ func (tf *Terraform) upgrade012Cmd(ctx context.Context, opts ...Upgrade012Option
 	}
 	if c.force {
 		args = append(args, "-force")
+	}
+
+	// optional positional argument
+	if c.dir != "" {
+		args = append(args, c.dir)
 	}
 
 	mergeEnv := map[string]string{}

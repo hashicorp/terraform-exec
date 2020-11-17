@@ -39,7 +39,7 @@ func TestUpgrade012(t *testing.T) {
 		// empty env, to avoid environ mismatch in testing
 		tf.SetEnv(map[string]string{})
 
-		upgrade012Cmd, err := tf.upgrade012Cmd(context.Background(), Yes(true), Force(true))
+		upgrade012Cmd, err := tf.upgrade012Cmd(context.Background(), Yes(true), Force(true), Dir("upgrade012dir"))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -48,6 +48,7 @@ func TestUpgrade012(t *testing.T) {
 			"0.12upgrade",
 			"-yes",
 			"-force",
+			"upgrade012dir",
 		}, nil, upgrade012Cmd)
 	})
 
