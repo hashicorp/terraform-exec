@@ -6,6 +6,10 @@ A Go module for constructing and running [Terraform](https://terraform.io) CLI c
 
 The [Terraform Plugin SDK](https://github.com/hashicorp/terraform-plugin-sdk) is the canonical Go interface for Terraform plugins using the gRPC protocol. This library is intended for use in Go programs that make use of Terraform's other interface, the CLI. Importing this library is preferable to importing `github.com/hashicorp/terraform/command`, because the latter is not intended for use outside Terraform Core.
 
+While terraform-exec is already widely used, please note that this module is **not yet at v1.0.0**, and that therefore breaking changes may occur in minor releases.
+
+We strictly follow [semantic versioning](https://semver.org).
+
 ## Usage
 
 The `Terraform` struct must be initialised with `NewTerraform(workingDir, execPath)`. 
@@ -60,3 +64,7 @@ func main() {
 	fmt.Println(state.FormatVersion) // "0.1"
 }
 ```
+
+## Contributing
+
+Please see [CONTRIBUTING.md](./CONTRIBUTING.md).
