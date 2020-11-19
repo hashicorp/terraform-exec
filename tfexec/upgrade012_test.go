@@ -3,6 +3,7 @@ package tfexec
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
@@ -28,6 +29,7 @@ func TestUpgrade012(t *testing.T) {
 		assertCmd(t, []string{
 			"0.12upgrade",
 			"-no-color",
+			"-yes",
 		}, nil, upgrade012Cmd)
 	})
 
@@ -40,7 +42,7 @@ func TestUpgrade012(t *testing.T) {
 		// empty env, to avoid environ mismatch in testing
 		tf.SetEnv(map[string]string{})
 
-		upgrade012Cmd, err := tf.upgrade012Cmd(context.Background(), Yes(true), Force(true), Dir("upgrade012dir"))
+		upgrade012Cmd, err := tf.upgrade012Cmd(context.Background(), Force(true), Dir("upgrade012dir"))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -54,23 +56,29 @@ func TestUpgrade012(t *testing.T) {
 		}, nil, upgrade012Cmd)
 	})
 
-	t.Run("unsupported on 0.13", func(t *testing.T) {
-		tf, err := NewTerraform(td, tfVersion(t, testutil.Latest013))
-		if err != nil {
-			t.Fatal(err)
-		}
+	unsupportedVersions := []string{
+		testutil.Latest011,
+		testutil.Latest013,
+	}
+	for _, tfv := range unsupportedVersions {
+		t.Run(fmt.Sprintf("unsupported on %s", tfv), func(t *testing.T) {
+			tf, err := NewTerraform(td, tfVersion(t, tfv))
+			if err != nil {
+				t.Fatal(err)
+			}
 
-		// empty env, to avoid environ mismatch in testing
-		tf.SetEnv(map[string]string{})
+			// empty env, to avoid environ mismatch in testing
+			tf.SetEnv(map[string]string{})
 
-		_, err = tf.upgrade012Cmd(context.Background())
-		if err == nil {
-			t.Fatal("expected old version to fail")
-		}
+			_, err = tf.upgrade012Cmd(context.Background())
+			if err == nil {
+				t.Fatalf("expected unsupported version %s to fail", tfv)
+			}
 
-		var expectedErr *ErrVersionMismatch
-		if !errors.As(err, &expectedErr) {
-			t.Fatalf("error doesn't match: %#v", err)
-		}
-	})
+			var expectedErr *ErrVersionMismatch
+			if !errors.As(err, &expectedErr) {
+				t.Fatalf("error doesn't match: %#v", err)
+			}
+		})
+	}
 }

@@ -302,11 +302,3 @@ type VerifyPluginsOption struct {
 func VerifyPlugins(verifyPlugins bool) *VerifyPluginsOption {
 	return &VerifyPluginsOption{verifyPlugins}
 }
-
-type YesOption struct {
-	yes bool
-}
-
-func Yes(yes bool) *YesOption {
-	return &YesOption{yes}
-}
