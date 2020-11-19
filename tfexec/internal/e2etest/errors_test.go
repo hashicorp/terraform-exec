@@ -43,7 +43,12 @@ func TestMissingVar(t *testing.T) {
 			t.Fatalf("err during init: %s", err)
 		}
 
-		_, err = tf.Plan(context.Background())
+		// Variable names from testdata/var/main.tf
+		shortVarName := "no_default"
+		longVarName := "no_default_really_long_variable_name_that_will_line_wrap_tf_output"
+
+		// Test for ErrMissingVar and properly formatted error message on shorter variable names
+		_, err = tf.Plan(context.Background(), tfexec.Var(longVarName+"=foo"))
 		if err == nil {
 			t.Fatalf("expected error running Plan, none returned")
 		}
@@ -52,11 +57,25 @@ func TestMissingVar(t *testing.T) {
 			t.Fatalf("expected ErrMissingVar, got %T, %s", err, err)
 		}
 
-		if e.VariableName != "no_default" {
-			t.Fatalf("expected missing no_default, got %q", e.VariableName)
+		if e.VariableName != shortVarName {
+			t.Fatalf("expected missing %s, got %q", shortVarName, e.VariableName)
 		}
 
-		_, err = tf.Plan(context.Background(), tfexec.Var("no_default=foo"))
+		// Test for ErrMissingVar and properly formatted error message on long variable names
+		_, err = tf.Plan(context.Background(), tfexec.Var(shortVarName+"=foo"))
+		if err == nil {
+			t.Fatalf("expected error running Plan, none returned")
+		}
+		if !errors.As(err, &e) {
+			t.Fatalf("expected ErrMissingVar, got %T, %s", err, err)
+		}
+
+		if e.VariableName != longVarName {
+			t.Fatalf("expected missing %s, got %q", longVarName, e.VariableName)
+		}
+
+		// Test for no error when all variables have a value
+		_, err = tf.Plan(context.Background(), tfexec.Var(shortVarName+"=foo"), tfexec.Var(longVarName+"=foo"))
 		if err != nil {
 			t.Fatalf("expected no error, got %s", err)
 		}
