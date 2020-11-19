@@ -9,13 +9,11 @@ import (
 type upgrade012Config struct {
 	dir   string
 	force bool
-	yes   bool
 
 	reattachInfo ReattachInfo
 }
 
 var defaultUpgrade012Options = upgrade012Config{
-	yes:   false,
 	force: false,
 }
 
@@ -30,10 +28,6 @@ func (opt *DirOption) configureUpgrade012(conf *upgrade012Config) {
 
 func (opt *ForceOption) configureUpgrade012(conf *upgrade012Config) {
 	conf.force = opt.force
-}
-
-func (opt *YesOption) configureUpgrade012(conf *upgrade012Config) {
-	conf.yes = opt.yes
 }
 
 func (opt *ReattachOption) configureUpgrade012(conf *upgrade012Config) {
@@ -61,12 +55,9 @@ func (tf *Terraform) upgrade012Cmd(ctx context.Context, opts ...Upgrade012Option
 		o.configureUpgrade012(&c)
 	}
 
-	args := []string{"0.12upgrade", "-no-color"}
+	args := []string{"0.12upgrade", "-no-color", "-yes"}
 
 	// boolean opts: only pass if set
-	if c.yes {
-		args = append(args, "-yes")
-	}
 	if c.force {
 		args = append(args, "-force")
 	}
