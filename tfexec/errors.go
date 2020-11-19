@@ -11,7 +11,7 @@ import (
 var (
 	// The "Required variable not set:" case is for 0.11
 	missingVarErrRegexp  = regexp.MustCompile(`Error: No value for required variable|Error: Required variable not set:`)
-	missingVarNameRegexp = regexp.MustCompile(`The root module input variable "(.+)" is not set, and has no default|Error: Required variable not set: (.+)`)
+	missingVarNameRegexp = regexp.MustCompile(`The root module input variable\s"(.+)"\sis\snot\sset,\sand\shas\sno\sdefault|Error: Required variable not set: (.+)`)
 
 	usageRegexp = regexp.MustCompile(`Too many command line arguments|^Usage: .*Options:.*|Error: Invalid -\d+ option`)
 
