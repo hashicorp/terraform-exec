@@ -17,12 +17,6 @@ import (
 	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
 )
 
-var (
-	showMinVersion = version.Must(version.NewVersion("0.12.0"))
-
-	providerAddressMinVersion = version.Must(version.NewVersion("0.13.0"))
-)
-
 func TestShow(t *testing.T) {
 	runTest(t, "basic_with_state", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		if tfv.LessThan(showMinVersion) {
