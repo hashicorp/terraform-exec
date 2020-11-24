@@ -34,6 +34,15 @@ func BackendConfig(backendConfig string) *BackendConfigOption {
 	return &BackendConfigOption{backendConfig}
 }
 
+type BackupOutOption struct {
+	path string
+}
+
+// BackupOutOption represents the -backup-out flag.
+func BackupOut(path string) *BackupOutOption {
+	return &BackupOutOption{path}
+}
+
 // BackupOption represents the -backup flag.
 type BackupOption struct {
 	path string
@@ -97,6 +106,15 @@ type DestroyFlagOption struct {
 // Destroy represents the -destroy flag.
 func Destroy(destroy bool) *DestroyFlagOption {
 	return &DestroyFlagOption{destroy}
+}
+
+type DryRunOption struct {
+	dryRun bool
+}
+
+// DryRun represents the -dry-run flag.
+func DryRun(dryRun bool) *DryRunOption {
+	return &DryRunOption{dryRun}
 }
 
 type ForceOption struct {

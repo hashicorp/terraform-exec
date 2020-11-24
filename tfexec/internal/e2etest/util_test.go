@@ -20,6 +20,12 @@ import (
 const testFixtureDir = "testdata"
 const masterRef = "refs/heads/master"
 
+var (
+	showMinVersion = version.Must(version.NewVersion("0.12.0"))
+
+	providerAddressMinVersion = version.Must(version.NewVersion("0.13.0"))
+)
+
 func runTest(t *testing.T, fixtureName string, cb func(t *testing.T, tfVersion *version.Version, tf *tfexec.Terraform)) {
 	t.Helper()
 
