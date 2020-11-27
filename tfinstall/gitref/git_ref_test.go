@@ -33,9 +33,7 @@ func TestGitRef(t *testing.T) {
 	}{
 		"branch v0.12": {"Terraform v0.12.", "refs/heads/v0.12"},
 		"tag v0.12.29": {"Terraform v0.12.29", "refs/tags/v0.12.29"},
-		// https://github.com/hashicorp/terraform/pull/25633
-		"PR 25633": {"Terraform v0.12.29-dev", "refs/pull/25633/head"},
-		//"commit 83630a7": {"Terraform v0.12.29", "83630a7003fb8b868a3bf940798326634c3c6acc"},
+		// "commit 83630a7": {"Terraform v0.12.29", "83630a7003fb8b868a3bf940798326634c3c6acc"},
 		"empty": {"Terraform v0.15.", ""}, // should pull master, which is currently 0.15 dev
 	} {
 		c := c
