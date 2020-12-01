@@ -72,7 +72,7 @@ func TestValidate(t *testing.T) {
 				Severity: "error",
 				Summary:  "Unsupported block type",
 				Detail:   "Blocks of type \"bad_block\" are not expected here.",
-				Range: tfexec.Range{
+				Range: &tfexec.Range{
 					Filename: "main.tf",
 					Start: tfexec.Pos{
 						Line:   1,
@@ -88,7 +88,7 @@ func TestValidate(t *testing.T) {
 				Severity: "error",
 				Summary:  "Unsupported argument",
 				Detail:   "An argument named \"bad_attribute\" is not expected here.",
-				Range: tfexec.Range{
+				Range: &tfexec.Range{
 					Filename: "main.tf",
 					Start: tfexec.Pos{
 						Line:   5,

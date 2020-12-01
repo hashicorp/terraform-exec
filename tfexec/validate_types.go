@@ -11,10 +11,10 @@ type Validation struct {
 }
 
 type Diagnostic struct {
-	Severity string `json:"severity"`
-	Summary  string `json:"summary"`
-	Detail   string `json:"detail"`
-	Range    Range  `json:"range"`
+	Severity string `json:"severity,omitempty"`
+	Summary  string `json:"summary,omitempty"`
+	Detail   string `json:"detail,omitempty"`
+	Range    *Range `json:"range,omitempty"`
 }
 
 type Range struct {
