@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/hashicorp/terraform-exec/tfexec"
+	tfjson "github.com/hashicorp/terraform-json"
 )
 
 var (
@@ -60,25 +61,25 @@ func TestValidate(t *testing.T) {
 		}
 
 		// reset byte locations in actual as CRLF issues render them off between operating systems
-		cleanActual := []tfexec.Diagnostic{}
+		cleanActual := []tfjson.Diagnostic{}
 		for _, diag := range actual.Diagnostics {
 			diag.Range.Start.Byte = 0
 			diag.Range.End.Byte = 0
 			cleanActual = append(cleanActual, diag)
 		}
 
-		assert.Equal(t, []tfexec.Diagnostic{
+		assert.Equal(t, []tfjson.Diagnostic{
 			{
 				Severity: "error",
 				Summary:  "Unsupported block type",
 				Detail:   "Blocks of type \"bad_block\" are not expected here.",
-				Range: &tfexec.Range{
+				Range: &tfjson.Range{
 					Filename: "main.tf",
-					Start: tfexec.Pos{
+					Start: tfjson.Pos{
 						Line:   1,
 						Column: 1,
 					},
-					End: tfexec.Pos{
+					End: tfjson.Pos{
 						Line:   1,
 						Column: 10,
 					},
@@ -88,13 +89,13 @@ func TestValidate(t *testing.T) {
 				Severity: "error",
 				Summary:  "Unsupported argument",
 				Detail:   "An argument named \"bad_attribute\" is not expected here.",
-				Range: &tfexec.Range{
+				Range: &tfjson.Range{
 					Filename: "main.tf",
-					Start: tfexec.Pos{
+					Start: tfjson.Pos{
 						Line:   5,
 						Column: 5,
 					},
-					End: tfexec.Pos{
+					End: tfjson.Pos{
 						Line:   5,
 						Column: 18,
 					},
