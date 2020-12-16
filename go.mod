@@ -11,7 +11,7 @@ require (
 	github.com/hashicorp/go-getter v1.4.0
 	github.com/hashicorp/go-version v1.2.1
 	github.com/hashicorp/logutils v1.0.0
-	github.com/hashicorp/terraform-json v0.7.0
+	github.com/hashicorp/terraform-json v0.7.1-0.20201216193920-93fe74c2941e
 	github.com/mitchellh/cli v1.1.1
 	github.com/sergi/go-diff v1.1.0
 	github.com/stretchr/testify v1.6.1
