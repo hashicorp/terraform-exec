@@ -95,8 +95,8 @@ github.com/hashicorp/golang-lru v0.5.1 h1:0hERBMJE1eitiLkihrMvRVBYAkpHzc/J3QdDN+
 github.com/hashicorp/golang-lru v0.5.1/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=
 github.com/hashicorp/logutils v1.0.0 h1:dLEQVugN8vlakKOUE3ihGLTZJRB4j+M2cdTm/ORI65Y=
 github.com/hashicorp/logutils v1.0.0/go.mod h1:QIAnNjmIWmVIIkWDTG1z5v++HQmx9WQRO+LraFDTW64=
-github.com/hashicorp/terraform-json v0.7.1-0.20201216214122-860b31cbd2be h1:ije30JtxEulgLUV8/nwNF3cfQsRQa67dczGEYJLL6e4=
-github.com/hashicorp/terraform-json v0.7.1-0.20201216214122-860b31cbd2be/go.mod h1:3defM4kkMfttwiE7VakJDwCd4R+umhSQnvJwORXbprE=
+github.com/hashicorp/terraform-json v0.8.0 h1:XObQ3PgqU52YLQKEaJ08QtUshAfN3yu4u8ebSW0vztc=
+github.com/hashicorp/terraform-json v0.8.0/go.mod h1:3defM4kkMfttwiE7VakJDwCd4R+umhSQnvJwORXbprE=
 github.com/imdario/mergo v0.3.9 h1:UauaLniWCFHWd+Jp9oCEkTBj8VO/9DKg3PV3VCNMDIg=
 github.com/imdario/mergo v0.3.9/go.mod h1:2EnlNZ0deacrJVfApfmtdGgDfMuh/nq6Ok1EcJh5FfA=
 github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 h1:BQSFePA1RWJOlocH6Fxy8MmwDt+yVQYULKfN0RoTN8A=
