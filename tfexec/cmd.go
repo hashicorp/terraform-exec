@@ -189,7 +189,9 @@ func (tf *Terraform) runTerraformCmdJSON(cmd *exec.Cmd, v interface{}) error {
 		return err
 	}
 
-	return json.Unmarshal(outbuf.Bytes(), v)
+	dec := json.NewDecoder(&outbuf)
+	dec.UseNumber()
+	return dec.Decode(v)
 }
 
 func (tf *Terraform) runTerraformCmd(cmd *exec.Cmd) error {
