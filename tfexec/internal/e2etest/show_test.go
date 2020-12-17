@@ -2,6 +2,7 @@ package e2etest
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"runtime"
@@ -462,11 +463,66 @@ func TestShowPlanFileRaw014(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-
 		if strings.TrimSpace(actual) != strings.TrimSpace(string(expected)) {
 			dmp := diffmatchpatch.New()
 			diffs := dmp.DiffMain(strings.TrimSpace(actual), strings.TrimSpace(string(expected)), false)
 			t.Fatalf("actual:\n\n%s\n\nexpected:\n\n%s\n\ndiff:\n\n%s", actual, string(expected), dmp.DiffPrettyText(diffs))
+		}
+	})
+}
+
+func TestShowBigInt(t *testing.T) {
+	runTest(t, "bigint", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		if tfv.LessThan(showMinVersion) {
+			t.Skip("terraform show was added in Terraform 0.12, so test is not valid")
+		}
+
+		providerName := "registry.terraform.io/hashicorp/random"
+		if tfv.LessThan(providerAddressMinVersion) {
+			providerName = "random"
+		}
+
+		expected := &tfjson.State{
+			FormatVersion: "0.1",
+			// TerraformVersion is ignored to facilitate latest version testing
+			Values: &tfjson.StateValues{
+				RootModule: &tfjson.StateModule{
+					Resources: []*tfjson.StateResource{{
+						Address: "random_integer.bigint",
+						AttributeValues: map[string]interface{}{
+							"id":      "7227701560655103598",
+							"max":     json.Number("7227701560655103598"),
+							"min":     json.Number("7227701560655103597"),
+							"result":  json.Number("7227701560655103598"),
+							"seed":    "12345",
+							"keepers": nil,
+						},
+						Mode:         tfjson.ManagedResourceMode,
+						Type:         "random_integer",
+						Name:         "bigint",
+						ProviderName: providerName,
+					}},
+				},
+			},
+		}
+
+		err := tf.Init(context.Background())
+		if err != nil {
+			t.Fatalf("error running Init in test directory: %s", err)
+		}
+
+		err = tf.Apply(context.Background())
+		if err != nil {
+			t.Fatalf("error running Apply in test directory: %s", err)
+		}
+
+		actual, err := tf.Show(context.Background())
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if diff := diffState(expected, actual); diff != "" {
+			t.Fatalf("mismatch (-want +got):\n%s", diff)
 		}
 	})
 }
