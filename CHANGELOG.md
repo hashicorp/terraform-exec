@@ -1,19 +1,23 @@
 # 0.12.0 (Unreleased)
 
-BREAKING
+BREAKING CHANGES:
  - Move Git ref installation to subpackage so that consumers can limit dependencies [GH-98]
 
-ENHANCEMENTS:
+FEATURES:
  - Improve error handling for formatting command on unsupported version (`<0.7.7`) [GH-88]
  - Introduce `Format` method with `io.Reader`/`io.Writer` interfaces [GH-96]
  - Introduce `Validate` method with `tfjson` defined diagnostic types. Those types reflect exactly the types used in `terraform validate -json` output [GH-68]
+ - Introduce `StateMv` method [GH-112]
+ - Introduce `Upgrade012` method [GH-105]
 
-BUG FIXES
+BUG FIXES:
  - Fix issue in tfinstall.GitRef where it assumed a `vendor` directory was present [GH-89]
+ - Use `json.Number` instead of `float64` when parsing state [GH-113]
+ - Support long variable names in `ErrMissingVar` [GH-110]
 
 # 0.11.0 (September 23, 2020)
 
-FEATURES
+FEATURES:
  - Added Terraform fmt support with the ability to format and write files/folders, check if files/folders need formatting, and format strings directly ([#82](https://github.com/hashicorp/terraform-exec/issues/82))
  - Added support for refs in the tfinstall CLI ([#80](https://github.com/hashicorp/terraform-exec/issues/80))
 
@@ -21,18 +25,18 @@ N.B. tfinstall binaries for all supported platforms are now available via GitHub
 
 # 0.10.0 (September 15, 2020)
 
-FEATURES
+FEATURES:
  - Added the ability to customize the `User-Agent` header for some `tfinstall` finders ([#76](https://github.com/hashicorp/terraform-exec/issues/76))
  - Added well known error for a mismatch for `required_version` ([#66](https://github.com/hashicorp/terraform-exec/issues/66))
  - Added new `ShowPlanFileRaw` function to obtain the human-friendly output of a plan ([#83](https://github.com/hashicorp/terraform-exec/issues/83))
 
 # 0.9.0 (September 09, 2020)
 
-BREAKING
+BREAKING CHANGES:
  - `context.Context` added to `tfinstall.Find` to allow for cancellation, timeouts, etc ([#51](https://github.com/hashicorp/terraform-exec/issues/51))
  - You can no longer use `TF_WORKSPACE` for workspace management, you must use `Terraform.WorkspaceSelect` ([#75](https://github.com/hashicorp/terraform-exec/issues/75))
 
-FEATURES
+FEATURES:
  - Add `ErrWorkspaceExists` for when workspaces with the same name already exist when calling `Terraform.WorkspaceNew` ([#67](https://github.com/hashicorp/terraform-exec/issues/67))
  - Added `tfinstall.GitRef` to support installation of Terraform from a git ref instead of by released version ([#51](https://github.com/hashicorp/terraform-exec/issues/51))
  - Created the **tfinstall** CLI utility (this is mostly for use in things like CI automation) ([#29](https://github.com/hashicorp/terraform-exec/issues/29))
@@ -40,35 +44,35 @@ FEATURES
 
 # 0.8.0 (August 29, 2020)
 
-BREAKING
+BREAKING CHANGES:
  - Add `-detailed-exit-code` to `Terraform.Plan` calls, `Terraform.Plan` now also returns a bool indicating if any diff is present ([#55](https://github.com/hashicorp/terraform-exec/issues/55))
  
-FEATURES
+FEATURES:
  - Added `Terraform.SetAppendUserAgent` for User-Agent management from consuming applications ([#46](https://github.com/hashicorp/terraform-exec/issues/46))
  - Added `Terraform.WorkspaceList`, `Terraform.WorkspaceNew`, and `Terraform.WorkspaceSelect` along with the `ErrNoWorkspace` error to indicate a workspace does not exist ([#56](https://github.com/hashicorp/terraform-exec/issues/56))
  - Added support for using multiple `VarFile` options ([#61](https://github.com/hashicorp/terraform-exec/issues/61))
  
-BUG FIXES
+BUG FIXES:
  - Fix bug with checking for empty path before executing version command ([#62](https://github.com/hashicorp/terraform-exec/issues/62))
 
 # 0.7.0 (August 20, 2020)
 
-FEATURES
+FEATURES:
  - Added `Terraform.Refresh` method ([#53](https://github.com/hashicorp/terraform-exec/issues/53))
  - Added `Terraform.ShowStateFile` and `Terraform.ShowPlanFile` ([#54](https://github.com/hashicorp/terraform-exec/issues/54))
  - Added support for `DIR` positional arg in init, destroy, and plan ([#52](https://github.com/hashicorp/terraform-exec/issues/52))
  - Relaxed logger interface ([#57](https://github.com/hashicorp/terraform-exec/issues/57))
  - Added error for missing required variable ([#57](https://github.com/hashicorp/terraform-exec/issues/57))
 
-BUG FIXES
+BUG FIXES:
  - Fixed logging issue for error cmd ([#57](https://github.com/hashicorp/terraform-exec/issues/57))
 
 # 0.6.0 (August 14, 2020)
 
-FEATURES
+FEATURES:
  - Added `Terraform.SetStdout` and `Terraform.SetStderr` to let consumers log CLI output ([#49](https://github.com/hashicorp/terraform-exec/issues/49))
 
-BUG FIXES
+BUG FIXES:
  - Fixed miscategorization of `ErrNoInit` on Terraform 0.13 ([#48](https://github.com/hashicorp/terraform-exec/issues/48))
 
 # 0.5.0 (August 14, 2020)
@@ -110,7 +114,7 @@ BUG FIXES:
 
 # 0.2.0 (July 8, 2020)
 
-NEW FEATURES:
+FEATURES:
   - add `Import()` function ([#20](https://github.com/hashicorp/terraform-exec/pull/20))
 
 # 0.1.1 (July 7, 2020)
