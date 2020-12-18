@@ -1,19 +1,19 @@
-# 0.12.0 (Unreleased)
+# 0.12.0 (December 18, 2020)
 
 BREAKING CHANGES:
- - Move Git ref installation to subpackage so that consumers can limit dependencies [GH-98]
+ - Move Git ref installation to subpackage so that consumers can limit dependencies ([#98](https://github.com/hashicorp/terraform-exec/issues/98))
 
 FEATURES:
- - Improve error handling for formatting command on unsupported version (`<0.7.7`) [GH-88]
- - Introduce `Format` method with `io.Reader`/`io.Writer` interfaces [GH-96]
- - Introduce `Validate` method with `tfjson` defined diagnostic types. Those types reflect exactly the types used in `terraform validate -json` output [GH-68]
- - Introduce `StateMv` method [GH-112]
- - Introduce `Upgrade012` method [GH-105]
+ - Improve error handling for formatting command on unsupported version (`<0.7.7`) ([#88](https://github.com/hashicorp/terraform-exec/issues/88))
+ - Introduce `Format` method with `io.Reader`/`io.Writer` interfaces ([#96](https://github.com/hashicorp/terraform-exec/issues/96))
+ - Introduce `Validate` method with `tfjson` defined diagnostic types. Those types reflect exactly the types used in `terraform validate -json` output ([#68](https://github.com/hashicorp/terraform-exec/issues/68))
+ - Introduce `StateMv` method ([#112](https://github.com/hashicorp/terraform-exec/issues/112))
+ - Introduce `Upgrade012` method ([#105](https://github.com/hashicorp/terraform-exec/issues/105))
 
 BUG FIXES:
- - Fix issue in tfinstall.GitRef where it assumed a `vendor` directory was present [GH-89]
- - Use `json.Number` instead of `float64` when parsing state [GH-113]
- - Support long variable names in `ErrMissingVar` [GH-110]
+ - Fix issue in tfinstall.GitRef where it assumed a `vendor` directory was present ([#89](https://github.com/hashicorp/terraform-exec/issues/89))
+ - Use `json.Number` instead of `float64` when parsing state ([#113](https://github.com/hashicorp/terraform-exec/issues/113))
+ - Support long variable names in `ErrMissingVar` ([#110](https://github.com/hashicorp/terraform-exec/issues/110))
 
 # 0.11.0 (September 23, 2020)
 
