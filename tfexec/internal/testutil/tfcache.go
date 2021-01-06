@@ -10,8 +10,8 @@ import (
 
 const (
 	Latest011 = "0.11.14"
-	Latest012 = "0.12.29"
-	Latest013 = "0.13.5"
+	Latest012 = "0.12.30"
+	Latest013 = "0.13.6"
 )
 
 const appendUserAgent = "tfexec-testutil"
