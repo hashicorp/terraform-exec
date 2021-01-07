@@ -95,6 +95,18 @@ jobs:
     steps:
       - checkout
       - go_test
+  go115_test_master:
+    environment:
+      TFEXEC_E2ETEST_VERSIONS: refs/heads/master
+    docker:
+      - image: circleci/golang:1.15
+    parameters:
+      test_results:
+        type: string
+        default: /tmp/test-results
+    steps:
+      - checkout
+      - go_test
   go115_vet:
     docker:
       - image: circleci/golang:1.15
@@ -119,7 +131,6 @@ jobs:
 
 workflows:
   version: 2
-  # TODO: add a `nightly` run for checking against TF master branch using TFEXEC_E2ETEST_VERSIONS
   pr:
     jobs:
       - winbuildtest
@@ -191,3 +202,27 @@ workflows:
             - go115_fmt
             - winbuildtest
             - macosbuildtest
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - winbuildtest
+      - macosbuildtest
+      - go112_build
+      - go113_build
+      - go114_build
+      - go114_test:
+          requires:
+            - go114_build
+      - go115_build
+      - go115_test:
+          requires:
+            - go115_build
+      - go115_test_master:
+          requires:
+            - go115_build
