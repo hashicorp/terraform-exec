@@ -1,0 +1,52 @@
+{
+	"blocks": [
+		{
+			"type": "header",
+			"text": {
+				"type": "plain_text",
+				"text": "Nightly test run failed. :red_circle:",
+				"emoji": true
+			}
+		},
+		{
+			"type": "section",
+			"fields": [
+				{
+					"type": "mrkdwn",
+					"text": "*Job*: ${CIRCLE_JOB}"
+				}
+			]
+		},
+		{
+			"type": "section",
+			"fields": [
+				{
+					"type": "mrkdwn",
+					"text": "*Project*:\\n$CIRCLE_PROJECT_REPONAME"
+				},
+				{
+					"type": "mrkdwn",
+					"text": "*Branch*:\\n$CIRCLE_BRANCH"
+				}
+			],
+			"accessory": {
+				"type": "image",
+				"image_url": "https://avatars0.githubusercontent.com/u/55231160",
+				"alt_text": "tf-CircleCI logo"
+			}
+		},
+		{
+			"type": "actions",
+			"elements": [
+				{
+					"type": "button",
+					"text": {
+						"type": "plain_text",
+						"text": "View Job"
+					},
+					"url": "${CIRCLE_BUILD_URL}"
+				}
+			]
+		}
+	]
+}

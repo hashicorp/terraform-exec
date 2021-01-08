@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   win: circleci/windows@2.2.0
+  slack: circleci/slack@4.2.0
 
 commands:
   win_install_go:
@@ -211,18 +212,64 @@ workflows:
               only:
                 - master
     jobs:
-      - winbuildtest
-      - macosbuildtest
-      - go112_build
-      - go113_build
-      - go114_build
+      - winbuildtest:
+          context: terraform-exec-slack-notifications
+          post-steps:
+            - slack/notify:
+                event: fail
+                template: basic_fail_1
+      - macosbuildtest:
+          context: terraform-exec-slack-notifications
+          post-steps:
+            - slack/notify:
+                event: fail
+                template: basic_fail_1
+      - go112_build:
+          context: terraform-exec-slack-notifications
+          post-steps:
+            - slack/notify:
+                event: fail
+                template: basic_fail_1
+      - go113_build:
+          context: terraform-exec-slack-notifications
+          post-steps:
+            - slack/notify:
+                event: fail
+                template: basic_fail_1
+      - go114_build:
+          context: terraform-exec-slack-notifications
+          post-steps:
+            - slack/notify:
+                event: fail
+                template: basic_fail_1
       - go114_test:
+          context: terraform-exec-slack-notifications
+          post-steps:
+            - slack/notify:
+                event: fail
+                template: basic_fail_1
           requires:
             - go114_build
-      - go115_build
+      - go115_build:
+          context: terraform-exec-slack-notifications
+          post-steps:
+            - slack/notify:
+                event: fail
+                template: basic_fail_1
       - go115_test:
+          context: terraform-exec-slack-notifications
+          post-steps:
+            - slack/notify:
+                event: fail
+                template: basic_fail_1
           requires:
             - go115_build
       - go115_test_master:
+          context: terraform-exec-slack-notifications
+          post-steps:
+            - slack/notify:
+                event: fail
+                template: basic_fail_1
+                channel: C012ZU33BEE
           requires:
             - go115_build
