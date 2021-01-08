@@ -12,14 +12,11 @@ import (
 
 func TestStateMv(t *testing.T) {
 	runTest(t, "basic_with_state", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
-		if tfv.LessThan(showMinVersion) {
-			t.Skip("terraform show was added in Terraform 0.12, so test is not valid")
+		if tfv.LessThan(providerAddressMinVersion) {
+			t.Skip("state file provider FQNs not compatible with this Terraform version")
 		}
 
-		providerName := "registry.terraform.io/-/null"
-		if tfv.LessThan(providerAddressMinVersion) {
-			providerName = "null"
-		}
+		providerName := "registry.terraform.io/hashicorp/null"
 
 		err := tf.Init(context.Background())
 		if err != nil {

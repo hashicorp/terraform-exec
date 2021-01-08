@@ -29,8 +29,8 @@ func TestPlan(t *testing.T) {
 
 func TestPlanWithState(t *testing.T) {
 	runTest(t, "basic_with_state", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
-		if tfv.LessThan(version.Must(version.NewVersion("0.12.0"))) {
-			t.Skip("state file is not compatiable with Terraform 0.11")
+		if tfv.LessThan(providerAddressMinVersion) {
+			t.Skip("state file provider FQNs not compatible with this Terraform version")
 		}
 		err := tf.Init(context.Background())
 		if err != nil {
