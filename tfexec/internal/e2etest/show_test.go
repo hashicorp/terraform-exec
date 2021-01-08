@@ -144,7 +144,7 @@ func TestShowStateFile012(t *testing.T) {
 }
 
 func TestShowStateFile013(t *testing.T) {
-	runTestVersions(t, []string{testutil.Latest013}, "non_default_statefile_013", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+	runTestVersions(t, []string{testutil.Latest013, testutil.Latest014}, "non_default_statefile_013", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		expected := &tfjson.State{
 			FormatVersion: "0.1",
 			// TerraformVersion is ignored to facilitate latest version testing
@@ -311,6 +311,68 @@ func TestShowPlanFile013(t *testing.T) {
 	})
 }
 
+func TestShowPlanFile014(t *testing.T) {
+	runTestVersions(t, []string{testutil.Latest014}, "non_default_planfile_014", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		providerName := "registry.terraform.io/hashicorp/null"
+
+		expected := &tfjson.Plan{
+			// TerraformVersion is ignored to facilitate latsest version testing
+			FormatVersion: "0.1",
+			PlannedValues: &tfjson.StateValues{
+				RootModule: &tfjson.StateModule{
+					Resources: []*tfjson.StateResource{{
+						Address: "null_resource.foo",
+						AttributeValues: map[string]interface{}{
+							"triggers": nil,
+						},
+						Mode:         tfjson.ManagedResourceMode,
+						Type:         "null_resource",
+						Name:         "foo",
+						ProviderName: providerName,
+					}},
+				},
+			},
+			ResourceChanges: []*tfjson.ResourceChange{{
+				Address:      "null_resource.foo",
+				Mode:         tfjson.ManagedResourceMode,
+				Type:         "null_resource",
+				Name:         "foo",
+				ProviderName: providerName,
+				Change: &tfjson.Change{
+					Actions:      tfjson.Actions{tfjson.ActionCreate},
+					After:        map[string]interface{}{"triggers": nil},
+					AfterUnknown: map[string]interface{}{"id": true},
+				},
+			}},
+			Config: &tfjson.Config{
+				RootModule: &tfjson.ConfigModule{
+					Resources: []*tfjson.ConfigResource{{
+						Address:           "null_resource.foo",
+						Mode:              tfjson.ManagedResourceMode,
+						Type:              "null_resource",
+						Name:              "foo",
+						ProviderConfigKey: "null",
+					}},
+				},
+			},
+		}
+
+		err := tf.Init(context.Background())
+		if err != nil {
+			t.Fatalf("error running Init in test directory: %s", err)
+		}
+
+		actual, err := tf.ShowPlanFile(context.Background(), "planfilefoo")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if diff := diffPlan(expected, actual); diff != "" {
+			t.Fatalf("mismatch (-want +got):\n%s", diff)
+		}
+	})
+}
+
 func TestShowPlanFileRaw012_linux(t *testing.T) {
 	runTestVersions(t, []string{testutil.Latest012}, "non_default_planfile_012", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		if runtime.GOOS != "linux" {
@@ -348,6 +410,37 @@ func TestShowPlanFileRaw012_linux(t *testing.T) {
 
 func TestShowPlanFileRaw013(t *testing.T) {
 	runTestVersions(t, []string{testutil.Latest013}, "non_default_planfile_013", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		// crlf will standardize our line endings for us
+		f, err := crlf.Open("testdata/non_default_planfile_013/human_readable_output.txt")
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer f.Close()
+		expected, err := ioutil.ReadAll(f)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = tf.Init(context.Background())
+		if err != nil {
+			t.Fatalf("error running Init in test directory: %s", err)
+		}
+
+		actual, err := tf.ShowPlanFileRaw(context.Background(), "planfilefoo")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if strings.TrimSpace(actual) != strings.TrimSpace(string(expected)) {
+			dmp := diffmatchpatch.New()
+			diffs := dmp.DiffMain(strings.TrimSpace(actual), strings.TrimSpace(string(expected)), false)
+			t.Fatalf("actual:\n\n%s\n\nexpected:\n\n%s\n\ndiff:\n\n%s", actual, string(expected), dmp.DiffPrettyText(diffs))
+		}
+	})
+}
+
+func TestShowPlanFileRaw014(t *testing.T) {
+	runTestVersions(t, []string{testutil.Latest014}, "non_default_planfile_014", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		// crlf will standardize our line endings for us
 		f, err := crlf.Open("testdata/non_default_planfile_013/human_readable_output.txt")
 		if err != nil {
