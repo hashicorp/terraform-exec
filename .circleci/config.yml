@@ -158,28 +158,68 @@ workflows:
             - go115_build
   release:
     jobs:
-      - winbuildtest
-      - macosbuildtest
+      - winbuildtest:
+          filters:
+            branches:
+              only:
+                - master
+      - macosbuildtest:
+          filters:
+            branches:
+              only:
+                - master
 
       # build only for these versions
-      - go112_build
-      - go113_build
+      - go112_build:
+          filters:
+            branches:
+              only:
+                - master
+      - go113_build:
+          filters:
+            branches:
+              only:
+                - master
 
-      - go114_build
+      - go114_build:
+          filters:
+            branches:
+              only:
+                - master
       - go114_test:
           requires:
             - go114_build
+          filters:
+            branches:
+              only:
+                - master
 
-      - go115_build
+      - go115_build:
+          filters:
+            branches:
+              only:
+                - master
       - go115_test:
           requires:
             - go115_build
+          filters:
+            branches:
+              only:
+                - master
       - go115_vet:
           requires:
             - go115_build
+          filters:
+            branches:
+              only:
+                - master
       - go115_fmt:
           requires:
             - go115_build
+          filters:
+            branches:
+              only:
+                - master
 
       - trigger-release:
           filters:
