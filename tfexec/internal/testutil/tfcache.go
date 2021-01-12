@@ -13,6 +13,7 @@ const (
 	Latest012 = "0.12.30"
 	Latest013 = "0.13.6"
 	Latest014 = "0.14.4"
+	Latest015 = "0.15.0-beta1"
 )
 
 const appendUserAgent = "tfexec-testutil"
