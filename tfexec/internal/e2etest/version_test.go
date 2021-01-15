@@ -13,7 +13,7 @@ func TestVersion(t *testing.T) {
 	runTest(t, "basic", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		ctx := context.Background()
 
-		err := tf.Init(ctx, tfexec.Lock(false))
+		err := tf.Init(ctx)
 		if err != nil {
 			t.Fatal(err)
 		}

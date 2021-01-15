@@ -33,9 +33,9 @@ func TestInitCmd(t *testing.T) {
 			"-lock-timeout=0s",
 			"-backend=true",
 			"-get=true",
-			"-get-plugins=true",
-			"-lock=true",
 			"-upgrade=false",
+			"-lock=true",
+			"-get-plugins=true",
 			"-verify-plugins=true",
 		}, nil, initCmd)
 	})
@@ -55,9 +55,9 @@ func TestInitCmd(t *testing.T) {
 			"-lock-timeout=999s",
 			"-backend=false",
 			"-get=false",
-			"-get-plugins=false",
-			"-lock=false",
 			"-upgrade=true",
+			"-lock=false",
+			"-get-plugins=false",
 			"-verify-plugins=false",
 			"-reconfigure",
 			"-backend-config=confpath1",

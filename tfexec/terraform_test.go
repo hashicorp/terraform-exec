@@ -97,9 +97,9 @@ func TestCheckpointDisablePropagation(t *testing.T) {
 			"-lock-timeout=0s",
 			"-backend=true",
 			"-get=true",
-			"-get-plugins=true",
-			"-lock=true",
 			"-upgrade=false",
+			"-lock=true",
+			"-get-plugins=true",
 			"-verify-plugins=true",
 		}, map[string]string{
 			"CHECKPOINT_DISABLE": "1",
@@ -129,9 +129,9 @@ func TestCheckpointDisablePropagation(t *testing.T) {
 			"-lock-timeout=0s",
 			"-backend=true",
 			"-get=true",
-			"-get-plugins=true",
-			"-lock=true",
 			"-upgrade=false",
+			"-lock=true",
+			"-get-plugins=true",
 			"-verify-plugins=true",
 		}, map[string]string{
 			"CHECKPOINT_DISABLE": "",

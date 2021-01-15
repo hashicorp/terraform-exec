@@ -18,13 +18,13 @@ func TestImport(t *testing.T) {
 	runTest(t, "import", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		ctx := context.Background()
 
-		err := tf.Init(ctx, tfexec.Lock(false))
+		err := tf.Init(ctx)
 		if err != nil {
 			t.Fatal(err)
 		}
 
 		// Config is unnecessary here since its already the working dir, but just testing an additional flag
-		err = tf.Import(ctx, resourceAddress, expectedID, tfexec.DisableBackup(), tfexec.Lock(false), tfexec.Config(tf.WorkingDir()))
+		err = tf.Import(ctx, resourceAddress, expectedID, tfexec.DisableBackup(), tfexec.Config(tf.WorkingDir()))
 		if err != nil {
 			t.Fatal(err)
 		}
