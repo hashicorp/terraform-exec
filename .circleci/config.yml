@@ -305,6 +305,28 @@ workflows:
             - slack/notify:
                 event: fail
                 template: basic_fail_1
-                channel: C012ZU33BEE
+            - slack/notify:
+                event: pass
+                custom: |
+                  {
+                    "blocks": [
+                      {
+                        "type": "section",
+                        "fields": [
+                          {
+                            "type": "plain_text",
+                            "text": ":terraform-da: The nightly test run passed. :terraformda:",
+                            "emoji": true
+                          }
+                        ]
+                      }
+                    ]
+                  }
           requires:
             - go115_build
+            - go115_test
+            - go114_test
+            - go113_build
+            - go112_build
+            - winbuildtest
+            - macosbuildtest
