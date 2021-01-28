@@ -252,12 +252,7 @@ workflows:
               only:
                 - master
     jobs:
-      - winbuildtest:
-          context: terraform-exec-slack-notifications
-          post-steps:
-            - slack/notify:
-                event: fail
-                template: basic_fail_1
+      - winbuildtest
       - macosbuildtest:
           context: terraform-exec-slack-notifications
           post-steps:
