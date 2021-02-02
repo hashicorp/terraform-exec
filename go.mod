@@ -2,6 +2,8 @@ module github.com/hashicorp/terraform-exec
 
 go 1.14
 
+#noop
+
 require (
 	github.com/andybalholm/crlf v0.0.0-20171020200849-670099aa064f
 	github.com/go-git/go-git/v5 v5.1.0
