@@ -1,10 +1,10 @@
-# 0.13.0 (Unreleased)
+# 0.13.0 (February 05, 2021)
 
 Please note that this is the first release of terraform-exec compatible with Terraform 0.15. Running Terraform 0.15 commands with previous versions of terraform-exec may produce unexpected results.
 
 FEATURES:
- - Compatibility checks for CLI flags removed in Terraform 0.15 [GH-120]
- - Introduce `StateRm` method [GH-122]
+ - Compatibility checks for CLI flags removed in Terraform 0.15 ([#120](https://github.com/hashicorp/terraform-exec/issues/120))
+ - Introduce `StateRm` method ([#122](https://github.com/hashicorp/terraform-exec/issues/122))
 
 # 0.12.0 (December 18, 2020)
 
