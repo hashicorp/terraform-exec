@@ -10,7 +10,7 @@ Three packages comprise the public API of the terraform-exec Go module:
 
 ### `tfexec`
 
-Package `github.com/hashicorp/terraform-exec/tfexec` exposes functionality for constructing and running Terraform CLI commands. Structured return values use the data types defined in the [terraform-json] (https://github.com/hashicorp/terraform-json) package.
+Package `github.com/hashicorp/terraform-exec/tfexec` exposes functionality for constructing and running Terraform CLI commands. Structured return values use the data types defined in the [hashicorp/terraform-json](https://github.com/hashicorp/terraform-json) package.
 
 #### Adding a new Terraform CLI command to `tfexec`
 
