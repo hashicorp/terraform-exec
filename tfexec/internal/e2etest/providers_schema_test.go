@@ -42,8 +42,9 @@ func TestProvidersSchema(t *testing.T) {
 											Attributes: map[string]*tfjson.SchemaAttribute{
 												"id": {
 													AttributeType: cty.String,
-													Optional:      true,
+													Optional:      false,
 													Computed:      true,
+													Description:   "This is set to a random value at create time.",
 												},
 												"triggers": {
 													AttributeType:   cty.Map(cty.String),
@@ -71,9 +72,10 @@ func TestProvidersSchema(t *testing.T) {
 												},
 												"id": {
 													AttributeType:   cty.String,
-													Optional:        true,
+													Optional:        false,
 													Computed:        true,
 													DescriptionKind: "",
+													Description:     "This attribute is only present for some legacy compatibility issues and should not be used. It will be removed in a future version.",
 												},
 												"inputs": {
 													AttributeType:   cty.Map(cty.String),
@@ -91,7 +93,7 @@ func TestProvidersSchema(t *testing.T) {
 													AttributeType:   cty.String,
 													Computed:        true,
 													DescriptionKind: "",
-													Description:     "A random value. This is primarily for testing and has little practical use; prefer the [random provider](https://www.terraform.io/docs/providers/random/) for more practical random number use-cases.",
+													Description:     "A random value. This is primarily for testing and has little practical use; prefer the [hashicorp/random provider](https://registry.terraform.io/providers/hashicorp/random) for more practical random number use-cases.",
 												},
 											},
 										},
@@ -119,9 +121,10 @@ func TestProvidersSchema(t *testing.T) {
 											Attributes: map[string]*tfjson.SchemaAttribute{
 												"id": {
 													AttributeType:   cty.String,
-													Optional:        true,
+													Optional:        false,
 													Computed:        true,
-													DescriptionKind: "plain",
+													DescriptionKind: "markdown",
+													Description:     "This is set to a random value at create time.",
 												},
 												"triggers": {
 													AttributeType:   cty.Map(cty.String),
@@ -138,7 +141,13 @@ func TestProvidersSchema(t *testing.T) {
 										Version: 0,
 										Block: &tfjson.SchemaBlock{
 											DescriptionKind: "markdown",
-											Description:     "The `null_data_source` data source implements the standard data source lifecycle but does not interact with any external APIs.",
+											Description: `The ` + "`null_data_source`" + ` data source implements the standard data source lifecycle but does not
+interact with any external APIs.
+
+Historically, the ` + "`null_data_source`" + ` was typically used to construct intermediate values to re-use elsewhere in configuration. The
+same can now be achieved using [locals](https://www.terraform.io/docs/language/values/locals.html).
+`,
+											Deprecated: true,
 											Attributes: map[string]*tfjson.SchemaAttribute{
 												"has_computed_default": {
 													AttributeType:   cty.String,
@@ -149,9 +158,11 @@ func TestProvidersSchema(t *testing.T) {
 												},
 												"id": {
 													AttributeType:   cty.String,
-													Optional:        true,
+													Optional:        false,
 													Computed:        true,
-													DescriptionKind: "plain",
+													DescriptionKind: "markdown",
+													Description:     "This attribute is only present for some legacy compatibility issues and should not be used. It will be removed in a future version.",
+													Deprecated:      true,
 												},
 												"inputs": {
 													AttributeType:   cty.Map(cty.String),
@@ -169,7 +180,7 @@ func TestProvidersSchema(t *testing.T) {
 													AttributeType:   cty.String,
 													Computed:        true,
 													DescriptionKind: "markdown",
-													Description:     "A random value. This is primarily for testing and has little practical use; prefer the [random provider](https://www.terraform.io/docs/providers/random/) for more practical random number use-cases.",
+													Description:     "A random value. This is primarily for testing and has little practical use; prefer the [hashicorp/random provider](https://registry.terraform.io/providers/hashicorp/random) for more practical random number use-cases.",
 												},
 											},
 										},
