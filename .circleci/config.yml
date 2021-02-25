@@ -96,9 +96,9 @@ jobs:
     steps:
       - checkout
       - go_test
-  go115_test_master:
+  go115_test_main:
     environment:
-      TFEXEC_E2ETEST_VERSIONS: refs/heads/master
+      TFEXEC_E2ETEST_VERSIONS: refs/heads/main
     docker:
       - image: circleci/golang:1.15
     parameters:
@@ -162,77 +162,77 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
       - macosbuildtest:
           filters:
             branches:
               only:
-                - master
+                - main
 
       # build only for these versions
       - go112_build:
           filters:
             branches:
               only:
-                - master
+                - main
       - go113_build:
           filters:
             branches:
               only:
-                - master
+                - main
 
       - go114_build:
           filters:
             branches:
               only:
-                - master
+                - main
       - go114_test:
           requires:
             - go114_build
           filters:
             branches:
               only:
-                - master
+                - main
 
       - go115_build:
           filters:
             branches:
               only:
-                - master
+                - main
       - go115_test:
           requires:
             - go115_build
           filters:
             branches:
               only:
-                - master
+                - main
       - go115_vet:
           requires:
             - go115_build
           filters:
             branches:
               only:
-                - master
+                - main
       - go115_fmt:
           requires:
             - go115_build
           filters:
             branches:
               only:
-                - master
+                - main
 
       - trigger-release:
           filters:
             branches:
               only:
-                - master
+                - main
           type: approval
 
       - go115_release:
           filters:
             branches:
               only:
-                - master
+                - main
           requires:
             - trigger-release
             - go112_build
@@ -250,7 +250,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
     jobs:
       - winbuildtest
       - macosbuildtest:
@@ -292,7 +292,7 @@ workflows:
                 template: basic_fail_1
           requires:
             - go115_build
-      - go115_test_master:
+      - go115_test_main:
           post-steps:
             - slack/notify:
                 event: fail
