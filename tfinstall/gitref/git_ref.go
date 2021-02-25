@@ -36,7 +36,7 @@ func (opt *Option) ExecPath(ctx context.Context) (string, error) {
 
 	ref := plumbing.ReferenceName(opt.ref)
 	if opt.ref == "" {
-		ref = plumbing.ReferenceName("refs/heads/master")
+		ref = plumbing.ReferenceName("refs/heads/main")
 	}
 
 	repoURL := opt.repoURL

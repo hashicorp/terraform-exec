@@ -67,7 +67,7 @@ Examples:
   tfinstall latest
   tfinstall 0.13.0-beta3
   tfinstall --dir=/home/kmoe/bin 0.12.28
-  tfinstall refs/heads/master
+  tfinstall refs/heads/main
   tfinstall refs/tags/v0.12.29
   tfinstall refs/pull/25633/head
 `

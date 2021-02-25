@@ -18,7 +18,6 @@ import (
 )
 
 const testFixtureDir = "testdata"
-const masterRef = "refs/heads/master"
 
 var (
 	showMinVersion = version.Must(version.NewVersion("0.12.0"))
