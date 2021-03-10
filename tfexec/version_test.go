@@ -7,19 +7,20 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-exec/tfinstall"
 )
 
-func TestParseVersionOutput(t *testing.T) {
-	var mustVer = func(s string) *version.Version {
-		v, err := version.NewVersion(s)
-		if err != nil {
-			t.Fatal(err)
-		}
-		return v
+func mustVersion(t *testing.T, s string) *version.Version {
+	v, err := version.NewVersion(s)
+	if err != nil {
+		t.Fatal(err)
 	}
+	return v
+}
 
+func TestParsePlaintextVersionOutput(t *testing.T) {
 	for i, c := range []struct {
 		expectedV         *version.Version
 		expectedProviders map[string]*version.Version
@@ -28,29 +29,29 @@ func TestParseVersionOutput(t *testing.T) {
 	}{
 		// 0.13 tests
 		{
-			mustVer("0.13.0-dev"), nil, `
+			mustVersion(t, "0.13.0-dev"), nil, `
 Terraform v0.13.0-dev`,
 		},
 		{
-			mustVer("0.13.0-dev"), map[string]*version.Version{
-				"registry.terraform.io/hashicorp/null": mustVer("2.1.2"),
-				"registry.terraform.io/paultyng/null":  mustVer("0.1.0"),
+			mustVersion(t, "0.13.0-dev"), map[string]*version.Version{
+				"registry.terraform.io/hashicorp/null": mustVersion(t, "2.1.2"),
+				"registry.terraform.io/paultyng/null":  mustVersion(t, "0.1.0"),
 			}, `
 Terraform v0.13.0-dev
 + provider registry.terraform.io/hashicorp/null v2.1.2
 + provider registry.terraform.io/paultyng/null v0.1.0`,
 		},
 		{
-			mustVer("0.13.0-dev"), nil, `
+			mustVersion(t, "0.13.0-dev"), nil, `
 Terraform v0.13.0-dev
 
 Your version of Terraform is out of date! The latest version
 is 0.13.1. You can update by downloading from https://www.terraform.io/downloads.html`,
 		},
 		{
-			mustVer("0.13.0-dev"), map[string]*version.Version{
-				"registry.terraform.io/hashicorp/null": mustVer("2.1.2"),
-				"registry.terraform.io/paultyng/null":  mustVer("0.1.0"),
+			mustVersion(t, "0.13.0-dev"), map[string]*version.Version{
+				"registry.terraform.io/hashicorp/null": mustVersion(t, "2.1.2"),
+				"registry.terraform.io/paultyng/null":  mustVersion(t, "0.1.0"),
 			}, `
 Terraform v0.13.0-dev
 + provider registry.terraform.io/hashicorp/null v2.1.2
@@ -62,20 +63,20 @@ is 0.13.1. You can update by downloading from https://www.terraform.io/downloads
 
 		// 0.12 tests
 		{
-			mustVer("0.12.26"), nil, `
+			mustVersion(t, "0.12.26"), nil, `
 Terraform v0.12.26
 `,
 		},
 		{
-			mustVer("0.12.26"), map[string]*version.Version{
-				"null": mustVer("2.1.2"),
+			mustVersion(t, "0.12.26"), map[string]*version.Version{
+				"null": mustVersion(t, "2.1.2"),
 			}, `
 Terraform v0.12.26
 + provider.null v2.1.2
 `,
 		},
 		{
-			mustVer("0.12.18"), nil, `
+			mustVersion(t, "0.12.18"), nil, `
 Terraform v0.12.18
 
 Your version of Terraform is out of date! The latest version
@@ -83,8 +84,8 @@ is 0.12.26. You can update by downloading from https://www.terraform.io/download
 `,
 		},
 		{
-			mustVer("0.12.18"), map[string]*version.Version{
-				"null": mustVer("2.1.2"),
+			mustVersion(t, "0.12.18"), map[string]*version.Version{
+				"null": mustVersion(t, "2.1.2"),
 			}, `
 Terraform v0.12.18
 + provider.null v2.1.2
@@ -95,7 +96,7 @@ is 0.12.26. You can update by downloading from https://www.terraform.io/download
 		},
 	} {
 		t.Run(fmt.Sprintf("%d %s", i, c.expectedV), func(t *testing.T) {
-			actualV, actualProv, err := parseVersionOutput(c.stdout)
+			actualV, actualProv, err := parsePlaintextVersionOutput(c.stdout)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -114,6 +115,37 @@ is 0.12.26. You can update by downloading from https://www.terraform.io/download
 				t.Fatalf("expected %d providers, got %d", len(c.expectedProviders), len(actualProv))
 			}
 		})
+	}
+}
+
+func TestParseJsonVersionOutput(t *testing.T) {
+	testStdout := []byte(`{
+  "terraform_version": "0.15.0-beta1",
+  "platform": "darwin_amd64",
+  "provider_selections": {
+    "registry.terraform.io/hashicorp/aws": "3.31.0",
+    "registry.terraform.io/hashicorp/google": "3.58.0"
+  },
+  "terraform_outdated": false
+}
+`)
+	tfVersion, pvs, err := parseJsonVersionOutput(testStdout)
+	if err != nil {
+		t.Fatal(err)
+	}
+	expectedTfVer := mustVersion(t, "0.15.0-beta1")
+
+	if !expectedTfVer.Equal(tfVersion) {
+		t.Fatalf("version doesn't match (%q != %q)",
+			expectedTfVer.String(), tfVersion.String())
+	}
+
+	expectedPvs := map[string]*version.Version{
+		"registry.terraform.io/hashicorp/aws":    mustVersion(t, "3.31.0"),
+		"registry.terraform.io/hashicorp/google": mustVersion(t, "3.58.0"),
+	}
+	if diff := cmp.Diff(expectedPvs, pvs); diff != "" {
+		t.Fatalf("provider versions don't match: %s", diff)
 	}
 }
 
