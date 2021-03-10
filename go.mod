@@ -12,10 +12,10 @@ require (
 	github.com/hashicorp/go-version v1.2.1
 	github.com/hashicorp/logutils v1.0.0
 	github.com/hashicorp/terraform-json v0.8.0
-	github.com/mitchellh/cli v1.1.1
+	github.com/mitchellh/cli v1.1.2
 	github.com/sergi/go-diff v1.1.0
 	github.com/stretchr/testify v1.7.0
 	github.com/zclconf/go-cty v1.8.0
 	github.com/zclconf/go-cty-debug v0.0.0-20191215020915-b22d67c1ba0b
-	golang.org/x/crypto v0.0.0-20200302210943-78000ba7a073
+	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
 )
