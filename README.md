@@ -40,7 +40,7 @@ func main() {
 	}
 	defer os.RemoveAll(tmpDir)
 
-	execPath, err := tfinstall.Find(tfinstall.LatestVersion(tmpDir, false))
+	execPath, err := tfinstall.Find(context.Background(), tfinstall.LatestVersion(tmpDir, false))
 	if err != nil {
 		panic(err)
 	}
