@@ -49,13 +49,6 @@ jobs:
       - go_build
       - go_test
 
-  go112_build:
-    docker:
-      - image: circleci/golang:1.12
-    steps:
-      - checkout
-      - go_build
-
   go113_build:
     docker:
       - image: circleci/golang:1.13
@@ -138,7 +131,6 @@ workflows:
       - macosbuildtest
 
       # build only for these versions
-      - go112_build
       - go113_build
 
       - go114_build
@@ -170,11 +162,6 @@ workflows:
                 - main
 
       # build only for these versions
-      - go112_build:
-          filters:
-            branches:
-              only:
-                - main
       - go113_build:
           filters:
             branches:
@@ -235,7 +222,6 @@ workflows:
                 - main
           requires:
             - trigger-release
-            - go112_build
             - go113_build
             - go114_test
             - go115_test
@@ -254,11 +240,6 @@ workflows:
     jobs:
       - winbuildtest
       - macosbuildtest:
-          post-steps:
-            - slack/notify:
-                event: fail
-                template: basic_fail_1
-      - go112_build:
           post-steps:
             - slack/notify:
                 event: fail
@@ -319,6 +300,5 @@ workflows:
             - go115_test
             - go114_test
             - go113_build
-            - go112_build
             - winbuildtest
             - macosbuildtest
