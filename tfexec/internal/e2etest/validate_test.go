@@ -55,6 +55,95 @@ func TestValidate(t *testing.T) {
 			}
 		}
 
+		var expectedDiags []tfjson.Diagnostic
+
+		if tfv.GreaterThanOrEqual(version.Must(version.NewVersion("0.15.0"))) {
+			expectedDiags = []tfjson.Diagnostic{
+				{
+					Severity: "error",
+					Summary:  "Unsupported block type",
+					Detail:   "Blocks of type \"bad_block\" are not expected here.",
+					Range: &tfjson.Range{
+						Filename: "main.tf",
+						Start: tfjson.Pos{
+							Line:   1,
+							Column: 1,
+						},
+						End: tfjson.Pos{
+							Line:   1,
+							Column: 10,
+						},
+					},
+					Snippet: &tfjson.DiagnosticSnippet{
+						Code:                 "bad_block {",
+						StartLine:            1,
+						HighlightStartOffset: 0,
+						HighlightEndOffset:   9,
+						Values:               []tfjson.DiagnosticExpressionValue{},
+					},
+				},
+				{
+					Severity: "error",
+					Summary:  "Unsupported argument",
+					Detail:   "An argument named \"bad_attribute\" is not expected here.",
+					Range: &tfjson.Range{
+						Filename: "main.tf",
+						Start: tfjson.Pos{
+							Line:   5,
+							Column: 5,
+						},
+						End: tfjson.Pos{
+							Line:   5,
+							Column: 18,
+						},
+					},
+					Snippet: &tfjson.DiagnosticSnippet{
+						Context:              ptrToString("terraform"),
+						Code:                 "    bad_attribute = \"string\"",
+						StartLine:            5,
+						HighlightStartOffset: 4,
+						HighlightEndOffset:   17,
+						Values:               []tfjson.DiagnosticExpressionValue{},
+					},
+				},
+			}
+		} else {
+			expectedDiags = []tfjson.Diagnostic{
+				{
+					Severity: "error",
+					Summary:  "Unsupported block type",
+					Detail:   "Blocks of type \"bad_block\" are not expected here.",
+					Range: &tfjson.Range{
+						Filename: "main.tf",
+						Start: tfjson.Pos{
+							Line:   1,
+							Column: 1,
+						},
+						End: tfjson.Pos{
+							Line:   1,
+							Column: 10,
+						},
+					},
+				},
+				{
+					Severity: "error",
+					Summary:  "Unsupported argument",
+					Detail:   "An argument named \"bad_attribute\" is not expected here.",
+					Range: &tfjson.Range{
+						Filename: "main.tf",
+						Start: tfjson.Pos{
+							Line:   5,
+							Column: 5,
+						},
+						End: tfjson.Pos{
+							Line:   5,
+							Column: 18,
+						},
+					},
+				},
+			}
+		}
+
 		actual, err := tf.Validate(context.Background())
 		if err != nil {
 			t.Fatal(err)
@@ -68,39 +157,10 @@ func TestValidate(t *testing.T) {
 			cleanActual = append(cleanActual, diag)
 		}
 
-		assert.Equal(t, []tfjson.Diagnostic{
-			{
-				Severity: "error",
-				Summary:  "Unsupported block type",
-				Detail:   "Blocks of type \"bad_block\" are not expected here.",
-				Range: &tfjson.Range{
-					Filename: "main.tf",
-					Start: tfjson.Pos{
-						Line:   1,
-						Column: 1,
-					},
-					End: tfjson.Pos{
-						Line:   1,
-						Column: 10,
-					},
-				},
-			},
-			{
-				Severity: "error",
-				Summary:  "Unsupported argument",
-				Detail:   "An argument named \"bad_attribute\" is not expected here.",
-				Range: &tfjson.Range{
-					Filename: "main.tf",
-					Start: tfjson.Pos{
-						Line:   5,
-						Column: 5,
-					},
-					End: tfjson.Pos{
-						Line:   5,
-						Column: 18,
-					},
-				},
-			},
-		}, cleanActual)
+		assert.Equal(t, expectedDiags, cleanActual)
 	})
+}
+
+func ptrToString(value string) *string {
+	return &value
 }
