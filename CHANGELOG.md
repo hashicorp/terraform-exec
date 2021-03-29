@@ -1,3 +1,8 @@
+# 0.13.1 (Unreleased)
+
+BUG FIXES:
+ - Bump version of terraform-json library to handle latest Terraform 0.15 output format [GH-143]
+
 # 0.13.0 (February 05, 2021)
 
 Please note that this is the first release of terraform-exec compatible with Terraform 0.15. Running Terraform 0.15 commands with previous versions of terraform-exec may produce unexpected results.
