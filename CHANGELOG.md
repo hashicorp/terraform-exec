@@ -1,7 +1,7 @@
-# 0.13.1 (Unreleased)
+# 0.13.1 (March 29, 2021)
 
 BUG FIXES:
- - Bump version of terraform-json library to handle latest Terraform 0.15 output format [GH-143]
+ - Bump version of terraform-json library to handle latest Terraform 0.15 output format ([#143](https://github.com/hashicorp/terraform-exec/issues/143))
 
 # 0.13.0 (February 05, 2021)
 
