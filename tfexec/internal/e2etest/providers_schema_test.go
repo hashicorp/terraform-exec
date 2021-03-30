@@ -25,7 +25,7 @@ func TestProvidersSchema(t *testing.T) {
 			"basic", func(tfv *version.Version) *tfjson.ProviderSchemas {
 				var providerSchema *tfjson.ProviderSchemas
 
-				if tfv.GreaterThanOrEqual(version.Must(version.NewVersion("0.15.0"))) {
+				if tfv.GreaterThanOrEqual(version.Must(version.NewVersion("0.15.0"))) || tfv.Equal(version.Must(version.NewVersion("0.15.0-beta2"))) || tfv.Equal(version.Must(version.NewVersion("0.15.0-dev"))) {
 					providerSchema = &tfjson.ProviderSchemas{
 						FormatVersion: "0.2",
 						Schemas: map[string]*tfjson.ProviderSchema{
