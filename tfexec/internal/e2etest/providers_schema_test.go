@@ -14,15 +14,10 @@ import (
 
 var (
 	providersSchemaJSONMinVersion = version.Must(version.NewVersion("0.12.0"))
+	v0_15_0                       = version.Must(version.NewVersion("0.15.0"))
 )
 
 func TestProvidersSchema(t *testing.T) {
-	isGreaterThan015 := func(tfv *version.Version) bool {
-		return tfv.GreaterThanOrEqual(version.Must(version.NewVersion("0.15.0"))) ||
-			tfv.Equal(version.Must(version.NewVersion("0.15.0-beta2"))) ||
-			tfv.Equal(version.Must(version.NewVersion("0.15.0-dev")))
-	}
-
 	for i, c := range []struct {
 		fixtureDir string
 		expected   func(*version.Version) *tfjson.ProviderSchemas
@@ -31,7 +26,7 @@ func TestProvidersSchema(t *testing.T) {
 			"basic", func(tfv *version.Version) *tfjson.ProviderSchemas {
 				var providerSchema *tfjson.ProviderSchemas
 
-				if isGreaterThan015(tfv) {
+				if tfv.GreaterThanOrEqual(v0_15_0.Core()) {
 					providerSchema = &tfjson.ProviderSchemas{
 						FormatVersion: "0.2",
 						Schemas: map[string]*tfjson.ProviderSchema{
@@ -291,7 +286,7 @@ same can now be achieved using [locals](https://www.terraform.io/docs/language/v
 		},
 		{
 			"empty_with_tf_file", func(tfv *version.Version) *tfjson.ProviderSchemas {
-				if isGreaterThan015(tfv) {
+				if tfv.GreaterThanOrEqual(v0_15_0.Core()) {
 					return &tfjson.ProviderSchemas{
 						FormatVersion: "0.2",
 						Schemas:       nil,

@@ -57,8 +57,7 @@ func TestValidate(t *testing.T) {
 
 		var expectedDiags []tfjson.Diagnostic
 
-		// TODO: Once 0.15.0 is released, remove the extra -beta2 and -dev conditions.
-		if tfv.GreaterThanOrEqual(version.Must(version.NewVersion("0.15.0"))) || tfv.Equal(version.Must(version.NewVersion("0.15.0-beta2"))) || tfv.Equal(version.Must(version.NewVersion("0.15.0-dev"))) {
+		if tfv.GreaterThanOrEqual(v0_15_0.Core()) {
 			expectedDiags = []tfjson.Diagnostic{
 				{
 					Severity: "error",
