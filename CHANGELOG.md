@@ -1,7 +1,16 @@
+# 0.13.2 (Unreleased)
+
+BUG FIXES:
+ - Update `terraform-json` to support 0.15 changes in plan & config JSON output [GH-153]
+ - Update `go-getter` to prevent race conditions where consumers would require `go-cleanhttp` `>=0.5.2` (which tfexec itself didn't depend on until now) [GH-154]
+
 # 0.13.1 (March 29, 2021)
 
 BUG FIXES:
  - Bump version of terraform-json library to handle latest Terraform 0.15 output format ([#143](https://github.com/hashicorp/terraform-exec/issues/143))
+
+NOTES:
+ - This release no longer supports Go 1.12 (1.13+ is required)
 
 # 0.13.0 (February 05, 2021)
 
