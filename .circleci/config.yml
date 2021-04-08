@@ -142,6 +142,9 @@ workflows:
       - go115_test:
           requires:
             - go115_build
+      - go115_test_main:
+          requires:
+            - go115_build
       - go115_vet:
           requires:
             - go115_build
@@ -193,6 +196,13 @@ workflows:
             branches:
               only:
                 - main
+      - go115_test_main:
+          requires:
+            - go115_build
+          filters:
+            branches:
+              only:
+                - main
       - go115_vet:
           requires:
             - go115_build
@@ -225,6 +235,7 @@ workflows:
             - go113_build
             - go114_test
             - go115_test
+            - go115_test_main
             - go115_vet
             - go115_fmt
             - winbuildtest
