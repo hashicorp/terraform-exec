@@ -14,6 +14,7 @@ import (
 
 var (
 	providersSchemaJSONMinVersion = version.Must(version.NewVersion("0.12.0"))
+	v0_13_0                       = version.Must(version.NewVersion("0.13.0"))
 	v0_15_0                       = version.Must(version.NewVersion("0.15.0"))
 )
 
@@ -26,7 +27,7 @@ func TestProvidersSchema(t *testing.T) {
 			"basic", func(tfv *version.Version) *tfjson.ProviderSchemas {
 				var providerSchema *tfjson.ProviderSchemas
 
-				if tfv.GreaterThanOrEqual(v0_15_0.Core()) {
+				if tfv.Core().GreaterThanOrEqual(v0_15_0) {
 					providerSchema = &tfjson.ProviderSchemas{
 						FormatVersion: "0.2",
 						Schemas: map[string]*tfjson.ProviderSchema{
@@ -114,7 +115,7 @@ same can now be achieved using [locals](https://www.terraform.io/docs/language/v
 							},
 						},
 					}
-				} else if tfv.GreaterThanOrEqual(version.Must(version.NewVersion("0.13.0"))) {
+				} else if tfv.Core().GreaterThanOrEqual(v0_13_0) {
 					providerSchema = &tfjson.ProviderSchemas{
 						FormatVersion: "0.1",
 						Schemas: map[string]*tfjson.ProviderSchema{
@@ -286,7 +287,7 @@ same can now be achieved using [locals](https://www.terraform.io/docs/language/v
 		},
 		{
 			"empty_with_tf_file", func(tfv *version.Version) *tfjson.ProviderSchemas {
-				if tfv.GreaterThanOrEqual(v0_15_0.Core()) {
+				if tfv.Core().GreaterThanOrEqual(v0_15_0) {
 					return &tfjson.ProviderSchemas{
 						FormatVersion: "0.2",
 						Schemas:       nil,
@@ -303,7 +304,7 @@ same can now be achieved using [locals](https://www.terraform.io/docs/language/v
 		c := c
 		t.Run(fmt.Sprintf("%d %s", i, c.fixtureDir), func(t *testing.T) {
 			runTest(t, c.fixtureDir, func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
-				if tfv.LessThan(providersSchemaJSONMinVersion) {
+				if tfv.Core().LessThan(providersSchemaJSONMinVersion) {
 					t.Skip("providers schema -json was added in 0.12")
 				}
 

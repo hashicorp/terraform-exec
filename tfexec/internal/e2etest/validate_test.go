@@ -57,7 +57,7 @@ func TestValidate(t *testing.T) {
 
 		var expectedDiags []tfjson.Diagnostic
 
-		if tfv.GreaterThanOrEqual(v0_15_0.Core()) {
+		if tfv.Core().GreaterThanOrEqual(v0_15_0) {
 			expectedDiags = []tfjson.Diagnostic{
 				{
 					Severity: "error",
