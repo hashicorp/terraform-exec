@@ -14,12 +14,13 @@ commands:
   macos_install_go:
     steps:
       - run:
-          # just latest stable version of Go as a sanity check
-          # version specification would require a brew update probably
-          # so this keeps it faster
-          command: |
-            brew install golang
-            go version
+          # Ensure we have the latest Homebrew revision
+          # which downloads from GitHub, not Bintray
+          command: brew update
+      - run:
+          command: brew install golang
+      - run:
+          command: go version
 
   go_build:
     steps:
