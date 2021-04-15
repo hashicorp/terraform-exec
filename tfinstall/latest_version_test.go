@@ -2,10 +2,10 @@ package tfinstall
 
 import (
 	"context"
+	"encoding/json"
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/go-version"
@@ -27,22 +27,28 @@ func TestLatestVersion(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	cmd := exec.Command(tfpath, "version")
+	cmd := exec.Command(tfpath, "version", "-json")
 
 	out, err := cmd.Output()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	lowerBoundVersion, err := version.NewVersion("0.12.27")
+	lowerBoundVersion, err := version.NewVersion("0.15.0")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	outVersion := strings.Trim(string(out), "\n")
-	outVersion = strings.TrimLeft(outVersion, "Terraform v")
+	type versionOutput struct {
+		TerraformVersion string `json:"terraform_version"`
+	}
+	vOut := versionOutput{}
+	err = json.Unmarshal(out, &vOut)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	actualVersion, err := version.NewVersion(outVersion)
+	actualVersion, err := version.NewVersion(vOut.TerraformVersion)
 	if err != nil {
 		t.Fatal(err)
 	}
