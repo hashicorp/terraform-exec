@@ -27,7 +27,9 @@ commands:
       - run: go build ./...
   go_test:
     steps:
-      - run: go test -v ./...
+      - run:
+          no_output_timeout: 15m
+          command: go test -timeout=15m -v ./...
 
 jobs:
   # combined due to slowness of Go install

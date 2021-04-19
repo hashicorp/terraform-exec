@@ -33,6 +33,7 @@ func runTest(t *testing.T, fixtureName string, cb func(t *testing.T, tfVersion *
 		testutil.Latest012,
 		testutil.Latest013,
 		testutil.Latest014,
+		testutil.Latest015,
 	}
 	if override := os.Getenv("TFEXEC_E2ETEST_VERSIONS"); override != "" {
 		versions = strings.Split(override, ",")
