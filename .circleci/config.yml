@@ -229,6 +229,9 @@ workflows:
           type: approval
 
       - go115_release:
+          context:
+            - releases-gpg-private-signing-key
+            - releases-gpg-public-signing-key
           filters:
             branches:
               only:

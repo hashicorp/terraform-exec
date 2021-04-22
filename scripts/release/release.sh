@@ -22,9 +22,8 @@ function init {
   START_DIR=`pwd`
 
   if [ "$CI" = true ] ; then
-    GPG_KEY_ID=C6DC8F8C8E78B36A
-    gpg --batch --import <(echo -e "${GPG_PUBLIC_KEY}")
-    gpg --batch --import <(echo -e "${GPG_PRIVATE_KEY}")
+    gpg --batch --import <(echo -e "${RELEASES_GPG_PUB_KEY}")
+    gpg --batch --import <(echo -e "${RELEASES_GPG_PRIV_KEY}")
     git config --global user.email hashibot-feedback+tf-sdk-circleci@hashicorp.com
     git config --global user.name "Terraform SDK CircleCI"
   fi
@@ -68,8 +67,11 @@ function commitChanges {
   git add internal/version/version.go
 
   if [ "$CI" = true ] ; then
-      git commit --gpg-sign="${GPG_KEY_ID}" -m "v${TARGET_VERSION} [skip ci]"
-      git tag -a -m "v${TARGET_VERSION}" -s -u "${GPG_KEY_ID}" "v${TARGET_VERSION}"
+      # load GPG passphrase into gpg-agent for reuse when git calls gpg
+      gpg --detach-sig --yes -v --output=/dev/null --pinentry-mode loopback --passphrase "${RELEASES_GPG_PASSPHRASE}" <(echo)
+
+      git commit --gpg-sign="${RELEASES_GPG_KEY_ID}" -m "v${TARGET_VERSION} [skip ci]"
+      git tag -a -m "v${TARGET_VERSION}" -s -u "${RELEASES_GPG_KEY_ID}" "v${TARGET_VERSION}"
   else
       git commit -m "v${TARGET_VERSION} [skip ci]"
       git tag -a -m "v${TARGET_VERSION}" -s "v${TARGET_VERSION}"
