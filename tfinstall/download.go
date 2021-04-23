@@ -65,7 +65,7 @@ func downloadWithVerification(ctx context.Context, tfVersion string, installDir 
 	client.Dst = sumsTmpDir
 	err = client.Get()
 	if err != nil {
-		return "", fmt.Errorf("error fetching checksums at URL %s: %s", sumsURL, err)
+		return "", fmt.Errorf("error fetching checksums at URL %s: %w", sumsURL, err)
 	}
 
 	client.Src = sumsSigURL
