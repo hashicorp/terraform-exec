@@ -1,3 +1,8 @@
+# 0.13.3 (Unreleased)
+
+SECURITY:
+ - `tfinstall`: The HashiCorp PGP signing key has been rotated (HCSEC-2021-12). This key is used to verify downloaded versions of Terraform. We recommend all users of terraform-exec upgrade to v0.13.3 for this security fix. [GH-166]
+
 # 0.13.2 (April 06, 2021)
 
 BUG FIXES:
