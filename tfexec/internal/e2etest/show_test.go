@@ -92,8 +92,8 @@ func TestShow_versionMismatch(t *testing.T) {
 		if !errors.As(err, &mismatch) {
 			t.Fatalf("expected version mismatch error, got %T %s", err, err)
 		}
-		if mismatch.Actual != "0.11.14" {
-			t.Fatalf("expected version 0.11.14, got %q", mismatch.Actual)
+		if mismatch.Actual != "0.11.15" {
+			t.Fatalf("expected version 0.11.15, got %q", mismatch.Actual)
 		}
 		if mismatch.MinInclusive != "0.12.0" {
 			t.Fatalf("expected min 0.12.0, got %q", mismatch.MinInclusive)
@@ -117,7 +117,7 @@ func TestShowStateFile012(t *testing.T) {
 					Resources: []*tfjson.StateResource{{
 						Address: "null_resource.foo",
 						AttributeValues: map[string]interface{}{
-							"id":       "3610244792381545397",
+							"id":       "2363759301357831073",
 							"triggers": nil,
 						},
 						Mode:         tfjson.ManagedResourceMode,
@@ -155,7 +155,45 @@ func TestShowStateFile013(t *testing.T) {
 					Resources: []*tfjson.StateResource{{
 						Address: "null_resource.foo",
 						AttributeValues: map[string]interface{}{
-							"id":       "3610244792381545397",
+							"id":       "6724959521006014491",
+							"triggers": nil,
+						},
+						Mode:         tfjson.ManagedResourceMode,
+						Type:         "null_resource",
+						Name:         "foo",
+						ProviderName: "registry.terraform.io/hashicorp/null",
+					}},
+				},
+			},
+		}
+
+		err := tf.Init(context.Background())
+		if err != nil {
+			t.Fatalf("error running Init in test directory: %s", err)
+		}
+
+		actual, err := tf.ShowStateFile(context.Background(), "statefilefoo")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if diff := diffState(expected, actual); diff != "" {
+			t.Fatalf("mismatch (-want +got):\n%s", diff)
+		}
+	})
+}
+
+func TestShowStateFile014(t *testing.T) {
+	runTestVersions(t, []string{testutil.Latest014}, "non_default_statefile_014", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		expected := &tfjson.State{
+			FormatVersion: "0.1",
+			// TerraformVersion is ignored to facilitate latest version testing
+			Values: &tfjson.StateValues{
+				RootModule: &tfjson.StateModule{
+					Resources: []*tfjson.StateResource{{
+						Address: "null_resource.foo",
+						AttributeValues: map[string]interface{}{
+							"id":       "3544690470898862261",
 							"triggers": nil,
 						},
 						Mode:         tfjson.ManagedResourceMode,
@@ -347,6 +385,9 @@ func TestShowPlanFile014(t *testing.T) {
 				},
 			}},
 			Config: &tfjson.Config{
+				ProviderConfigs: map[string]*tfjson.ProviderConfig{
+					"null": {Name: "null", VersionConstraint: "3.0.0"},
+				},
 				RootModule: &tfjson.ConfigModule{
 					Resources: []*tfjson.ConfigResource{{
 						Address:           "null_resource.foo",
