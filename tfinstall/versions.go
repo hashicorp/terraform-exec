@@ -19,10 +19,17 @@ type versionIndex struct {
 func ListVersions(ctx context.Context) (version.Collection, error) {
 	c := retryablehttp.NewClient()
 	url := fmt.Sprintf("%s/%s", baseURL, "index.json")
-	r, err := c.Get(url)
+
+	req, err := retryablehttp.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
+
+	r, err := c.Do(req.WithContext(ctx))
+	if err != nil {
+		return nil, err
+	}
+
 	dec := json.NewDecoder(r)
 	v := &versionIndex{}
 	if err := dec.Decode(v); err != nil {
@@ -35,7 +42,6 @@ func ListVersions(ctx context.Context) (version.Collection, error) {
 		if err != nil {
 			return nil, err
 		}
-
 		versions = append(versions, sv)
 	}
 
