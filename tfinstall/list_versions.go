@@ -15,6 +15,7 @@ type versionIndex struct {
 }
 
 // ListVersions will return a sorted list of available Terraform versions.
+// versions are sourced from
 // https://releases.hashicorp.com/terraform/index.json
 func ListVersions(ctx context.Context) (version.Collection, error) {
 	c := retryablehttp.NewClient()
