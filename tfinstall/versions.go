@@ -11,7 +11,7 @@ import (
 )
 
 type versionIndex struct {
-	Versions map[string]interface{}
+	Versions map[string]struct{}
 }
 
 // ListVersions will return a sorted list of available Terraform versions.
@@ -30,14 +30,14 @@ func ListVersions(ctx context.Context) (version.Collection, error) {
 		return nil, err
 	}
 
-	dec := json.NewDecoder(r)
+	dec := json.NewDecoder(r.Body)
 	v := &versionIndex{}
 	if err := dec.Decode(v); err != nil {
 		return nil, err
 	}
 
 	versions := make(version.Collection, 0, len(v.Versions))
-	for vx, _ := range v.Versions {
+	for vx := range v.Versions {
 		sv, err := version.NewSemver(vx)
 		if err != nil {
 			return nil, err
