@@ -1,6 +1,6 @@
 # 0.14.0 (Unreleased)
 
-NEW FEATURES:
+FEATURES:
  - Add `ProtocolVersion` to `ReattachConfig` struct, enabling provider protocol v6 support in reattach mode, provided that Terraform and the provider plugin are both using go-plugin v1.4.1 or later. This change is backwards-compatible, as zero values for this field are interpreted as protocol v5. [GH-182]
 
 # 0.13.3 (April 23, 2021)
