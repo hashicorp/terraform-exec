@@ -290,6 +290,14 @@ func Target(resource string) *TargetOption {
 	return &TargetOption{resource}
 }
 
+type UpdateOption struct {
+	update bool
+}
+
+func Update(update bool) *UpdateOption {
+	return &UpdateOption{update}
+}
+
 type UpgradeOption struct {
 	upgrade bool
 }
