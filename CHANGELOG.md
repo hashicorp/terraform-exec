@@ -5,6 +5,10 @@ FEATURES:
  - Introduce `tfexec.Get()` for downloading modules [GH-176]
  - Introduce `tfexec.Upgrade013()` [GH-178]
 
+INTERNAL:
+
+ - Update `terraform-json` to account for changes in state & plan JSON output in Terraform v1.1+ [GH-194]
+
 # 0.13.3 (April 23, 2021)
 
 SECURITY:
