@@ -8,7 +8,7 @@ commands:
   win_install_go:
     steps:
       - run:
-          command: choco install golang --version 1.14.6 --yes
+          command: choco install golang --version 1.16.4 --yes
       - run:
           command: go version
   macos_install_go:
@@ -25,11 +25,18 @@ commands:
   go_build:
     steps:
       - run: go build ./...
-  go_test:
+  go_unit_test:
+    steps:
+      - run:
+          command: go test $(go list ./... | grep -v /tfexec/internal/e2etest | grep -v /tfinstall)
+  go_e2e_test:
     steps:
       - run:
           no_output_timeout: 15m
-          command: go test -timeout=15m -v ./...
+          command: go test -timeout=15m -v ./tfexec/internal/e2etest
+      - run:
+          no_output_timeout: 15m
+          command: go test -timeout=15m -v ./tfinstall/...
 
 jobs:
   # combined due to slowness of Go install
@@ -40,7 +47,8 @@ jobs:
       - macos_install_go
       - checkout
       - go_build
-      - go_test
+      - go_unit_test
+      - go_e2e_test
     
   # combined due to slowness of Go install
   winbuildtest:
@@ -50,7 +58,8 @@ jobs:
       - win_install_go
       - checkout
       - go_build
-      - go_test
+      - go_unit_test
+      - go_e2e_test
 
   go113_build:
     docker:
@@ -74,7 +83,7 @@ jobs:
         default: /tmp/test-results
     steps:
       - checkout
-      - go_test
+      - go_unit_test
 
   go115_build:
     docker:
@@ -91,19 +100,20 @@ jobs:
         default: /tmp/test-results
     steps:
       - checkout
-      - go_test
-  go115_test_main:
+      - go_unit_test
+  go116_test_main:
     environment:
       TFEXEC_E2ETEST_VERSIONS: refs/heads/main
     docker:
-      - image: circleci/golang:1.15
+      - image: circleci/golang:1.16
     parameters:
       test_results:
         type: string
         default: /tmp/test-results
     steps:
       - checkout
-      - go_test
+      - go_unit_test
+      - go_e2e_test
   go115_vet:
     docker:
       - image: circleci/golang:1.15
@@ -125,7 +135,12 @@ jobs:
             - db:cf:97:b8:d6:ac:86:74:96:e1:54:e4:bc:27:2b:d0
       - checkout
       - run: ./scripts/release/release.sh
-
+  go116_build:
+    docker:
+      - image: circleci/golang:1.16
+    steps:
+      - checkout
+      - go_build
 workflows:
   version: 2
   pr:
@@ -145,7 +160,7 @@ workflows:
       - go115_test:
           requires:
             - go115_build
-      - go115_test_main:
+      - go116_test_main:
           requires:
             - go115_build
       - go115_vet:
@@ -199,9 +214,9 @@ workflows:
             branches:
               only:
                 - main
-      - go115_test_main:
+      - go116_test_main:
           requires:
-            - go115_build
+            - go116_build
           filters:
             branches:
               only:
@@ -220,7 +235,11 @@ workflows:
             branches:
               only:
                 - main
-
+      - go116_build:
+          filters:
+            branches:
+              only:
+                - main
       - trigger-release:
           filters:
             branches:
@@ -238,7 +257,7 @@ workflows:
             - go113_build
             - go114_test
             - go115_test
-            - go115_test_main
+            - go116_test_main
             - go115_vet
             - go115_fmt
             - winbuildtest
@@ -287,7 +306,7 @@ workflows:
                 template: basic_fail_1
           requires:
             - go115_build
-      - go115_test_main:
+      - go116_test_main:
           post-steps:
             - slack/notify:
                 event: fail
