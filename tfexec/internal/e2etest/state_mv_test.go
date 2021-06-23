@@ -2,6 +2,7 @@ package e2etest
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 
 	"github.com/hashicorp/go-version"
@@ -28,9 +29,16 @@ func TestStateMv(t *testing.T) {
 			t.Fatalf("error running StateMv: %s", err)
 		}
 
+		formatVersion := "0.1"
+		var sensitiveValues json.RawMessage
+		if tfv.Core().GreaterThanOrEqual(v1_1_0) {
+			formatVersion = "0.2"
+			sensitiveValues = json.RawMessage([]byte("{}"))
+		}
+
 		// test that the new state is as expected
 		expected := &tfjson.State{
-			FormatVersion: "0.1",
+			FormatVersion: formatVersion,
 			// TerraformVersion is ignored to facilitate latest version testing
 			Values: &tfjson.StateValues{
 				RootModule: &tfjson.StateModule{
@@ -40,10 +48,11 @@ func TestStateMv(t *testing.T) {
 							"id":       "5510719323588825107",
 							"triggers": nil,
 						},
-						Mode:         tfjson.ManagedResourceMode,
-						Type:         "null_resource",
-						Name:         "bar",
-						ProviderName: providerName,
+						SensitiveValues: sensitiveValues,
+						Mode:            tfjson.ManagedResourceMode,
+						Type:            "null_resource",
+						Name:            "bar",
+						ProviderName:    providerName,
 					}},
 				},
 			},

@@ -18,6 +18,10 @@ import (
 	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
 )
 
+var (
+	v1_1_0 = version.Must(version.NewVersion("1.1.0"))
+)
+
 func TestShow(t *testing.T) {
 	runTest(t, "basic_with_state", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 
@@ -30,8 +34,15 @@ func TestShow(t *testing.T) {
 			providerName = "null"
 		}
 
+		formatVersion := "0.1"
+		var sensitiveValues json.RawMessage
+		if tfv.Core().GreaterThanOrEqual(v1_1_0) {
+			formatVersion = "0.2"
+			sensitiveValues = json.RawMessage([]byte("{}"))
+		}
+
 		expected := &tfjson.State{
-			FormatVersion: "0.1",
+			FormatVersion: formatVersion,
 			// TerraformVersion is ignored to facilitate latest version testing
 			Values: &tfjson.StateValues{
 				RootModule: &tfjson.StateModule{
@@ -41,10 +52,11 @@ func TestShow(t *testing.T) {
 							"id":       "5510719323588825107",
 							"triggers": nil,
 						},
-						Mode:         tfjson.ManagedResourceMode,
-						Type:         "null_resource",
-						Name:         "foo",
-						ProviderName: providerName,
+						SensitiveValues: sensitiveValues,
+						Mode:            tfjson.ManagedResourceMode,
+						Type:            "null_resource",
+						Name:            "foo",
+						ProviderName:    providerName,
 					}},
 				},
 			},
@@ -523,8 +535,15 @@ func TestShowBigInt(t *testing.T) {
 			providerName = "random"
 		}
 
+		formatVersion := "0.1"
+		var sensitiveValues json.RawMessage
+		if tfv.Core().GreaterThanOrEqual(v1_1_0) {
+			formatVersion = "0.2"
+			sensitiveValues = json.RawMessage([]byte("{}"))
+		}
+
 		expected := &tfjson.State{
-			FormatVersion: "0.1",
+			FormatVersion: formatVersion,
 			// TerraformVersion is ignored to facilitate latest version testing
 			Values: &tfjson.StateValues{
 				RootModule: &tfjson.StateModule{
@@ -538,10 +557,11 @@ func TestShowBigInt(t *testing.T) {
 							"seed":    "12345",
 							"keepers": nil,
 						},
-						Mode:         tfjson.ManagedResourceMode,
-						Type:         "random_integer",
-						Name:         "bigint",
-						ProviderName: providerName,
+						SensitiveValues: sensitiveValues,
+						Mode:            tfjson.ManagedResourceMode,
+						Type:            "random_integer",
+						Name:            "bigint",
+						ProviderName:    providerName,
 					}},
 				},
 			},

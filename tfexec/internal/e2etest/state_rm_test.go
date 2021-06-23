@@ -26,9 +26,14 @@ func TestStateRm(t *testing.T) {
 			t.Fatalf("error running StateRm: %s", err)
 		}
 
+		formatVersion := "0.1"
+		if tfv.Core().GreaterThanOrEqual(v1_1_0) {
+			formatVersion = "0.2"
+		}
+
 		// test that the new state is as expected
 		expected := &tfjson.State{
-			FormatVersion: "0.1",
+			FormatVersion: formatVersion,
 			// TerraformVersion is ignored to facilitate latest version testing
 			Values: nil,
 		}
