@@ -27,7 +27,7 @@ func TestStateRm(t *testing.T) {
 		}
 
 		formatVersion := "0.1"
-		if tfv.Core().GreaterThanOrEqual(v1_1_0) {
+		if tfv.Core().GreaterThanOrEqual(v1_0_1) {
 			formatVersion = "0.2"
 		}
 
