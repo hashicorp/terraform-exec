@@ -7,7 +7,8 @@ FEATURES:
 
 INTERNAL:
 
- - Update `terraform-json` to account for changes in state & plan JSON output in Terraform v1.1+ [GH-194]
+ - Update `terraform-json` to account for changes in state & plan JSON output in Terraform v1.0.1+ [GH-194]
+ - Improve error message for incompatible Terraform version [GH-191]
 
 # 0.13.3 (April 23, 2021)
 
