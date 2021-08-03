@@ -2,6 +2,7 @@ package tfexec
 
 import (
 	"context"
+	"fmt"
 	"os/exec"
 )
 
@@ -34,11 +35,16 @@ func (opt *ProviderOption) configureProvidersLock(conf *providersLockConfig) {
 	conf.providers = append(conf.providers, opt.provider)
 }
 
-// ProvidersLock represents the terraform providers lock
+// ProvidersLock represents the `terraform providers lock` command
 func (tf *Terraform) ProvidersLock(ctx context.Context, opts ...ProvidersLockOption) error {
+	err := tf.compatible(ctx, tf0_14_0, nil)
+	if err != nil {
+		return fmt.Errorf("terraform providers lock was added in 0.14.0: %w", err)
+	}
+
 	lockCmd := tf.providersLockCmd(ctx, opts...)
 
-	err := tf.runTerraformCmd(ctx, lockCmd)
+	err = tf.runTerraformCmd(ctx, lockCmd)
 	if err != nil {
 		return err
 	}

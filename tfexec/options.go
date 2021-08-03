@@ -121,7 +121,7 @@ type FSMirrorOption struct {
 	fsMirror string
 }
 
-// FSMirror Represents the -fs-mirror option
+// FSMirror represents the -fs-mirror option (path to filesystem mirror directory)
 func FSMirror(fsMirror string) *FSMirrorOption {
 	return &FSMirrorOption{fsMirror}
 }
@@ -191,7 +191,7 @@ type NetMirrorOption struct {
 	netMirror string
 }
 
-// NetMirror Represents the -fs-mirror option
+// NetMirror represents the -net-mirror option (base URL of a network mirror)
 func NetMirror(netMirror string) *NetMirrorOption {
 	return &NetMirrorOption{netMirror}
 }
@@ -233,7 +233,7 @@ type ProviderOption struct {
 	provider string
 }
 
-// Provider Represents the provider positional argument
+// Provider represents the positional argument (provider source address)
 func Provider(providers string) *ProviderOption {
 	return &ProviderOption{providers}
 }
