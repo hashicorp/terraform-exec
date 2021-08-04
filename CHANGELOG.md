@@ -2,7 +2,7 @@
 
 FEATURES:
 
- - Add providers lock Command [GH-203]
+ - Add support for `providers lock` command [GH-203]
 
 # 0.14.0 (June 24, 2021)
 
