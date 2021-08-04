@@ -1,3 +1,9 @@
+# 0.15.0 (Unreleased)
+
+FEATURES:
+
+ - Add providers lock Command [GH-203]
+
 # 0.14.0 (June 24, 2021)
 
 FEATURES:
