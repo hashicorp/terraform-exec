@@ -21,7 +21,7 @@ var defaultStateMvOptions = stateMvConfig{
 	lockTimeout: "0s",
 }
 
-// StateMvCmdOption represents options used in the Refresh method.
+// StateMvCmdOption represents options used in the StateMv method.
 type StateMvCmdOption interface {
 	configureStateMv(*stateMvConfig)
 }
