@@ -4,6 +4,16 @@ import (
 	"encoding/json"
 )
 
+// AddressOption represents an address.
+type AddressOption struct {
+	address string
+}
+
+// Address represents an address.
+func Address(address string) *AddressOption {
+	return &AddressOption{address}
+}
+
 // AllowMissingConfigOption represents the -allow-missing-config flag.
 type AllowMissingConfigOption struct {
 	allowMissingConfig bool
@@ -164,6 +174,16 @@ type GetPluginsOption struct {
 
 func GetPlugins(getPlugins bool) *GetPluginsOption {
 	return &GetPluginsOption{getPlugins}
+}
+
+// IdOption represents the -id flag.
+type IdOption struct {
+	id string
+}
+
+// Id represents the -id flag.
+func Id(id string) *IdOption {
+	return &IdOption{id}
 }
 
 // LockOption represents the -lock flag.
