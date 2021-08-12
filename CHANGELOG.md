@@ -3,6 +3,7 @@
 FEATURES:
 
  - Add support for `providers lock` command [GH-203]
+ - Add supports for `add` command [GH-209]
 
 # 0.14.0 (June 24, 2021)
 
