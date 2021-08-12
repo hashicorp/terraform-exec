@@ -1,6 +1,7 @@
 package tfexec
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"os/exec"
@@ -41,13 +42,25 @@ func (opt *ReattachOption) configureAdd(conf *addConfig) {
 	conf.reattachInfo = opt.info
 }
 
-// Add represents the terraform add subcommand.
-func (tf *Terraform) Add(ctx context.Context, address string, opts ...AddOption) error {
+// Add represents the `terraform add` subcommand (added in 1.1.0).
+//
+// Note that this function signature and behaviour is subject
+// to breaking changes including removal of that function
+// until final 1.1.0 Terraform version (with this command) is released.
+func (tf *Terraform) Add(ctx context.Context, address string, opts ...AddOption) (string, error) {
 	cmd, err := tf.addCmd(ctx, address, opts...)
 	if err != nil {
-		return err
+		return "", err
 	}
-	return tf.runTerraformCmd(ctx, cmd)
+
+	var outBuf bytes.Buffer
+	cmd.Stdout = mergeWriters(cmd.Stdout, &outBuf)
+
+	if err := tf.runTerraformCmd(ctx, cmd); err != nil {
+		return "", err
+	}
+
+	return outBuf.String(), nil
 }
 
 func (tf *Terraform) addCmd(ctx context.Context, address string, opts ...AddOption) (*exec.Cmd, error) {
