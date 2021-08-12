@@ -89,7 +89,7 @@ func parseJsonVersionOutput(stdout []byte) (*version.Version, map[string]*versio
 func (tf *Terraform) versionFromPlaintext(ctx context.Context) (*version.Version, map[string]*version.Version, error) {
 	versionCmd := tf.buildTerraformCmd(ctx, nil, "version")
 
-	var outBuf bytes.Buffer
+	var outBuf strings.Builder
 	versionCmd.Stdout = &outBuf
 
 	err := tf.runTerraformCmd(ctx, versionCmd)

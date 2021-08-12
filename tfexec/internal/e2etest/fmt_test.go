@@ -1,7 +1,6 @@
 package e2etest
 
 import (
-	"bytes"
 	"context"
 	"io"
 	"io/ioutil"
@@ -106,7 +105,7 @@ resource "foo" "bar" {
 `)
 
 		start := time.Now()
-		var actual bytes.Buffer
+		var actual strings.Builder
 		err := tf.Format(context.Background(), strings.NewReader(unformatted), &actual)
 		if err != nil {
 			t.Fatal(err)
