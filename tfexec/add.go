@@ -1,11 +1,11 @@
 package tfexec
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"os/exec"
 	"strconv"
+	"strings"
 )
 
 type addConfig struct {
@@ -53,7 +53,7 @@ func (tf *Terraform) Add(ctx context.Context, address string, opts ...AddOption)
 		return "", err
 	}
 
-	var outBuf bytes.Buffer
+	var outBuf strings.Builder
 	cmd.Stdout = mergeWriters(cmd.Stdout, &outBuf)
 
 	if err := tf.runTerraformCmd(ctx, cmd); err != nil {
