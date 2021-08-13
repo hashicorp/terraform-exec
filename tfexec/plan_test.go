@@ -10,7 +10,7 @@ import (
 func TestPlanCmd(t *testing.T) {
 	td := testTempDir(t)
 
-	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest012))
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest_v1))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -37,7 +37,22 @@ func TestPlanCmd(t *testing.T) {
 	})
 
 	t.Run("override all defaults", func(t *testing.T) {
-		planCmd, err := tf.planCmd(context.Background(), Destroy(true), Lock(false), LockTimeout("22s"), Out("whale"), Parallelism(42), Refresh(false), State("marvin"), Target("zaphod"), Target("beeblebrox"), Var("android=paranoid"), Var("brain_size=planet"), VarFile("trillian"), Dir("earth"))
+		planCmd, err := tf.planCmd(context.Background(),
+			Destroy(true),
+			Lock(false),
+			LockTimeout("22s"),
+			Out("whale"),
+			Parallelism(42),
+			Refresh(false),
+			Replace("ford.prefect"),
+			Replace("arthur.dent"),
+			State("marvin"),
+			Target("zaphod"),
+			Target("beeblebrox"),
+			Var("android=paranoid"),
+			Var("brain_size=planet"),
+			VarFile("trillian"),
+			Dir("earth"))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -54,6 +69,8 @@ func TestPlanCmd(t *testing.T) {
 			"-lock=false",
 			"-parallelism=42",
 			"-refresh=false",
+			"-replace=ford.prefect",
+			"-replace=arthur.dent",
 			"-destroy",
 			"-target=zaphod",
 			"-target=beeblebrox",

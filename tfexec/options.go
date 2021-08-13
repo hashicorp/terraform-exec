@@ -296,6 +296,14 @@ func Refresh(refresh bool) *RefreshOption {
 	return &RefreshOption{refresh}
 }
 
+type ReplaceOption struct {
+	address string
+}
+
+func Replace(address string) *ReplaceOption {
+	return &ReplaceOption{address}
+}
+
 type StateOption struct {
 	path string
 }
