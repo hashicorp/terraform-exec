@@ -18,7 +18,7 @@ func TestStatePull(t *testing.T) {
 	tf.SetEnv(map[string]string{})
 
 	t.Run("tfstate", func(t *testing.T) {
-		statePullCmd := tf.statePullCmd(context.Background())
+		statePullCmd := tf.statePullCmd(context.Background(), nil)
 
 		assertCmd(t, []string{
 			"state",

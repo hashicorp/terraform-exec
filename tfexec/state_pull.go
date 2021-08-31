@@ -1,10 +1,9 @@
 package tfexec
 
 import (
+	"bytes"
 	"context"
 	"os/exec"
-
-	tfjson "github.com/hashicorp/terraform-json"
 )
 
 type statePullConfig struct {
@@ -13,37 +12,44 @@ type statePullConfig struct {
 
 var defaultStatePullConfig = statePullConfig{}
 
-func (tf *Terraform) StatePull(ctx context.Context) (*tfjson.State, error) {
+type StatePullOption interface {
+	configureShow(*statePullConfig)
+}
+
+func (opt *ReattachOption) configureStatePull(conf *statePullConfig) {
+	conf.reattachInfo = opt.info
+}
+
+func (tf *Terraform) StatePull(ctx context.Context, opts ...StatePullOption) (string, error) {
 	c := defaultStatePullConfig
+
+	for _, o := range opts {
+		o.configureShow(&c)
+	}
 
 	mergeEnv := map[string]string{}
 	if c.reattachInfo != nil {
 		reattachStr, err := c.reattachInfo.marshalString()
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 		mergeEnv[reattachEnvVar] = reattachStr
 	}
 
-	cmd := tf.statePullCmd(ctx)
+	cmd := tf.statePullCmd(ctx, mergeEnv)
 
-	var ret tfjson.State
-	ret.UseJSONNumber(true)
-	err := tf.runTerraformCmdJSON(ctx, cmd, &ret)
+	var ret bytes.Buffer
+	cmd.Stdout = &ret
+	err := tf.runTerraformCmd(ctx, cmd)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	err = ret.Validate()
-	if err != nil {
-		return nil, err
-	}
-
-	return &ret, nil
+	return ret.String(), nil
 }
 
-func (tf *Terraform) statePullCmd(ctx context.Context) *exec.Cmd {
+func (tf *Terraform) statePullCmd(ctx context.Context, mergeEnv map[string]string) *exec.Cmd {
 	args := []string{"state", "pull"}
 
-	return tf.buildTerraformCmd(ctx, nil, args...)
+	return tf.buildTerraformCmd(ctx, mergeEnv, args...)
 }
