@@ -59,22 +59,16 @@ jobs:
       - go_unit_test
       - go_e2e_test
 
-  go113_build:
+  # previous stable Go version
+  go116_build:
     docker:
-      - image: circleci/golang:1.13
+      - image: circleci/golang:1.16
     steps:
       - checkout
       - go_build
-
-  go114_build:
+  go116_test:
     docker:
-      - image: circleci/golang:1.14
-    steps:
-      - checkout
-      - go_build
-  go114_test:
-    docker:
-      - image: circleci/golang:1.14
+      - image: circleci/golang:1.16
     parameters:
       test_results:
         type: string
@@ -83,15 +77,16 @@ jobs:
       - checkout
       - go_unit_test
 
-  go115_build:
+  # latest stable Go version
+  go117_build:
     docker:
-      - image: circleci/golang:1.15
+      - image: circleci/golang:1.17
     steps:
       - checkout
       - go_build
-  go115_test:
+  go117_test:
     docker:
-      - image: circleci/golang:1.15
+      - image: circleci/golang:1.17
     parameters:
       test_results:
         type: string
@@ -99,11 +94,11 @@ jobs:
     steps:
       - checkout
       - go_unit_test
-  go116_test_main:
+  go117_test_main:
     environment:
       TFEXEC_E2ETEST_VERSIONS: refs/heads/main
     docker:
-      - image: circleci/golang:1.16
+      - image: circleci/golang:1.17
     parameters:
       test_results:
         type: string
@@ -112,33 +107,28 @@ jobs:
       - checkout
       - go_unit_test
       - go_e2e_test
-  go115_vet:
+  go117_vet:
     docker:
-      - image: circleci/golang:1.15
+      - image: circleci/golang:1.17
     steps:
       - checkout
       - run: go vet ./...
-  go115_fmt:
+  go117_fmt:
     docker:
-      - image: circleci/golang:1.15
+      - image: circleci/golang:1.17
     steps:
       - checkout
       - run: gofmt -s -l .
-  go115_release:
+  go117_release:
     docker:
-      - image: circleci/golang:1.15
+      - image: circleci/golang:1.17
     steps:
       - add_ssh_keys:
           fingerprints:
             - db:cf:97:b8:d6:ac:86:74:96:e1:54:e4:bc:27:2b:d0
       - checkout
       - run: ./scripts/release/release.sh
-  go116_build:
-    docker:
-      - image: circleci/golang:1.16
-    steps:
-      - checkout
-      - go_build
+
 workflows:
   version: 2
   pr:
@@ -146,27 +136,23 @@ workflows:
       - winbuildtest
       - macosbuildtest
 
-      # build only for these versions
-      - go113_build
-
-      - go114_build
-      - go114_test:
+      - go116_build
+      - go116_test:
           requires:
-            - go114_build
-
-      - go115_build
-      - go115_test:
+            - go116_build
+      - go117_build
+      - go117_test:
           requires:
-            - go115_build
-      - go116_test_main:
+            - go117_build
+      - go117_test_main:
           requires:
-            - go115_build
-      - go115_vet:
+            - go117_build
+      - go117_vet:
           requires:
-            - go115_build
-      - go115_fmt:
+            - go117_build
+      - go117_fmt:
           requires:
-            - go115_build
+            - go117_build
   release:
     jobs:
       - winbuildtest:
@@ -179,65 +165,54 @@ workflows:
             branches:
               only:
                 - main
-
-      # build only for these versions
-      - go113_build:
+      - go116_build:
           filters:
             branches:
               only:
                 - main
-
-      - go114_build:
-          filters:
-            branches:
-              only:
-                - main
-      - go114_test:
-          requires:
-            - go114_build
-          filters:
-            branches:
-              only:
-                - main
-
-      - go115_build:
-          filters:
-            branches:
-              only:
-                - main
-      - go115_test:
-          requires:
-            - go115_build
-          filters:
-            branches:
-              only:
-                - main
-      - go116_test_main:
+      - go116_test:
           requires:
             - go116_build
           filters:
             branches:
               only:
                 - main
-      - go115_vet:
+
+      - go117_build:
+          filters:
+            branches:
+              only:
+                - main
+      - go117_test:
           requires:
-            - go115_build
+            - go117_build
           filters:
             branches:
               only:
                 - main
-      - go115_fmt:
+
+      - go117_test_main:
           requires:
-            - go115_build
+            - go117_build
           filters:
             branches:
               only:
                 - main
-      - go116_build:
+      - go117_vet:
+          requires:
+            - go117_build
           filters:
             branches:
               only:
                 - main
+      - go117_fmt:
+          requires:
+            - go117_build
+          filters:
+            branches:
+              only:
+                - main
+
       - trigger-release:
           filters:
             branches:
@@ -245,19 +220,16 @@ workflows:
                 - main
           type: approval
 
-      - go115_release:
+      - go117_release:
           filters:
             branches:
               only:
                 - main
           requires:
             - trigger-release
-            - go113_build
-            - go114_test
-            - go115_test
-            - go116_test_main
-            - go115_vet
-            - go115_fmt
+            - go117_test_main
+            - go117_vet
+            - go117_fmt
             - winbuildtest
             - macosbuildtest
   nightly:
@@ -275,36 +247,31 @@ workflows:
             - slack/notify:
                 event: fail
                 template: basic_fail_1
-      - go113_build:
+      - go116_build:
           post-steps:
             - slack/notify:
                 event: fail
                 template: basic_fail_1
-      - go114_build:
-          post-steps:
-            - slack/notify:
-                event: fail
-                template: basic_fail_1
-      - go114_test:
+      - go116_test:
           post-steps:
             - slack/notify:
                 event: fail
                 template: basic_fail_1
           requires:
-            - go114_build
-      - go115_build:
+            - go116_build
+      - go117_build:
           post-steps:
             - slack/notify:
                 event: fail
                 template: basic_fail_1
-      - go115_test:
+      - go117_test:
           post-steps:
             - slack/notify:
                 event: fail
                 template: basic_fail_1
           requires:
-            - go115_build
-      - go116_test_main:
+            - go117_build
+      - go117_test_main:
           post-steps:
             - slack/notify:
                 event: fail
@@ -327,9 +294,8 @@ workflows:
                     ]
                   }
           requires:
-            - go115_build
-            - go115_test
-            - go114_test
-            - go113_build
+            - go116_build
+            - go116_test
+            - go117_build
             - winbuildtest
             - macosbuildtest
