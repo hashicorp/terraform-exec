@@ -18,7 +18,8 @@ var (
 	usageRegexp = regexp.MustCompile(`Too many command line arguments|^Usage: .*Options:.*|Error: Invalid -\d+ option`)
 
 	// "Could not load plugin" is present in 0.13
-	noInitErrRegexp = regexp.MustCompile(`Error: Could not satisfy plugin requirements|Error: Could not load plugin`)
+	// "Please run \"terraform init\"" is present in v1.1.0
+	noInitErrRegexp = regexp.MustCompile(`Error: Could not satisfy plugin requirements|Error: Could not load plugin|Please run \"terraform init\"`)
 
 	noConfigErrRegexp = regexp.MustCompile(`Error: No configuration files`)
 
