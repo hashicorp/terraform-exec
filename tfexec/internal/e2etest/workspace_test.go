@@ -104,6 +104,35 @@ func TestWorkspace_multiple(t *testing.T) {
 	})
 }
 
+func TestWorkspace_deletion(t *testing.T) {
+	runTest(t, "basic", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		assertWorkspaceList(t, tf, "default")
+
+		const testWorkspace = "testws"
+
+		t.Run("create and delete workspace", func(t *testing.T) {
+			err := tf.WorkspaceNew(context.Background(), testWorkspace)
+			if err != nil {
+				t.Fatalf("got error creating workspace: %s", err)
+			}
+
+			assertWorkspaceList(t, tf, testWorkspace, testWorkspace)
+
+			err = tf.WorkspaceSelect(context.Background(), defaultWorkspace)
+			if err != nil {
+				t.Fatalf("got error selecting workspace: %s", err)
+			}
+
+			err = tf.WorkspaceDelete(context.Background(), testWorkspace)
+			if err != nil {
+				t.Fatalf("got error deleting workspace: %s", err)
+			}
+
+			assertWorkspaceList(t, tf, defaultWorkspace)
+		})
+	})
+}
+
 func assertWorkspaceList(t *testing.T, tf *tfexec.Terraform, expectedCurrent string, expectedWorkspaces ...string) {
 	actualWorkspaces, actualCurrent, err := tf.WorkspaceList(context.Background())
 	if err != nil {
