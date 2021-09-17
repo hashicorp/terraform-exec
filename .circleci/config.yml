@@ -8,8 +8,6 @@ commands:
   win_install_go:
     steps:
       - run:
-          command: choco install golang --version 1.16.4 --yes
-      - run:
           command: go version
   macos_install_go:
     steps:
