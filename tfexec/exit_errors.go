@@ -1,7 +1,6 @@
 package tfexec
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"os/exec"
@@ -300,7 +299,7 @@ func (e *ErrStateLocked) Error() string {
 `
 
 	t := template.Must(template.New("LockInfo").Parse(tmpl))
-	var out bytes.Buffer
+	var out strings.Builder
 	if err := t.Execute(&out, e); err != nil {
 		return "error acquiring the state lock"
 	}
