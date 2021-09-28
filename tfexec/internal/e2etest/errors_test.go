@@ -1,5 +1,5 @@
 // This file contains tests that only compile/work in Go 1.13 and forward
-//go:build go1.13
+// +build go1.13
 
 package e2etest
 
