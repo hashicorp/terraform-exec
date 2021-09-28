@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 	"text/template"
+	"time"
 )
 
 // this file contains errors parsed from stderr
@@ -135,6 +136,10 @@ func (tf *Terraform) wrapExitError(ctx context.Context, err error, stderr string
 	case stateLockErrRegexp.MatchString(stderr):
 		submatches := stateLockInfoRegexp.FindStringSubmatch(stderr)
 		if len(submatches) == 7 {
+			created, err := time.Parse("2006-01-02 15:04:05.000000000 +0000 UTC", submatches[6])
+			if err != nil {
+				break
+			}
 			return &ErrStateLocked{
 				unwrapper: unwrapper{exitErr, ctxErr},
 
@@ -143,7 +148,7 @@ func (tf *Terraform) wrapExitError(ctx context.Context, err error, stderr string
 				Operation: submatches[3],
 				Who:       submatches[4],
 				Version:   submatches[5],
-				Created:   submatches[6],
+				Created:   created,
 			}
 		}
 	}
@@ -285,7 +290,7 @@ type ErrStateLocked struct {
 	Operation string
 	Who       string
 	Version   string
-	Created   string
+	Created   time.Time
 }
 
 func (e *ErrStateLocked) Error() string {
