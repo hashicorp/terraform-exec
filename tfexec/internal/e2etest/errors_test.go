@@ -1,5 +1,5 @@
 // This file contains tests that only compile/work in Go 1.13 and forward
-// +build go1.13
+//go:build go1.13
 
 package e2etest
 
@@ -123,6 +123,25 @@ func TestTFVersionMismatch(t *testing.T) {
 		var ee *exec.ExitError
 		if !errors.As(err, &ee) {
 			t.Fatalf("expected exec.ExitError, got %T, %s", err, err)
+		}
+	})
+}
+
+func TestLockedState(t *testing.T) {
+	runTest(t, "inmem-backend-locked", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		err := tf.Init(context.Background())
+		if err != nil {
+			t.Fatalf("err during init: %s", err)
+		}
+
+		err = tf.Apply(context.Background())
+		if err == nil {
+			t.Fatal("expected error, but didn't find one")
+		}
+
+		var stateLockedErr *tfexec.ErrStateLocked
+		if !errors.As(err, &stateLockedErr) {
+			t.Fatalf("expected ErrTFVersionMismatch, got %T, %s", err, err)
 		}
 	})
 }
