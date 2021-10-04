@@ -33,7 +33,7 @@ var (
 	configInvalidErrRegexp            = regexp.MustCompile(`There are some problems with the configuration, described below.`)
 
 	stateLockErrRegexp  = regexp.MustCompile(`Error acquiring the state lock`)
-	stateLockInfoRegexp = regexp.MustCompile(`Lock Info:\n\s*ID:\s*(.*)\n\s*Path:\s*(.*)\n\s*Operation:\s*(.*)\n\s*Who:\s*(.*)\n\s*Version:\s*(.*)\n\s*Created:\s*(.*)\n`)
+	stateLockInfoRegexp = regexp.MustCompile(`Lock Info:\n\s*ID:\s*([^\n]+)\n\s*Path:\s*([^\n]+)\n\s*Operation:\s*([^\n]+)\n\s*Who:\s*([^\n]+)\n\s*Version:\s*([^\n]+)\n\s*Created:\s*([^\n]+)\n`)
 )
 
 func (tf *Terraform) wrapExitError(ctx context.Context, err error, stderr string) error {
