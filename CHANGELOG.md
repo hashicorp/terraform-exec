@@ -6,6 +6,10 @@ FEATURES:
  - Add supports for `add` command [GH-209]
  - Add support for `Plan`/`Apply` `Replace` option [GH-211]
 
+ENHANCEMENTS:
+
+ - Introduce tfexec.ErrStateLocked to represent locked state error [GH-221]
+
 # 0.14.0 (June 24, 2021)
 
 FEATURES:
