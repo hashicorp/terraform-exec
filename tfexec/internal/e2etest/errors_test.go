@@ -127,6 +127,25 @@ func TestTFVersionMismatch(t *testing.T) {
 	})
 }
 
+func TestLockedState(t *testing.T) {
+	runTest(t, "inmem-backend-locked", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		err := tf.Init(context.Background())
+		if err != nil {
+			t.Fatalf("err during init: %s", err)
+		}
+
+		err = tf.Apply(context.Background())
+		if err == nil {
+			t.Fatal("expected error, but didn't find one")
+		}
+
+		var stateLockedErr *tfexec.ErrStateLocked
+		if !errors.As(err, &stateLockedErr) {
+			t.Fatalf("expected ErrTFVersionMismatch, got %T, %s", err, err)
+		}
+	})
+}
+
 func TestContext_alreadyPastDeadline(t *testing.T) {
 	runTest(t, "", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(-1*time.Second))
