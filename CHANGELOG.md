@@ -8,7 +8,7 @@ FEATURES:
 
 ENHANCEMENTS:
 
- - Introduce tfexec.ErrStateLocked to represent locked state error [GH-221]
+ - Introduce `tfexec.ErrStateLocked` to represent locked state error [GH-221]
 
 # 0.14.0 (June 24, 2021)
 
