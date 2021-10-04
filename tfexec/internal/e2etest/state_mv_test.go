@@ -35,6 +35,9 @@ func TestStateMv(t *testing.T) {
 			formatVersion = "0.2"
 			sensitiveValues = json.RawMessage([]byte("{}"))
 		}
+		if tfv.Core().GreaterThanOrEqual(v1_1) {
+			formatVersion = "1.0"
+		}
 
 		// test that the new state is as expected
 		expected := &tfjson.State{

@@ -30,6 +30,9 @@ func TestStateRm(t *testing.T) {
 		if tfv.Core().GreaterThanOrEqual(v1_0_1) {
 			formatVersion = "0.2"
 		}
+		if tfv.Core().GreaterThanOrEqual(v1_1) {
+			formatVersion = "1.0"
+		}
 
 		// test that the new state is as expected
 		expected := &tfjson.State{
