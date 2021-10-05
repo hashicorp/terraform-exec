@@ -9,6 +9,7 @@ FEATURES:
 ENHANCEMENTS:
 
  - Introduce `tfexec.ErrStateLocked` to represent locked state error [GH-221]
+ - Account for upcoming init error message change [GH-228]
 
 INTERNAL:
 
