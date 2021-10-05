@@ -16,6 +16,7 @@ var (
 	providersSchemaJSONMinVersion = version.Must(version.NewVersion("0.12.0"))
 	v0_13_0                       = version.Must(version.NewVersion("0.13.0"))
 	v0_15_0                       = version.Must(version.NewVersion("0.15.0"))
+	v1_1                          = version.Must(version.NewVersion("1.1.0"))
 )
 
 func TestProvidersSchema(t *testing.T) {
@@ -27,6 +28,8 @@ func TestProvidersSchema(t *testing.T) {
 			"basic", func(tfv *version.Version) *tfjson.ProviderSchemas {
 				var providerSchema *tfjson.ProviderSchemas
 
+				// TODO: Add handling for v1 format once it lands in core
+				// See https://github.com/hashicorp/terraform/pull/29550
 				if tfv.Core().GreaterThanOrEqual(v0_15_0) {
 					providerSchema = &tfjson.ProviderSchemas{
 						FormatVersion: "0.2",
@@ -287,6 +290,9 @@ same can now be achieved using [locals](https://www.terraform.io/docs/language/v
 		},
 		{
 			"empty_with_tf_file", func(tfv *version.Version) *tfjson.ProviderSchemas {
+				// TODO: Add handling for v1 format once it lands in core
+				// See https://github.com/hashicorp/terraform/pull/29550
+
 				if tfv.Core().GreaterThanOrEqual(v0_15_0) {
 					return &tfjson.ProviderSchemas{
 						FormatVersion: "0.2",
