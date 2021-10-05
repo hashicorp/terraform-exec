@@ -10,6 +10,10 @@ ENHANCEMENTS:
 
  - Introduce `tfexec.ErrStateLocked` to represent locked state error [GH-221]
 
+INTERNAL:
+
+ - deps: Bump terraform-json to `0.13.0` to address panic & support v1 JSON format [GH-224]
+
 # 0.14.0 (June 24, 2021)
 
 FEATURES:
