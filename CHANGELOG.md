@@ -1,19 +1,19 @@
-# 0.15.0 (Unreleased)
+# 0.15.0 (October 05, 2021)
 
 FEATURES:
 
- - Add support for `providers lock` command [GH-203]
- - Add support for `add` command [GH-209]
- - Add support for `Plan`/`Apply` `Replace` option [GH-211]
+ - Add support for `providers lock` command ([#203](https://github.com/hashicorp/terraform-exec/issues/203))
+ - Add support for `add` command ([#209](https://github.com/hashicorp/terraform-exec/issues/209))
+ - Add support for `Plan`/`Apply` `Replace` option ([#211](https://github.com/hashicorp/terraform-exec/issues/211))
 
 ENHANCEMENTS:
 
- - Introduce `tfexec.ErrStateLocked` to represent locked state error [GH-221]
- - Account for upcoming init error message change [GH-228]
+ - Introduce `tfexec.ErrStateLocked` to represent locked state error ([#221](https://github.com/hashicorp/terraform-exec/issues/221))
+ - Account for upcoming init error message change ([#228](https://github.com/hashicorp/terraform-exec/issues/228))
 
 INTERNAL:
 
- - deps: Bump terraform-json to `0.13.0` to address panic & support v1 JSON format [GH-224]
+ - deps: Bump terraform-json to `0.13.0` to address panic & support v1 JSON format ([#224](https://github.com/hashicorp/terraform-exec/issues/224))
 
 # 0.14.0 (June 24, 2021)
 
