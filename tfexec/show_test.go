@@ -8,7 +8,7 @@ import (
 )
 
 func TestShowCmd(t *testing.T) {
-	td := testTempDir(t)
+	td := t.TempDir()
 
 	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest012))
 	if err != nil {
@@ -29,7 +29,7 @@ func TestShowCmd(t *testing.T) {
 }
 
 func TestShowStateFileCmd(t *testing.T) {
-	td := testTempDir(t)
+	td := t.TempDir()
 
 	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest012))
 	if err != nil {
@@ -50,7 +50,7 @@ func TestShowStateFileCmd(t *testing.T) {
 }
 
 func TestShowPlanFileCmd(t *testing.T) {
-	td := testTempDir(t)
+	td := t.TempDir()
 
 	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest012))
 	if err != nil {
@@ -71,7 +71,7 @@ func TestShowPlanFileCmd(t *testing.T) {
 }
 
 func TestShowPlanFileRawCmd(t *testing.T) {
-	td := testTempDir(t)
+	td := t.TempDir()
 
 	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest012))
 	if err != nil {

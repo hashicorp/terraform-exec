@@ -10,7 +10,7 @@ import (
 )
 
 func TestUpgrade012(t *testing.T) {
-	td := testTempDir(t)
+	td := t.TempDir()
 
 	t.Run("defaults", func(t *testing.T) {
 		tf, err := NewTerraform(td, tfVersion(t, testutil.Latest012))
