@@ -7,7 +7,7 @@ import (
 )
 
 func TestFormat(t *testing.T) {
-	td := testTempDir(t)
+	td := t.TempDir()
 
 	tf, err := NewTerraform(td, tfVersion(t, "0.7.6"))
 	if err != nil {

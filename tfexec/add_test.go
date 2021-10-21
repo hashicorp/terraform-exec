@@ -8,7 +8,7 @@ import (
 )
 
 func TestAddCmd(t *testing.T) {
-	td := testTempDir(t)
+	td := t.TempDir()
 
 	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest_v1_1))
 	if err != nil {

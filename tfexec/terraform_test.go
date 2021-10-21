@@ -28,7 +28,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestSetEnv(t *testing.T) {
-	td := testTempDir(t)
+	td := t.TempDir()
 
 	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest012))
 	if err != nil {
@@ -62,7 +62,7 @@ func TestSetEnv(t *testing.T) {
 }
 
 func TestCheckpointDisablePropagation(t *testing.T) {
-	td := testTempDir(t)
+	td := t.TempDir()
 
 	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest012))
 	if err != nil {
@@ -143,7 +143,7 @@ func TestCheckpointDisablePropagation(t *testing.T) {
 // test that a suitable error is returned if NewTerraform is called without a valid
 // executable path
 func TestNoTerraformBinary(t *testing.T) {
-	td := testTempDir(t)
+	td := t.TempDir()
 
 	_, err := NewTerraform(td, "")
 	if err == nil {
@@ -154,10 +154,6 @@ func TestNoTerraformBinary(t *testing.T) {
 	if !errors.As(err, &e) {
 		t.Fatal("expected error to be ErrNoSuitableBinary")
 	}
-}
-
-func testTempDir(t *testing.T) string {
-	return testutil.TempDir(t)
 }
 
 func tfVersion(t *testing.T, v string) string {
