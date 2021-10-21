@@ -373,21 +373,3 @@ type VerifyPluginsOption struct {
 func VerifyPlugins(verifyPlugins bool) *VerifyPluginsOption {
 	return &VerifyPluginsOption{verifyPlugins}
 }
-
-// FromStateOption represents the -from-state option of the "terraform add" command.
-type FromStateOption struct {
-	fromState bool
-}
-
-func FromState(fromState bool) *FromStateOption {
-	return &FromStateOption{fromState}
-}
-
-// IncludeOptionalOption represents the -optional option of the "terraform add" command.
-type IncludeOptionalOption struct {
-	includeOptional bool
-}
-
-func IncludeOptional(includeOptional bool) *IncludeOptionalOption {
-	return &IncludeOptionalOption{includeOptional}
-}
