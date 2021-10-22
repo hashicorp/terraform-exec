@@ -8,9 +8,7 @@ import (
 )
 
 func TestWorkspaceDeleteCmd(t *testing.T) {
-	td := testTempDir(t)
-
-	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest013))
+	tf, err := NewTerraform(t.TempDir(), tfVersion(t, testutil.Latest013))
 	if err != nil {
 		t.Fatal(err)
 	}
