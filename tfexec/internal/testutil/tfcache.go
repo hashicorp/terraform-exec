@@ -1,11 +1,14 @@
 package testutil
 
 import (
+	"context"
 	"sync"
 	"testing"
 
-	"github.com/hashicorp/terraform-exec/tfinstall"
-	"github.com/hashicorp/terraform-exec/tfinstall/gitref"
+	"github.com/hashicorp/go-version"
+	"github.com/hashicorp/hc-install/build"
+	"github.com/hashicorp/hc-install/product"
+	"github.com/hashicorp/hc-install/releases"
 )
 
 const (
@@ -36,16 +39,32 @@ func NewTFCache(dir string) *TFCache {
 
 func (tf *TFCache) GitRef(t *testing.T, ref string) string {
 	t.Helper()
-	return tf.find(t, "gitref:"+ref, func(dir string) tfinstall.ExecPathFinder {
-		return gitref.Install(ref, "", dir)
+
+	key := "gitref:" + ref
+
+	return tf.find(t, key, func(ctx context.Context) (string, error) {
+		gr := &build.GitRevision{
+			Product: product.Terraform,
+			Ref:     ref,
+		}
+		// gr.SetLogger(TestLogger())
+
+		return gr.Build(ctx)
 	})
 }
 
 func (tf *TFCache) Version(t *testing.T, v string) string {
 	t.Helper()
-	return tf.find(t, "v:"+v, func(dir string) tfinstall.ExecPathFinder {
-		f := tfinstall.ExactVersion(v, dir)
-		f.UserAgent = appendUserAgent
-		return f
+
+	key := "v:" + v
+
+	return tf.find(t, key, func(ctx context.Context) (string, error) {
+		ev := &releases.ExactVersion{
+			Product: product.Terraform,
+			Version: version.Must(version.NewVersion(v)),
+		}
+		// ev.SetLogger(TestLogger())
+
+		return ev.Install(ctx)
 	})
 }

@@ -7,11 +7,9 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-
-	"github.com/hashicorp/terraform-exec/tfinstall"
 )
 
-func (tf *TFCache) find(t *testing.T, key string, finder func(dir string) tfinstall.ExecPathFinder) string {
+func (tf *TFCache) find(t *testing.T, key string, execPathFunc func(context.Context) (string, error)) string {
 	t.Helper()
 
 	if tf.dir == "" {
@@ -43,12 +41,13 @@ func (tf *TFCache) find(t *testing.T, key string, finder func(dir string) tfinst
 	ctx, cancelFunc := context.WithCancel(context.Background())
 	t.Cleanup(cancelFunc)
 
-	path, err := tfinstall.Find(ctx, finder(dir))
+	execPath, err := execPathFunc(ctx)
 	if err != nil {
 		// panic instead of t.fatal as this is going to affect all downstream tests reusing the cache entry
 		panic(fmt.Sprintf("error installing terraform %q: %s", key, err))
 	}
-	tf.execs[key] = path
 
-	return path
+	tf.execs[key] = execPath
+
+	return execPath
 }
