@@ -9,7 +9,9 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/hashicorp/go-version"
-	"github.com/hashicorp/terraform-exec/tfinstall"
+	"github.com/hashicorp/hc-install/product"
+	"github.com/hashicorp/hc-install/releases"
+	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
 )
 
 func mustVersion(t *testing.T, s string) *version.Version {
@@ -205,11 +207,28 @@ func TestVersionInRange(t *testing.T) {
 }
 
 func TestCompatible(t *testing.T) {
-	tf01226, err := tfinstall.Find(context.Background(), tfinstall.ExactVersion("0.12.26", ""))
+	ev := &releases.ExactVersion{
+		Product: product.Terraform,
+		Version: version.Must(version.NewVersion("0.12.26")),
+	}
+	ev.SetLogger(testutil.TestLogger())
+
+	ctx := context.Background()
+	t.Cleanup(func() { ev.Remove(ctx) })
+
+	tf01226, err := ev.Install(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
-	tf013beta3, err := tfinstall.Find(context.Background(), tfinstall.ExactVersion("0.13.0-beta3", ""))
+
+	ev = &releases.ExactVersion{
+		Product: product.Terraform,
+		Version: version.Must(version.NewVersion("0.13.0-beta3")),
+	}
+	ev.SetLogger(testutil.TestLogger())
+	t.Cleanup(func() { ev.Remove(ctx) })
+
+	tf013beta3, err := ev.Install(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}

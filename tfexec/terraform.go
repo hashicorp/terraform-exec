@@ -71,7 +71,7 @@ func NewTerraform(workingDir string, execPath string) (*Terraform, error) {
 	}
 
 	if execPath == "" {
-		err := fmt.Errorf("NewTerraform: please supply the path to a Terraform executable using execPath, e.g. using the tfinstall package.")
+		err := fmt.Errorf("NewTerraform: please supply the path to a Terraform executable using execPath, e.g. using the github.com/hashicorp/hc-install module.")
 		return nil, &ErrNoSuitableBinary{
 			err: err,
 		}
