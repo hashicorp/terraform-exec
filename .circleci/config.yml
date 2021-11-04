@@ -26,15 +26,12 @@ commands:
   go_unit_test:
     steps:
       - run:
-          command: go test $(go list ./... | grep -v /tfexec/internal/e2etest | grep -v /tfinstall)
+          command: go test $(go list ./... | grep -v /tfexec/internal/e2etest)
   go_e2e_test:
     steps:
       - run:
           no_output_timeout: 15m
           command: go test -timeout=15m -v ./tfexec/internal/e2etest
-      - run:
-          no_output_timeout: 15m
-          command: go test -timeout=15m -v ./tfinstall/...
 
 jobs:
   # combined due to slowness of Go install
