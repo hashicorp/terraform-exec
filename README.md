@@ -31,20 +31,21 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-exec/tfexec"
-	"github.com/hashicorp/terraform-exec/tfinstall"
+	"github.com/hashicorp/hc-install/releases"
+	"github.com/hashicorp/hc-install/product"
+	"github.com/hashicorp/go-version"
 )
 
 func main() {
-	tmpDir, err := ioutil.TempDir("", "tfinstall")
-	if err != nil {
-		log.Fatalf("error creating temp dir: %s", err)
+    installer := &releases.ExactVersion{
+		Product: product.Terraform,
+		Version: version.Must(version.NewVersion("1.0.6")),
 	}
-	defer os.RemoveAll(tmpDir)
 
-	execPath, err := tfinstall.Find(context.Background(), tfinstall.LatestVersion(tmpDir, false))
-	if err != nil {
-		log.Fatalf("error locating Terraform binary: %s", err)
-	}
+    execPath, err := installer.Install(context.Background())
+    if err != nil {
+    	log.Fatalf("error installing Terraform: %s", err)
+    }
 
 	workingDir := "/path/to/working/dir"
 	tf, err := tfexec.NewTerraform(workingDir, execPath)
