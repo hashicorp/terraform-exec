@@ -1,23 +1,4 @@
-project_name: tfinstall
-builds:
-  - env:
-      - CGO_ENABLED=0
-    main: ./cmd/tfinstall/main.go
-    mod_timestamp: '{{ .CommitTimestamp }}'
-    id: "tfinstall"
-    binary: tfinstall
-    flags:
-      - -trimpath
-    ldflags:
-    - '-s -w -X main.version={{.Version}} -X main.commit={{.Commit}}'
-    goos:
-      - linux
-      - darwin
-      - windows
-    goarch:
-      - amd64
-      - arm
-      - arm64
+project_name: terraform-exec
 archives:
   - files: []
     format: zip
