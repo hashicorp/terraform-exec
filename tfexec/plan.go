@@ -10,6 +10,7 @@ import (
 type planConfig struct {
 	destroy      bool
 	dir          string
+	json         bool
 	lock         bool
 	lockTimeout  string
 	out          string
@@ -25,6 +26,7 @@ type planConfig struct {
 
 var defaultPlanOptions = planConfig{
 	destroy:     false,
+	json:        false,
 	lock:        true,
 	lockTimeout: "0s",
 	parallelism: 10,
@@ -82,6 +84,10 @@ func (opt *LockTimeoutOption) configurePlan(conf *planConfig) {
 
 func (opt *LockOption) configurePlan(conf *planConfig) {
 	conf.lock = opt.lock
+}
+
+func (opt *JsonFlagOption) configurePlan(conf *planConfig) {
+	conf.json = opt.json
 }
 
 func (opt *DestroyFlagOption) configurePlan(conf *planConfig) {
@@ -148,6 +154,9 @@ func (tf *Terraform) planCmd(ctx context.Context, opts ...PlanOption) (*exec.Cmd
 	}
 	if c.destroy {
 		args = append(args, "-destroy")
+	}
+	if c.json {
+		args = append(args, "-json")
 	}
 
 	// string slice opts: split into separate args

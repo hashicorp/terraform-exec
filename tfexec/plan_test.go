@@ -39,6 +39,7 @@ func TestPlanCmd(t *testing.T) {
 	t.Run("override all defaults", func(t *testing.T) {
 		planCmd, err := tf.planCmd(context.Background(),
 			Destroy(true),
+			Json(true),
 			Lock(false),
 			LockTimeout("22s"),
 			Out("whale"),
@@ -72,6 +73,7 @@ func TestPlanCmd(t *testing.T) {
 			"-replace=ford.prefect",
 			"-replace=arthur.dent",
 			"-destroy",
+			"-json",
 			"-target=zaphod",
 			"-target=beeblebrox",
 			"-var", "android=paranoid",
