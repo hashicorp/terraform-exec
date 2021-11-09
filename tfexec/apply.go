@@ -10,6 +10,7 @@ import (
 type applyConfig struct {
 	backup    string
 	dirOrPlan string
+	json      bool
 	lock      bool
 
 	// LockTimeout must be a string with time unit, e.g. '10s'
@@ -28,6 +29,7 @@ type applyConfig struct {
 }
 
 var defaultApplyOptions = applyConfig{
+	json:        false,
 	lock:        true,
 	parallelism: 10,
 	refresh:     true,
@@ -64,6 +66,10 @@ func (opt *StateOutOption) configureApply(conf *applyConfig) {
 
 func (opt *VarFileOption) configureApply(conf *applyConfig) {
 	conf.varFiles = append(conf.varFiles, opt.path)
+}
+
+func (opt *JsonFlagOption) configureApply(conf *applyConfig) {
+	conf.json = opt.json
 }
 
 func (opt *LockOption) configureApply(conf *applyConfig) {
@@ -139,6 +145,9 @@ func (tf *Terraform) applyCmd(ctx context.Context, opts ...ApplyOption) (*exec.C
 		for _, addr := range c.replaceAddrs {
 			args = append(args, "-replace="+addr)
 		}
+	}
+	if c.json {
+		args = append(args, "-json")
 	}
 	if c.targets != nil {
 		for _, ta := range c.targets {
