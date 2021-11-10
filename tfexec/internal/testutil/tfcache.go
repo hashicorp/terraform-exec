@@ -47,7 +47,7 @@ func (tf *TFCache) GitRef(t *testing.T, ref string) string {
 			Product: product.Terraform,
 			Ref:     ref,
 		}
-		// gr.SetLogger(TestLogger())
+		gr.SetLogger(TestLogger())
 
 		return gr.Build(ctx)
 	})
@@ -63,7 +63,7 @@ func (tf *TFCache) Version(t *testing.T, v string) string {
 			Product: product.Terraform,
 			Version: version.Must(version.NewVersion(v)),
 		}
-		// ev.SetLogger(TestLogger())
+		ev.SetLogger(TestLogger())
 
 		return ev.Install(ctx)
 	})
