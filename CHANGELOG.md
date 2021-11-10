@@ -1,3 +1,19 @@
+# 0.16.0 (Unreleased)
+
+This release removes the experimental `tfinstall` package. We recommend users of `tfinstall` switch to https://github.com/hashicorp/hc-install.
+
+Please note also terraform-exec's Go version support policy, which, like Go's own release policy, commits to supporting the last two major releases. This means that currently terraform-exec requires Go 1.16 or later.
+
+BREAKING CHANGES:
+
+ - Remove `tfinstall` and `cmd/tfinstall` packages [GH-235]
+ - Remove support for `add` command [GH-232]
+
+FEATURES:
+
+ - Add support for `workspace delete` command [GH-212]
+
+
 # 0.15.0 (October 05, 2021)
 
 FEATURES:
