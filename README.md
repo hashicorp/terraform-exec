@@ -10,6 +10,12 @@ While terraform-exec is already widely used, please note that this module is **n
 
 We strictly follow [semantic versioning](https://semver.org).
 
+## Go compatibility
+
+This library is built in Go, and uses the [support policy](https://golang.org/doc/devel/release.html#policy) of Go as its support policy. The two latest major releases of Go are supported by terraform-exec.
+
+Currently, that means Go **1.16** or later must be used.
+
 ## Usage
 
 The `Terraform` struct must be initialised with `NewTerraform(workingDir, execPath)`. 
