@@ -14,6 +14,9 @@ type stateMvConfig struct {
 	lockTimeout string
 	state       string
 	stateOut    string
+
+	// WorkSpace: when leveraging TF_WORKSPACE env variable
+	workSpace string
 }
 
 var defaultStateMvOptions = stateMvConfig{
@@ -52,6 +55,10 @@ func (opt *StateOption) configureStateMv(conf *stateMvConfig) {
 
 func (opt *StateOutOption) configureStateMv(conf *stateMvConfig) {
 	conf.stateOut = opt.path
+}
+
+func (opt *WorkSpaceOption) configureStateMv(conf *stateMvConfig) {
+	conf.workSpace = opt.workSpace
 }
 
 // StateMv represents the terraform state mv subcommand.
@@ -101,5 +108,12 @@ func (tf *Terraform) stateMvCmd(ctx context.Context, source string, destination 
 	args = append(args, source)
 	args = append(args, destination)
 
-	return tf.buildTerraformCmd(ctx, nil, args...), nil
+	mergeEnv := map[string]string{}
+
+	// Check if TF_WORKSPACE is specified.
+	if c.workSpace != "" {
+		mergeEnv[workspaceEnvVar] = c.workSpace
+	}
+
+	return tf.buildTerraformCmd(ctx, mergeEnv, args...), nil
 }

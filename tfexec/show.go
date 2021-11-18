@@ -11,6 +11,9 @@ import (
 
 type showConfig struct {
 	reattachInfo ReattachInfo
+
+	// WorkSpace: when leveraging TF_WORKSPACE env variable
+	workSpace string
 }
 
 var defaultShowOptions = showConfig{}
@@ -21,6 +24,10 @@ type ShowOption interface {
 
 func (opt *ReattachOption) configureShow(conf *showConfig) {
 	conf.reattachInfo = opt.info
+}
+
+func (opt *WorkSpaceOption) configureShow(conf *showConfig) {
+	conf.workSpace = opt.workSpace
 }
 
 // Show reads the default state path and outputs the state.
@@ -44,6 +51,11 @@ func (tf *Terraform) Show(ctx context.Context, opts ...ShowOption) (*tfjson.Stat
 			return nil, err
 		}
 		mergeEnv[reattachEnvVar] = reattachStr
+	}
+
+	// Check if TF_WORKSPACE is specified.
+	if c.workSpace != "" {
+		mergeEnv[workspaceEnvVar] = c.workSpace
 	}
 
 	showCmd := tf.showCmd(ctx, true, mergeEnv)
@@ -89,6 +101,11 @@ func (tf *Terraform) ShowStateFile(ctx context.Context, statePath string, opts .
 		mergeEnv[reattachEnvVar] = reattachStr
 	}
 
+	// Check if TF_WORKSPACE is specified.
+	if c.workSpace != "" {
+		mergeEnv[workspaceEnvVar] = c.workSpace
+	}
+
 	showCmd := tf.showCmd(ctx, true, mergeEnv, statePath)
 
 	var ret tfjson.State
@@ -132,6 +149,11 @@ func (tf *Terraform) ShowPlanFile(ctx context.Context, planPath string, opts ...
 		mergeEnv[reattachEnvVar] = reattachStr
 	}
 
+	// Check if TF_WORKSPACE is specified.
+	if c.workSpace != "" {
+		mergeEnv[workspaceEnvVar] = c.workSpace
+	}
+
 	showCmd := tf.showCmd(ctx, true, mergeEnv, planPath)
 
 	var ret tfjson.Plan
@@ -169,6 +191,11 @@ func (tf *Terraform) ShowPlanFileRaw(ctx context.Context, planPath string, opts 
 			return "", err
 		}
 		mergeEnv[reattachEnvVar] = reattachStr
+	}
+
+	// Check if TF_WORKSPACE is specified.
+	if c.workSpace != "" {
+		mergeEnv[workspaceEnvVar] = c.workSpace
 	}
 
 	showCmd := tf.showCmd(ctx, false, mergeEnv, planPath)

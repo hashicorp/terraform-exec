@@ -14,6 +14,9 @@ type stateRmConfig struct {
 	lockTimeout string
 	state       string
 	stateOut    string
+
+	// WorkSpace: when leveraging TF_WORKSPACE env variable
+	workSpace string
 }
 
 var defaultStateRmOptions = stateRmConfig{
@@ -52,6 +55,10 @@ func (opt *StateOption) configureStateRm(conf *stateRmConfig) {
 
 func (opt *StateOutOption) configureStateRm(conf *stateRmConfig) {
 	conf.stateOut = opt.path
+}
+
+func (opt *WorkSpaceOption) configureStateRm(conf *stateRmConfig) {
+	conf.workSpace = opt.workSpace
 }
 
 // StateRm represents the terraform state rm subcommand.
@@ -100,5 +107,12 @@ func (tf *Terraform) stateRmCmd(ctx context.Context, address string, opts ...Sta
 	// positional arguments
 	args = append(args, address)
 
-	return tf.buildTerraformCmd(ctx, nil, args...), nil
+	mergeEnv := map[string]string{}
+
+	// Check if TF_WORKSPACE is specified.
+	if c.workSpace != "" {
+		mergeEnv[workspaceEnvVar] = c.workSpace
+	}
+
+	return tf.buildTerraformCmd(ctx, mergeEnv, args...), nil
 }

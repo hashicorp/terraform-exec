@@ -34,7 +34,20 @@ func TestRefreshCmd(t *testing.T) {
 	})
 
 	t.Run("override all defaults", func(t *testing.T) {
-		refreshCmd, err := tf.refreshCmd(context.Background(), Backup("testbackup"), LockTimeout("200s"), State("teststate"), StateOut("teststateout"), VarFile("testvarfile"), Lock(false), Target("target1"), Target("target2"), Var("var1=foo"), Var("var2=bar"), Dir("refreshdir"))
+		refreshCmd, err := tf.refreshCmd(context.Background(),
+			Backup("testbackup"),
+			LockTimeout("200s"),
+			State("teststate"),
+			StateOut("teststateout"),
+			VarFile("testvarfile"),
+			Lock(false),
+			Target("target1"),
+			Target("target2"),
+			Var("var1=foo"),
+			Var("var2=bar"),
+			Dir("refreshdir"),
+			WorkSpace("some_workspace"))
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -54,6 +67,6 @@ func TestRefreshCmd(t *testing.T) {
 			"-var", "var1=foo",
 			"-var", "var2=bar",
 			"refreshdir",
-		}, nil, refreshCmd)
+		}, map[string]string{"TF_WORKSPACE": "some_workspace"}, refreshCmd)
 	})
 }

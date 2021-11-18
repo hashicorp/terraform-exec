@@ -17,6 +17,9 @@ type refreshConfig struct {
 	targets      []string
 	vars         []string
 	varFiles     []string
+
+	// WorkSpace: when leveraging TF_WORKSPACE env variable
+	workSpace string
 }
 
 var defaultRefreshOptions = refreshConfig{
@@ -67,6 +70,10 @@ func (opt *VarOption) configureRefresh(conf *refreshConfig) {
 
 func (opt *VarFileOption) configureRefresh(conf *refreshConfig) {
 	conf.varFiles = append(conf.varFiles, opt.path)
+}
+
+func (opt *WorkSpaceOption) configureRefresh(conf *refreshConfig) {
+	conf.workSpace = opt.workSpace
 }
 
 // Refresh represents the terraform refresh subcommand.
@@ -131,6 +138,11 @@ func (tf *Terraform) refreshCmd(ctx context.Context, opts ...RefreshCmdOption) (
 			return nil, err
 		}
 		mergeEnv[reattachEnvVar] = reattachStr
+	}
+
+	// Check if TF_WORKSPACE is specified.
+	if c.workSpace != "" {
+		mergeEnv[workspaceEnvVar] = c.workSpace
 	}
 
 	return tf.buildTerraformCmd(ctx, mergeEnv, args...), nil
