@@ -19,6 +19,9 @@ type importConfig struct {
 	stateOut           string
 	vars               []string
 	varFiles           []string
+
+	// WorkSpace: when leveraging TF_WORKSPACE env variable
+	workSpace string
 }
 
 var defaultImportOptions = importConfig{
@@ -70,6 +73,10 @@ func (opt *VarOption) configureImport(conf *importConfig) {
 
 func (opt *VarFileOption) configureImport(conf *importConfig) {
 	conf.varFiles = append(conf.varFiles, opt.path)
+}
+
+func (opt *WorkSpaceOption) configureImport(conf *importConfig) {
+	conf.workSpace = opt.workSpace
 }
 
 // Import represents the terraform import subcommand.
@@ -135,6 +142,11 @@ func (tf *Terraform) importCmd(ctx context.Context, address, id string, opts ...
 			return nil, err
 		}
 		mergeEnv[reattachEnvVar] = reattachStr
+	}
+
+	// Check if TF_WORKSPACE is specified.
+	if c.workSpace != "" {
+		mergeEnv[workspaceEnvVar] = c.workSpace
 	}
 
 	return tf.buildTerraformCmd(ctx, mergeEnv, args...), nil

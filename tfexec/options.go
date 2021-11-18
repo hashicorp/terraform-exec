@@ -409,3 +409,12 @@ type VerifyPluginsOption struct {
 func VerifyPlugins(verifyPlugins bool) *VerifyPluginsOption {
 	return &VerifyPluginsOption{verifyPlugins}
 }
+
+// WorkSpaceOption is used to leverage the TF_WORKSPACE environment variable
+type WorkSpaceOption struct {
+	workSpace string
+}
+
+func WorkSpace(workSpace string) *WorkSpaceOption {
+	return &WorkSpaceOption{workSpace}
+}

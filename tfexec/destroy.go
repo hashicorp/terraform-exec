@@ -24,6 +24,9 @@ type destroyConfig struct {
 	// Vars: each var must be supplied as a single string, e.g. 'foo=bar'
 	vars     []string
 	varFiles []string
+
+	// WorkSpace: when leveraging TF_WORKSPACE env variable
+	workSpace string
 }
 
 var defaultDestroyOptions = destroyConfig{
@@ -84,6 +87,10 @@ func (opt *VarOption) configureDestroy(conf *destroyConfig) {
 
 func (opt *ReattachOption) configureDestroy(conf *destroyConfig) {
 	conf.reattachInfo = opt.info
+}
+
+func (opt *WorkSpaceOption) configureDestroy(conf *destroyConfig) {
+	conf.workSpace = opt.workSpace
 }
 
 // Destroy represents the terraform destroy subcommand.
@@ -150,6 +157,11 @@ func (tf *Terraform) destroyCmd(ctx context.Context, opts ...DestroyOption) (*ex
 			return nil, err
 		}
 		mergeEnv[reattachEnvVar] = reattachStr
+	}
+
+	// Check if TF_WORKSPACE is specified.
+	if c.workSpace != "" {
+		mergeEnv[workspaceEnvVar] = c.workSpace
 	}
 
 	return tf.buildTerraformCmd(ctx, mergeEnv, args...), nil

@@ -25,6 +25,9 @@ type applyConfig struct {
 	// Vars: each var must be supplied as a single string, e.g. 'foo=bar'
 	vars     []string
 	varFiles []string
+
+	// WorkSpace: when leveraging TF_WORKSPACE env variable
+	workSpace string
 }
 
 var defaultApplyOptions = applyConfig{
@@ -88,6 +91,10 @@ func (opt *DirOrPlanOption) configureApply(conf *applyConfig) {
 
 func (opt *ReattachOption) configureApply(conf *applyConfig) {
 	conf.reattachInfo = opt.info
+}
+
+func (opt *WorkSpaceOption) configureApply(conf *applyConfig) {
+	conf.workSpace = opt.workSpace
 }
 
 // Apply represents the terraform apply subcommand.
@@ -163,6 +170,11 @@ func (tf *Terraform) applyCmd(ctx context.Context, opts ...ApplyOption) (*exec.C
 			return nil, err
 		}
 		mergeEnv[reattachEnvVar] = reattachStr
+	}
+
+	// Check if TF_WORKSPACE is specified.
+	if c.workSpace != "" {
+		mergeEnv[workspaceEnvVar] = c.workSpace
 	}
 
 	return tf.buildTerraformCmd(ctx, mergeEnv, args...), nil
