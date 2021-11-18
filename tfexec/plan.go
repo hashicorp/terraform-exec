@@ -21,6 +21,7 @@ type planConfig struct {
 	targets      []string
 	vars         []string
 	varFiles     []string
+	envVars      map[string]string
 }
 
 var defaultPlanOptions = planConfig{
@@ -29,6 +30,7 @@ var defaultPlanOptions = planConfig{
 	lockTimeout: "0s",
 	parallelism: 10,
 	refresh:     true,
+	envVars:     map[string]string{},
 }
 
 // PlanOption represents options used in the Plan method.
@@ -42,6 +44,10 @@ func (opt *DirOption) configurePlan(conf *planConfig) {
 
 func (opt *VarFileOption) configurePlan(conf *planConfig) {
 	conf.varFiles = append(conf.varFiles, opt.path)
+}
+
+func (opt *EnvVarOption) configurePlan(conf *planConfig) {
+	conf.envVars[opt.key] = opt.value
 }
 
 func (opt *VarOption) configurePlan(conf *planConfig) {
@@ -168,6 +174,11 @@ func (tf *Terraform) planCmd(ctx context.Context, opts ...PlanOption) (*exec.Cmd
 	}
 
 	mergeEnv := map[string]string{}
+
+	for kvar, kvalue := range c.envVars {
+		mergeEnv[kvar] = kvalue
+	}
+
 	if c.reattachInfo != nil {
 		reattachStr, err := c.reattachInfo.marshalString()
 		if err != nil {

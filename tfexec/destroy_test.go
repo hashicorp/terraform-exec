@@ -37,7 +37,22 @@ func TestDestroyCmd(t *testing.T) {
 	})
 
 	t.Run("override all defaults", func(t *testing.T) {
-		destroyCmd, err := tf.destroyCmd(context.Background(), Backup("testbackup"), LockTimeout("200s"), State("teststate"), StateOut("teststateout"), VarFile("testvarfile"), Lock(false), Parallelism(99), Refresh(false), Target("target1"), Target("target2"), Var("var1=foo"), Var("var2=bar"), Dir("destroydir"))
+		destroyCmd, err := tf.destroyCmd(context.Background(),
+			Backup("testbackup"),
+			LockTimeout("200s"),
+			State("teststate"),
+			StateOut("teststateout"),
+			VarFile("testvarfile"),
+			Lock(false),
+			Parallelism(99),
+			Refresh(false),
+			Target("target1"),
+			Target("target2"),
+			Var("var1=foo"),
+			Var("var2=bar"),
+			Dir("destroydir"),
+			EnvVar("blah", "diblah"),
+			EnvVar("other_env_var", "other_value"))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -60,6 +75,6 @@ func TestDestroyCmd(t *testing.T) {
 			"-var", "var1=foo",
 			"-var", "var2=bar",
 			"destroydir",
-		}, nil, destroyCmd)
+		}, map[string]string{"blah": "diblah", "other_env_var": "other_value"}, destroyCmd)
 	})
 }

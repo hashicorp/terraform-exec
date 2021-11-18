@@ -46,6 +46,8 @@ func TestImportCmd(t *testing.T) {
 			Var("var1=foo"),
 			Var("var2=bar"),
 			AllowMissingConfig(true),
+			EnvVar("blah", "diblah"),
+			EnvVar("other_env_var", "other_value"),
 		)
 		if err != nil {
 			t.Fatal(err)
@@ -66,6 +68,6 @@ func TestImportCmd(t *testing.T) {
 			"-var", "var2=bar",
 			"my-addr2",
 			"my-id2",
-		}, nil, importCmd)
+		}, map[string]string{"blah": "diblah", "other_env_var": "other_value"}, importCmd)
 	})
 }
