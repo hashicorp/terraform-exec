@@ -30,8 +30,8 @@ commands:
   go_e2e_test:
     steps:
       - run:
-          no_output_timeout: 15m
-          command: go test -timeout=15m -v ./tfexec/internal/e2etest
+          no_output_timeout: 20m
+          command: go test -timeout=20m -v ./tfexec/internal/e2etest
 
 jobs:
   # combined due to slowness of Go install
