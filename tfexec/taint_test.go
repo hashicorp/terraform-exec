@@ -24,17 +24,25 @@ func TestTaintCmd(t *testing.T) {
 		assertCmd(t, []string{
 			"taint",
 			"-no-color",
+			"-lock=true",
 			"aws_instance.foo",
 		}, nil, taintCmd)
 	})
 
 	t.Run("override all defaults", func(t *testing.T) {
-		taintCmd := tf.taintCmd(context.Background(), "aws_instance.foo", State("teststate"))
+		taintCmd := tf.taintCmd(context.Background(), "aws_instance.foo",
+			State("teststate"),
+			AllowMissing(true),
+			LockTimeout("200s"),
+			Lock(false))
 
 		assertCmd(t, []string{
 			"taint",
 			"-no-color",
+			"-lock-timeout=200s",
 			"-state=teststate",
+			"-lock=false",
+			"-allow-missing",
 			"aws_instance.foo",
 		}, nil, taintCmd)
 	})

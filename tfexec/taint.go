@@ -4,13 +4,20 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"strconv"
 )
 
 type taintConfig struct {
-	state string
+	state        string
+	allowMissing bool
+	lock         bool
+	lockTimeout  string
 }
 
-var defaultTaintOptions = taintConfig{}
+var defaultTaintOptions = taintConfig{
+	allowMissing: false,
+	lock:         true,
+}
 
 // TaintOption represents options used in the Taint method.
 type TaintOption interface {
@@ -19,6 +26,18 @@ type TaintOption interface {
 
 func (opt *StateOption) configureTaint(conf *taintConfig) {
 	conf.state = opt.path
+}
+
+func (opt *AllowMissingOption) configureTaint(conf *taintConfig) {
+	conf.allowMissing = opt.allowMissing
+}
+
+func (opt *LockOption) configureTaint(conf *taintConfig) {
+	conf.lock = opt.lock
+}
+
+func (opt *LockTimeoutOption) configureTaint(conf *taintConfig) {
+	conf.lockTimeout = opt.timeout
 }
 
 // Taint represents the terraform taint subcommand.
@@ -40,11 +59,19 @@ func (tf *Terraform) taintCmd(ctx context.Context, address string, opts ...Taint
 
 	args := []string{"taint", "-no-color"}
 
+	if c.lockTimeout != "" {
+		args = append(args, "-lock-timeout="+c.lockTimeout)
+	}
+
 	// string opts: only pass if set
 	if c.state != "" {
 		args = append(args, "-state="+c.state)
 	}
 
+	args = append(args, "-lock="+strconv.FormatBool(c.lock))
+	if c.allowMissing {
+		args = append(args, "-allow-missing")
+	}
 	args = append(args, address)
 
 	return tf.buildTerraformCmd(ctx, nil, args...)

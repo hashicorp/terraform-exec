@@ -24,17 +24,25 @@ func TestUntaintCmd(t *testing.T) {
 		assertCmd(t, []string{
 			"untaint",
 			"-no-color",
+			"-lock=true",
 			"aws_instance.foo",
 		}, nil, untaintCmd)
 	})
 
 	t.Run("override all defaults", func(t *testing.T) {
-		untaintCmd := tf.untaintCmd(context.Background(), "aws_instance.foo", State("teststate"))
+		untaintCmd := tf.untaintCmd(context.Background(), "aws_instance.foo",
+			State("teststate"),
+			AllowMissing(true),
+			LockTimeout("200s"),
+			Lock(false))
 
 		assertCmd(t, []string{
 			"untaint",
 			"-no-color",
+			"-lock-timeout=200s",
 			"-state=teststate",
+			"-lock=false",
+			"-allow-missing",
 			"aws_instance.foo",
 		}, nil, untaintCmd)
 	})

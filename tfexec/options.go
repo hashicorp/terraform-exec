@@ -14,6 +14,16 @@ func AllowMissingConfig(allowMissingConfig bool) *AllowMissingConfigOption {
 	return &AllowMissingConfigOption{allowMissingConfig}
 }
 
+// AllowMissingOption represents the -allow-missing flag.
+type AllowMissingOption struct {
+	allowMissing bool
+}
+
+// AllowMissing represents the -allow-missing flag.
+func AllowMissing(allowMissing bool) *AllowMissingOption {
+	return &AllowMissingOption{allowMissing}
+}
+
 // BackendOption represents the -backend flag.
 type BackendOption struct {
 	backend bool
