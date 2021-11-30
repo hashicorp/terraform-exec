@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-exec/tfexec"
 )
 
-func TestUnTaint(t *testing.T) {
+func TestUntaint(t *testing.T) {
 	runTest(t, "basic", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		err := tf.Init(context.Background())
 		if err != nil {
@@ -26,7 +26,7 @@ func TestUnTaint(t *testing.T) {
 			t.Fatalf("error running Taint: %s", err)
 		}
 
-		err = tf.UnTaint(context.Background(), "null_resource.foo")
+		err = tf.Untaint(context.Background(), "null_resource.foo")
 		if err != nil {
 			t.Fatalf("error running UnTaint: %s", err)
 		}

@@ -2,6 +2,7 @@ package tfexec
 
 import (
 	"context"
+	"fmt"
 	"os/exec"
 )
 
@@ -21,7 +22,11 @@ func (opt *StateOption) configureUnTaint(conf *untaintConfig) {
 }
 
 // Untaint represents the terraform untaint subcommand.
-func (tf *Terraform) UnTaint(ctx context.Context, address string, opts ...UnTaintOption) error {
+func (tf *Terraform) Untaint(ctx context.Context, address string, opts ...UnTaintOption) error {
+	err := tf.compatible(ctx, tf0_6_13, nil)
+	if err != nil {
+		return fmt.Errorf("untaint was first introduced in Terraform 0.6.13: %w", err)
+	}
 	unTaintCmd := tf.unTaintCmd(ctx, address, opts...)
 	return tf.runTerraformCmd(ctx, unTaintCmd)
 }
@@ -33,7 +38,7 @@ func (tf *Terraform) unTaintCmd(ctx context.Context, address string, opts ...UnT
 		o.configureUnTaint(&c)
 	}
 
-	args := []string{"untaint", "-allow-missing", "-lock-timeout=0s", "-lock=true", "-no-color"}
+	args := []string{"untaint", "-no-color"}
 
 	// string opts: only pass if set
 	if c.state != "" {

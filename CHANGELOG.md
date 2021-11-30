@@ -14,6 +14,7 @@ FEATURES:
  - Add support for `workspace delete` command [GH-212]
  - Add support for `workspace show` command [GH-245]
  - Add support for `force-unlock` command [GH-223]
+ - Add support for `taint`/`untaint` command [GH-251]
 
 # 0.15.0 (October 05, 2021)
 

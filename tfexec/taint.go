@@ -2,6 +2,7 @@ package tfexec
 
 import (
 	"context"
+	"fmt"
 	"os/exec"
 )
 
@@ -22,6 +23,10 @@ func (opt *StateOption) configureTaint(conf *taintConfig) {
 
 // Taint represents the terraform taint subcommand.
 func (tf *Terraform) Taint(ctx context.Context, address string, opts ...TaintOption) error {
+	err := tf.compatible(ctx, tf0_4_1, nil)
+	if err != nil {
+		return fmt.Errorf("taint was first introduced in Terraform 0.4.1: %w", err)
+	}
 	taintCmd := tf.taintCmd(ctx, address, opts...)
 	return tf.runTerraformCmd(ctx, taintCmd)
 }
@@ -33,7 +38,7 @@ func (tf *Terraform) taintCmd(ctx context.Context, address string, opts ...Taint
 		o.configureTaint(&c)
 	}
 
-	args := []string{"taint", "-allow-missing", "-lock-timeout=0s", "-lock=true"}
+	args := []string{"taint", "-no-color"}
 
 	// string opts: only pass if set
 	if c.state != "" {

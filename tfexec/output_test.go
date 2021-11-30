@@ -19,8 +19,7 @@ func TestOutputCmd(t *testing.T) {
 	tf.SetEnv(map[string]string{})
 
 	t.Run("defaults", func(t *testing.T) {
-		var config = outputConfig{}
-		outputCmd := tf.outputCmd(context.Background(), config)
+		outputCmd := tf.outputCmd(context.Background())
 
 		assertCmd(t, []string{
 			"output",
@@ -30,30 +29,14 @@ func TestOutputCmd(t *testing.T) {
 	})
 
 	t.Run("override all defaults", func(t *testing.T) {
-		var config = outputConfig{}
-		config.state = "teststate"
-		outputCmd := tf.outputCmd(context.Background(), config)
+		outputCmd := tf.outputCmd(context.Background(),
+			State("teststate"))
 
 		assertCmd(t, []string{
 			"output",
 			"-no-color",
 			"-json",
 			"-state=teststate",
-		}, nil, outputCmd)
-	})
-
-	t.Run("defaults with single output", func(t *testing.T) {
-		var config = outputConfig{}
-		config.state = "teststate"
-		config.name = "testoutput"
-		outputCmd := tf.outputCmd(context.Background(), config)
-
-		assertCmd(t, []string{
-			"output",
-			"-no-color",
-			"-json",
-			"-state=teststate",
-			"testoutput",
 		}, nil, outputCmd)
 	})
 }

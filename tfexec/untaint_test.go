@@ -23,9 +23,6 @@ func TestUnTaintCmd(t *testing.T) {
 
 		assertCmd(t, []string{
 			"untaint",
-			"-allow-missing",
-			"-lock-timeout=0s",
-			"-lock=true",
 			"-no-color",
 			"aws_instance.foo",
 		}, nil, unTaintCmd)
@@ -36,9 +33,6 @@ func TestUnTaintCmd(t *testing.T) {
 
 		assertCmd(t, []string{
 			"untaint",
-			"-allow-missing",
-			"-lock-timeout=0s",
-			"-lock=true",
 			"-no-color",
 			"-state=teststate",
 			"aws_instance.foo",
