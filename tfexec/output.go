@@ -34,7 +34,6 @@ type OutputMeta struct {
 
 // Output represents the terraform output subcommand.
 func (tf *Terraform) Output(ctx context.Context, opts ...OutputOption) (map[string]OutputMeta, error) {
-
 	outputCmd := tf.outputCmd(ctx, opts...)
 
 	outputs := map[string]OutputMeta{}
@@ -52,6 +51,7 @@ func (tf *Terraform) outputCmd(ctx context.Context, opts ...OutputOption) *exec.
 	for _, o := range opts {
 		o.configureOutput(&c)
 	}
+
 	args := []string{"output", "-no-color", "-json"}
 
 	// string opts: only pass if set

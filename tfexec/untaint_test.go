@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
 )
 
-func TestUnTaintCmd(t *testing.T) {
+func TestUntaintCmd(t *testing.T) {
 	td := t.TempDir()
 
 	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest013))
@@ -19,23 +19,23 @@ func TestUnTaintCmd(t *testing.T) {
 	tf.SetEnv(map[string]string{})
 
 	t.Run("defaults", func(t *testing.T) {
-		unTaintCmd := tf.unTaintCmd(context.Background(), "aws_instance.foo")
+		untaintCmd := tf.untaintCmd(context.Background(), "aws_instance.foo")
 
 		assertCmd(t, []string{
 			"untaint",
 			"-no-color",
 			"aws_instance.foo",
-		}, nil, unTaintCmd)
+		}, nil, untaintCmd)
 	})
 
 	t.Run("override all defaults", func(t *testing.T) {
-		unTaintCmd := tf.unTaintCmd(context.Background(), "aws_instance.foo", State("teststate"))
+		untaintCmd := tf.untaintCmd(context.Background(), "aws_instance.foo", State("teststate"))
 
 		assertCmd(t, []string{
 			"untaint",
 			"-no-color",
 			"-state=teststate",
 			"aws_instance.foo",
-		}, nil, unTaintCmd)
+		}, nil, untaintCmd)
 	})
 }

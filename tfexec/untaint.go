@@ -10,32 +10,32 @@ type untaintConfig struct {
 	state string
 }
 
-var defaultUnTaintOptions = untaintConfig{}
+var defaultUntaintOptions = untaintConfig{}
 
 // OutputOption represents options used in the Output method.
-type UnTaintOption interface {
-	configureUnTaint(*untaintConfig)
+type UntaintOption interface {
+	configureUntaint(*untaintConfig)
 }
 
-func (opt *StateOption) configureUnTaint(conf *untaintConfig) {
+func (opt *StateOption) configureUntaint(conf *untaintConfig) {
 	conf.state = opt.path
 }
 
 // Untaint represents the terraform untaint subcommand.
-func (tf *Terraform) Untaint(ctx context.Context, address string, opts ...UnTaintOption) error {
+func (tf *Terraform) Untaint(ctx context.Context, address string, opts ...UntaintOption) error {
 	err := tf.compatible(ctx, tf0_6_13, nil)
 	if err != nil {
 		return fmt.Errorf("untaint was first introduced in Terraform 0.6.13: %w", err)
 	}
-	unTaintCmd := tf.unTaintCmd(ctx, address, opts...)
-	return tf.runTerraformCmd(ctx, unTaintCmd)
+	untaintCmd := tf.untaintCmd(ctx, address, opts...)
+	return tf.runTerraformCmd(ctx, untaintCmd)
 }
 
-func (tf *Terraform) unTaintCmd(ctx context.Context, address string, opts ...UnTaintOption) *exec.Cmd {
-	c := defaultUnTaintOptions
+func (tf *Terraform) untaintCmd(ctx context.Context, address string, opts ...UntaintOption) *exec.Cmd {
+	c := defaultUntaintOptions
 
 	for _, o := range opts {
-		o.configureUnTaint(&c)
+		o.configureUntaint(&c)
 	}
 
 	args := []string{"untaint", "-no-color"}
