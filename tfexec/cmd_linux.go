@@ -8,6 +8,9 @@ import (
 )
 
 func (tf *Terraform) runTerraformCmd(ctx context.Context, cmd *exec.Cmd) error {
+	ctx, done := context.WithCancel(ctx)
+	defer done() 
+	
 	var errBuf strings.Builder
 
 	cmd.Stdout = mergeWriters(cmd.Stdout, tf.stdout)
