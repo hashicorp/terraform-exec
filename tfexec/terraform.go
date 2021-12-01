@@ -59,8 +59,8 @@ type Terraform struct {
 }
 
 // NewTerraform returns a Terraform struct with default values for all fields.
-// If a blank execPath is supplied, NewTerraform will attempt to locate an
-// appropriate binary on the system PATH.
+// If a blank execPath is supplied, NewTerraform will error.
+// Use hc-install or output from os.LookPath to get a desirable execPath.
 func NewTerraform(workingDir string, execPath string) (*Terraform, error) {
 	if workingDir == "" {
 		return nil, fmt.Errorf("Terraform cannot be initialised with empty workdir")
