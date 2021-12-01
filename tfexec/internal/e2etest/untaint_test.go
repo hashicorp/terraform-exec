@@ -28,7 +28,7 @@ func TestUntaint(t *testing.T) {
 
 		err = tf.Untaint(context.Background(), "null_resource.foo")
 		if err != nil {
-			t.Fatalf("error running UnTaint: %s", err)
+			t.Fatalf("error running Untaint: %s", err)
 		}
 	})
 }
