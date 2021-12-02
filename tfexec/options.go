@@ -214,6 +214,14 @@ func Out(path string) *OutOption {
 	return &OutOption{path}
 }
 
+type OutputNameOption struct {
+	name string
+}
+
+func OutputName(name string) *OutputNameOption {
+	return &OutputNameOption{name}
+}
+
 type ParallelismOption struct {
 	parallelism int
 }
