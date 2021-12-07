@@ -8,6 +8,9 @@ import (
 )
 
 func (tf *Terraform) runTerraformCmd(ctx context.Context, cmd *exec.Cmd) error {
+	ctx, done := context.WithCancel(ctx)
+	defer done()
+
 	var errBuf strings.Builder
 
 	cmd.Stdout = mergeWriters(cmd.Stdout, tf.stdout)
@@ -23,7 +26,7 @@ func (tf *Terraform) runTerraformCmd(ctx context.Context, cmd *exec.Cmd) error {
 	go func() {
 		<-ctx.Done()
 		if ctx.Err() == context.DeadlineExceeded || ctx.Err() == context.Canceled {
-			if cmd != nil && cmd.Process != nil && cmd.ProcessState != nil {
+			if cmd != nil && cmd.Process != nil && cmd.ProcessState == nil {
 				// send SIGINT to process group
 				err := syscall.Kill(-cmd.Process.Pid, syscall.SIGINT)
 				if err != nil {
