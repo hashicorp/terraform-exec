@@ -9,6 +9,9 @@ import (
 )
 
 func (tf *Terraform) runTerraformCmd(ctx context.Context, cmd *exec.Cmd) error {
+	ctx, done := context.WithCancel(ctx)
+	defer done()
+
 	var errBuf strings.Builder
 
 	cmd.SysProcAttr = &syscall.SysProcAttr{
@@ -17,6 +20,21 @@ func (tf *Terraform) runTerraformCmd(ctx context.Context, cmd *exec.Cmd) error {
 		// set process group ID
 		Setpgid: true,
 	}
+
+	go func() {
+		<-ctx.Done()
+		if ctx.Err() == context.DeadlineExceeded || ctx.Err() == context.Canceled {
+			if cmd != nil && cmd.Process != nil && cmd.ProcessState == nil {
+				// send SIGINT to process group
+				err := syscall.Kill(-cmd.Process.Pid, syscall.SIGINT)
+				if err != nil {
+					tf.logger.Printf("error from SIGINT: %s", err)
+				}
+			}
+
+			// TODO: send a kill if it doesn't respond for a bit?
+		}
+	}()
 
 	// check for early cancellation
 	select {
