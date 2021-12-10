@@ -47,6 +47,7 @@ type Terraform struct {
 	disablePluginTLS   bool
 	skipProviderVerify bool
 	env                map[string]string
+	workspace          string
 
 	stdout  io.Writer
 	stderr  io.Writer
@@ -99,6 +100,23 @@ func (tf *Terraform) SetEnv(env map[string]string) error {
 
 	tf.env = env
 	return nil
+}
+
+// SetWorkspace sets the workspace for subsequent calls to Terraform commands. It creates the workspace
+// if it does not exists. This does not affect the working directory, use WorkspaceSelect to change the
+// workspace in the working directory.
+func (tf *Terraform) SetWorkspace(ctx context.Context, workspace string, opts ...WorkspaceNewCmdOption) error {
+	tf.workspace = workspace
+	ws, _, err := tf.WorkspaceList(ctx)
+	if err != nil {
+		return err
+	}
+	for _, w := range ws {
+		if w == workspace {
+			return nil
+		}
+	}
+	return tf.WorkspaceNew(ctx, workspace, opts...)
 }
 
 // SetLogger specifies a logger for tfexec to use.
