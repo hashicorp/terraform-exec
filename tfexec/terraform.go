@@ -106,20 +106,32 @@ func (tf *Terraform) SetEnv(env map[string]string) error {
 // if it does not exists. This does not affect the working directory, use WorkspaceSelect to change the
 // workspace in the working directory.
 func (tf *Terraform) SetWorkspace(ctx context.Context, workspace string, opts ...WorkspaceNewCmdOption) error {
-	tf.workspace = workspace
+	lastWorkspace := tf.workspace
+
+	// set it to empty for `terraform workspace` commands to use filesystem workspace
+	tf.workspace = ""
 	ws, current, err := tf.WorkspaceList(ctx)
+
 	if err != nil {
+		tf.workspace = lastWorkspace
 		return err
 	}
 	for _, w := range ws {
 		if w == workspace {
+			tf.workspace = workspace
 			return nil
 		}
 	}
 	if err := tf.WorkspaceNew(ctx, workspace, opts...); err != nil {
+		tf.workspace = lastWorkspace
 		return err
 	}
-	return tf.WorkspaceSelect(ctx, current)
+	if err := tf.WorkspaceSelect(ctx, current); err != nil {
+		tf.workspace = lastWorkspace
+		return err
+	}
+	tf.workspace = workspace
+	return nil
 }
 
 // SetLogger specifies a logger for tfexec to use.
