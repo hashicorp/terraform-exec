@@ -107,7 +107,7 @@ func (tf *Terraform) SetEnv(env map[string]string) error {
 // workspace in the working directory.
 func (tf *Terraform) SetWorkspace(ctx context.Context, workspace string, opts ...WorkspaceNewCmdOption) error {
 	tf.workspace = workspace
-	ws, _, err := tf.WorkspaceList(ctx)
+	ws, current, err := tf.WorkspaceList(ctx)
 	if err != nil {
 		return err
 	}
@@ -116,7 +116,10 @@ func (tf *Terraform) SetWorkspace(ctx context.Context, workspace string, opts ..
 			return nil
 		}
 	}
-	return tf.WorkspaceNew(ctx, workspace, opts...)
+	if err := tf.WorkspaceNew(ctx, workspace, opts...); err != nil {
+		return err
+	}
+	return tf.WorkspaceSelect(ctx, current)
 }
 
 // SetLogger specifies a logger for tfexec to use.
