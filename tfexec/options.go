@@ -206,15 +206,6 @@ func LockTimeout(lockTimeout string) *LockTimeoutOption {
 	return &LockTimeoutOption{lockTimeout}
 }
 
-type ModuleDepthOption struct {
-	moduleDepth int
-}
-
-// ModuleDepth represents the -module-depth option for graph command
-func ModuleDepth(moduleDepth int) *ModuleDepthOption {
-	return &ModuleDepthOption{moduleDepth}
-}
-
 type NetMirrorOption struct {
 	netMirror string
 }

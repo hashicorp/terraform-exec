@@ -2,6 +2,7 @@ package e2etest
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/go-version"
@@ -21,9 +22,14 @@ func TestGraph(t *testing.T) {
 			t.Fatalf("error running Apply: %s", err)
 		}
 
-		_, err = tf.Graph(context.Background())
+		graphOutput, err := tf.Graph(context.Background())
 		if err != nil {
 			t.Fatalf("error running Graph: %s", err)
+		}
+
+		// Graph output differs slightly between versions, but resource subgraph remains consistent
+		if !strings.Contains(graphOutput, `"[root] null_resource.foo" [label = "null_resource.foo", shape = "box"]`) {
+			t.Fatalf("error running Graph. Graph output does not contain expected strings. Returned: %s", graphOutput)
 		}
 	})
 }

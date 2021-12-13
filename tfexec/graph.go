@@ -8,15 +8,12 @@ import (
 )
 
 type graphConfig struct {
-	plan        string
-	drawCycles  bool
-	graphType   string
-	moduleDepth int
+	plan       string
+	drawCycles bool
+	graphType  string
 }
 
-var defaultGraphOptions = graphConfig{
-	moduleDepth: -1,
-}
+var defaultGraphOptions = graphConfig{}
 
 type GraphOption interface {
 	configureGraph(*graphConfig)
@@ -34,15 +31,14 @@ func (opt *GraphTypeOption) configureGraph(conf *graphConfig) {
 	conf.graphType = opt.graphType
 }
 
-func (opt *ModuleDepthOption) configureGraph(conf *graphConfig) {
-	conf.moduleDepth = opt.moduleDepth
-}
-
 func (tf *Terraform) Graph(ctx context.Context, opts ...GraphOption) (string, error) {
-	graphCmd := tf.graphCmd(ctx, opts...)
+	graphCmd, err := tf.graphCmd(ctx, opts...)
+	if err != nil {
+		return "", err
+	}
 	var outBuf strings.Builder
 	graphCmd.Stdout = &outBuf
-	err := tf.runTerraformCmd(ctx, graphCmd)
+	err = tf.runTerraformCmd(ctx, graphCmd)
 	if err != nil {
 		return "", err
 	}
@@ -51,7 +47,7 @@ func (tf *Terraform) Graph(ctx context.Context, opts ...GraphOption) (string, er
 
 }
 
-func (tf *Terraform) graphCmd(ctx context.Context, opts ...GraphOption) *exec.Cmd {
+func (tf *Terraform) graphCmd(ctx context.Context, opts ...GraphOption) (*exec.Cmd, error) {
 	c := defaultGraphOptions
 
 	for _, o := range opts {
@@ -61,21 +57,29 @@ func (tf *Terraform) graphCmd(ctx context.Context, opts ...GraphOption) *exec.Cm
 	args := []string{"graph"}
 
 	if c.plan != "" {
-		args = append(args, "-plan="+c.plan)
+		// plan was a positional arguement prior to Terraform 0.15.0. Ensure proper use by checking version.
+		if err := tf.compatible(ctx, tf0_15_0, nil); err == nil {
+			args = append(args, "-plan="+c.plan)
+		} else {
+			args = append(args, c.plan)
+		}
 	}
 
 	if c.drawCycles {
+		err := tf.compatible(ctx, tf0_5_0, nil)
+		if err != nil {
+			return nil, fmt.Errorf("-draw-cycles was first introduced in Terraform 0.5.0: %w", err)
+		}
 		args = append(args, "-draw-cycles")
 	}
 
 	if c.graphType != "" {
+		err := tf.compatible(ctx, tf0_8_0, nil)
+		if err != nil {
+			return nil, fmt.Errorf("-graph-type was first introduced in Terraform 0.8.0: %w", err)
+		}
 		args = append(args, "-type="+c.graphType)
 	}
 
-	// -1 is the default value set in terraform CLI for module depth
-	if c.moduleDepth != -1 {
-		args = append(args, fmt.Sprintf("-module-depth=%d", c.moduleDepth))
-	}
-
-	return tf.buildTerraformCmd(ctx, nil, args...)
+	return tf.buildTerraformCmd(ctx, nil, args...), nil
 }
