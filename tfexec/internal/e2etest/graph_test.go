@@ -2,9 +2,9 @@ package e2etest
 
 import (
 	"context"
-	"strings"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/hashicorp/go-version"
 
 	"github.com/hashicorp/terraform-exec/tfexec"
@@ -27,9 +27,84 @@ func TestGraph(t *testing.T) {
 			t.Fatalf("error running Graph: %s", err)
 		}
 
-		// Graph output differs slightly between versions, but resource subgraph remains consistent
-		if !strings.Contains(graphOutput, `"[root] null_resource.foo" [label = "null_resource.foo", shape = "box"]`) {
-			t.Fatalf("error running Graph. Graph output does not contain expected strings. Returned: %s", graphOutput)
+		if diff := cmp.Diff(expectedGraphOutput(tfv), graphOutput); diff != "" {
+			t.Fatalf("Graph output does not match: %s", diff)
 		}
 	})
+}
+
+func expectedGraphOutput(tfv *version.Version) string {
+	v := tfv.Core()
+
+	if v.LessThan(v0_12_0) {
+		// TF <=0.11.15
+		return `digraph {
+	compound = "true"
+	newrank = "true"
+	subgraph "root" {
+		"[root] null_resource.foo" [label = "null_resource.foo", shape = "box"]
+		"[root] provider.null" [label = "provider.null", shape = "diamond"]
+		"[root] meta.count-boundary (count boundary fixup)" -> "[root] null_resource.foo"
+		"[root] null_resource.foo" -> "[root] provider.null"
+		"[root] provider.null (close)" -> "[root] null_resource.foo"
+		"[root] root" -> "[root] meta.count-boundary (count boundary fixup)"
+		"[root] root" -> "[root] provider.null (close)"
+	}
+}
+
+`
+	}
+
+	if v.GreaterThanOrEqual(v0_12_0) && v.LessThan(v0_13_0) {
+		// TF 0.12.20 - 0.12.31
+		return `digraph {
+	compound = "true"
+	newrank = "true"
+	subgraph "root" {
+		"[root] null_resource.foo" [label = "null_resource.foo", shape = "box"]
+		"[root] provider.null" [label = "provider.null", shape = "diamond"]
+		"[root] meta.count-boundary (EachMode fixup)" -> "[root] null_resource.foo"
+		"[root] null_resource.foo" -> "[root] provider.null"
+		"[root] provider.null (close)" -> "[root] null_resource.foo"
+		"[root] root" -> "[root] meta.count-boundary (EachMode fixup)"
+		"[root] root" -> "[root] provider.null (close)"
+	}
+}
+
+`
+	}
+
+	if v.GreaterThanOrEqual(v0_13_0) && v.LessThan(v1_1) {
+		// 0.13.0 - 1.0.11
+		return `digraph {
+	compound = "true"
+	newrank = "true"
+	subgraph "root" {
+		"[root] null_resource.foo (expand)" [label = "null_resource.foo", shape = "box"]
+		"[root] provider[\"registry.terraform.io/hashicorp/null\"]" [label = "provider[\"registry.terraform.io/hashicorp/null\"]", shape = "diamond"]
+		"[root] meta.count-boundary (EachMode fixup)" -> "[root] null_resource.foo (expand)"
+		"[root] null_resource.foo (expand)" -> "[root] provider[\"registry.terraform.io/hashicorp/null\"]"
+		"[root] provider[\"registry.terraform.io/hashicorp/null\"] (close)" -> "[root] null_resource.foo (expand)"
+		"[root] root" -> "[root] meta.count-boundary (EachMode fixup)"
+		"[root] root" -> "[root] provider[\"registry.terraform.io/hashicorp/null\"] (close)"
+	}
+}
+
+`
+	}
+
+	// 1.1.0+
+	return `digraph {
+	compound = "true"
+	newrank = "true"
+	subgraph "root" {
+		"[root] null_resource.foo (expand)" [label = "null_resource.foo", shape = "box"]
+		"[root] provider[\"registry.terraform.io/hashicorp/null\"]" [label = "provider[\"registry.terraform.io/hashicorp/null\"]", shape = "diamond"]
+		"[root] null_resource.foo (expand)" -> "[root] provider[\"registry.terraform.io/hashicorp/null\"]"
+		"[root] provider[\"registry.terraform.io/hashicorp/null\"] (close)" -> "[root] null_resource.foo (expand)"
+		"[root] root" -> "[root] provider[\"registry.terraform.io/hashicorp/null\"] (close)"
+	}
+}
+
+`
 }
