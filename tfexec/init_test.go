@@ -2,6 +2,7 @@ package tfexec
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
@@ -66,5 +67,51 @@ func TestInitCmd(t *testing.T) {
 			"-plugin-dir=testdir2",
 			"initdir",
 		}, nil, initCmd)
+	})
+}
+
+func TestInitCmd_compatible(t *testing.T) {
+	// Options -lock, -lock-timeout, -verify-plugins, and -get-plugins were
+	// removed in 0.15.
+	//
+	// The -lock and -lock-timeout options were then reinstated in 1.0.10.
+	//
+	// We do some grey box testing here to come up with meaningful test
+	// combinations of options.
+
+	td := t.TempDir()
+
+	t.Run("options not compatible with 0.15", func(t *testing.T) {
+		tf, err := NewTerraform(td, tfVersion(t, testutil.Latest015))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		var expectedErr *ErrVersionMismatch
+
+		_, err := tf.initCmd(
+			context.Background(),
+			VerifyPlugins(false),
+		)
+		if err == nil {
+			t.Fatalf("expected -verify-plugins to be unsupported in 0.15")
+		}
+		if !errors.As(err, &expectedErr) {
+			t.Fatalf("expected %#v but got %#v", expectedErr, err)
+		}
+
+		// TODO getplugins
+
+		// TODO lock
+
+		// TODO locktimeout
+	})
+
+	t.Run("options reinstated in 1.0.10", func(t *testing.T) {
+
+	})
+
+	t.Run("options not reinstated in 1.0.10", func(t *testing.T) {
+
 	})
 }
