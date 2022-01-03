@@ -13,10 +13,12 @@ import (
 )
 
 var (
-	providersSchemaJSONMinVersion = version.Must(version.NewVersion("0.12.0"))
-	v0_13_0                       = version.Must(version.NewVersion("0.13.0"))
-	v0_15_0                       = version.Must(version.NewVersion("0.15.0"))
-	v1_1                          = version.Must(version.NewVersion("1.1.0"))
+	v0_12_0 = version.Must(version.NewVersion("0.12.0"))
+	v0_13_0 = version.Must(version.NewVersion("0.13.0"))
+	v0_14_0 = version.Must(version.NewVersion("0.14.0"))
+	v0_15_0 = version.Must(version.NewVersion("0.15.0"))
+	v1_0    = version.Must(version.NewVersion("1.0.0"))
+	v1_1    = version.Must(version.NewVersion("1.1.0"))
 )
 
 func TestProvidersSchema(t *testing.T) {
@@ -221,7 +223,7 @@ same can now be achieved using [locals](https://www.terraform.io/docs/language/v
 		c := c
 		t.Run(fmt.Sprintf("%d %s", i, c.fixtureDir), func(t *testing.T) {
 			runTest(t, c.fixtureDir, func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
-				if tfv.Core().LessThan(providersSchemaJSONMinVersion) {
+				if tfv.Core().LessThan(v0_12_0) {
 					t.Skip("providers schema -json was added in 0.12")
 				}
 

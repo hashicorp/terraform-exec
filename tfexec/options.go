@@ -118,6 +118,15 @@ func Destroy(destroy bool) *DestroyFlagOption {
 	return &DestroyFlagOption{destroy}
 }
 
+type DrawCyclesOption struct {
+	drawCycles bool
+}
+
+// DrawCycles represents the -draw-cycles flag.
+func DrawCycles(drawCycles bool) *DrawCyclesOption {
+	return &DrawCyclesOption{drawCycles}
+}
+
 type DryRunOption struct {
 	dryRun bool
 }
@@ -228,6 +237,15 @@ type ParallelismOption struct {
 
 func Parallelism(n int) *ParallelismOption {
 	return &ParallelismOption{n}
+}
+
+type GraphPlanOption struct {
+	file string
+}
+
+// GraphPlan represents the -plan flag which is a specified plan file string
+func GraphPlan(file string) *GraphPlanOption {
+	return &GraphPlanOption{file}
 }
 
 type PlatformOption struct {
@@ -350,6 +368,14 @@ type TargetOption struct {
 
 func Target(resource string) *TargetOption {
 	return &TargetOption{resource}
+}
+
+type GraphTypeOption struct {
+	graphType string
+}
+
+func GraphType(graphType string) *GraphTypeOption {
+	return &GraphTypeOption{graphType}
 }
 
 type UpdateOption struct {
