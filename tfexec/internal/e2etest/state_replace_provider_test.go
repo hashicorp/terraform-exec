@@ -54,7 +54,10 @@ func TestStateReplaceProvider(t *testing.T) {
 						Address: "null_resource.foo",
 						AttributeValues: map[string]interface{}{
 							"id":       "5510719323588825107",
+							"inputs":   nil,
+							"outputs":  nil,
 							"triggers": nil,
+							"values":   nil,
 						},
 						SensitiveValues: sensitiveValues,
 						Mode:            tfjson.ManagedResourceMode,
