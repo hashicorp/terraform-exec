@@ -44,7 +44,7 @@ func (opt *StateOutOption) configureStateReplaceProvider(conf *stateReplaceProvi
 	conf.stateOut = opt.path
 }
 
-// StateMv represents the terraform state mv subcommand.
+// StateReplaceProvider represents the terraform state replace-provider subcommand.
 func (tf *Terraform) StateReplaceProvider(ctx context.Context, fromProviderFqn string, toProviderFqn string, opts ...StateReplaceProviderCmdOption) error {
 	cmd, err := tf.stateReplaceProviderCmd(ctx, fromProviderFqn, toProviderFqn, opts...)
 	if err != nil {
