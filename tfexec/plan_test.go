@@ -19,7 +19,7 @@ func TestPlanCmd(t *testing.T) {
 	tf.SetEnv(map[string]string{})
 
 	t.Run("defaults", func(t *testing.T) {
-		planCmd, err := tf.planCmd(context.Background())
+		planCmd, err := tf.PlanCmd(context.Background())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -37,7 +37,7 @@ func TestPlanCmd(t *testing.T) {
 	})
 
 	t.Run("override all defaults", func(t *testing.T) {
-		planCmd, err := tf.planCmd(context.Background(),
+		planCmd, err := tf.PlanCmd(context.Background(),
 			Destroy(true),
 			Lock(false),
 			LockTimeout("22s"),

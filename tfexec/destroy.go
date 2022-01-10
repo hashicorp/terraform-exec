@@ -88,14 +88,14 @@ func (opt *ReattachOption) configureDestroy(conf *destroyConfig) {
 
 // Destroy represents the terraform destroy subcommand.
 func (tf *Terraform) Destroy(ctx context.Context, opts ...DestroyOption) error {
-	cmd, err := tf.destroyCmd(ctx, opts...)
+	cmd, err := tf.DestroyCmd(ctx, opts...)
 	if err != nil {
 		return err
 	}
 	return tf.runTerraformCmd(ctx, cmd)
 }
 
-func (tf *Terraform) destroyCmd(ctx context.Context, opts ...DestroyOption) (*exec.Cmd, error) {
+func (tf *Terraform) DestroyCmd(ctx context.Context, opts ...DestroyOption) (*exec.Cmd, error) {
 	c := defaultDestroyOptions
 
 	for _, o := range opts {

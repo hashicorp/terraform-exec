@@ -19,7 +19,7 @@ func TestApplyCmd(t *testing.T) {
 	tf.SetEnv(map[string]string{})
 
 	t.Run("basic", func(t *testing.T) {
-		applyCmd, err := tf.applyCmd(context.Background(),
+		applyCmd, err := tf.ApplyCmd(context.Background(),
 			Backup("testbackup"),
 			LockTimeout("200s"),
 			State("teststate"),

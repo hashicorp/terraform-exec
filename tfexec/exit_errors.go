@@ -37,7 +37,7 @@ var (
 	stateLockInfoRegexp = regexp.MustCompile(`Lock Info:\n\s*ID:\s*([^\n]+)\n\s*Path:\s*([^\n]+)\n\s*Operation:\s*([^\n]+)\n\s*Who:\s*([^\n]+)\n\s*Version:\s*([^\n]+)\n\s*Created:\s*([^\n]+)\n`)
 )
 
-func (tf *Terraform) wrapExitError(ctx context.Context, err error, stderr string) error {
+func (tf *Terraform) WrapExitError(ctx context.Context, err error, stderr string) error {
 	exitErr, ok := err.(*exec.ExitError)
 	if !ok {
 		// not an exit error, short circuit, nothing to wrap

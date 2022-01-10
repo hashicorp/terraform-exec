@@ -94,14 +94,14 @@ func (opt *VerifyPluginsOption) configureInit(conf *initConfig) {
 
 // Init represents the terraform init subcommand.
 func (tf *Terraform) Init(ctx context.Context, opts ...InitOption) error {
-	cmd, err := tf.initCmd(ctx, opts...)
+	cmd, err := tf.InitCmd(ctx, opts...)
 	if err != nil {
 		return err
 	}
 	return tf.runTerraformCmd(ctx, cmd)
 }
 
-func (tf *Terraform) initCmd(ctx context.Context, opts ...InitOption) (*exec.Cmd, error) {
+func (tf *Terraform) InitCmd(ctx context.Context, opts ...InitOption) (*exec.Cmd, error) {
 	c := defaultInitOptions
 
 	for _, o := range opts {

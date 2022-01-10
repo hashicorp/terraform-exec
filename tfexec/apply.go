@@ -92,14 +92,14 @@ func (opt *ReattachOption) configureApply(conf *applyConfig) {
 
 // Apply represents the terraform apply subcommand.
 func (tf *Terraform) Apply(ctx context.Context, opts ...ApplyOption) error {
-	cmd, err := tf.applyCmd(ctx, opts...)
+	cmd, err := tf.ApplyCmd(ctx, opts...)
 	if err != nil {
 		return err
 	}
 	return tf.runTerraformCmd(ctx, cmd)
 }
 
-func (tf *Terraform) applyCmd(ctx context.Context, opts ...ApplyOption) (*exec.Cmd, error) {
+func (tf *Terraform) ApplyCmd(ctx context.Context, opts ...ApplyOption) (*exec.Cmd, error) {
 	c := defaultApplyOptions
 
 	for _, o := range opts {

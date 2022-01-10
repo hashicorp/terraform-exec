@@ -1,3 +1,4 @@
+//go:build !linux
 // +build !linux
 
 package tfexec
@@ -38,7 +39,7 @@ func (tf *Terraform) runTerraformCmd(ctx context.Context, cmd *exec.Cmd) error {
 		err = ctx.Err()
 	}
 	if err != nil {
-		return tf.wrapExitError(ctx, err, errBuf.String())
+		return tf.WrapExitError(ctx, err, errBuf.String())
 	}
 
 	return nil

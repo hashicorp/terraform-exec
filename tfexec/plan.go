@@ -97,7 +97,7 @@ func (opt *DestroyFlagOption) configurePlan(conf *planConfig) {
 // The returned error is nil if `terraform plan` has been executed and exits
 // with either 0 or 2.
 func (tf *Terraform) Plan(ctx context.Context, opts ...PlanOption) (bool, error) {
-	cmd, err := tf.planCmd(ctx, opts...)
+	cmd, err := tf.PlanCmd(ctx, opts...)
 	if err != nil {
 		return false, err
 	}
@@ -108,7 +108,7 @@ func (tf *Terraform) Plan(ctx context.Context, opts ...PlanOption) (bool, error)
 	return false, err
 }
 
-func (tf *Terraform) planCmd(ctx context.Context, opts ...PlanOption) (*exec.Cmd, error) {
+func (tf *Terraform) PlanCmd(ctx context.Context, opts ...PlanOption) (*exec.Cmd, error) {
 	c := defaultPlanOptions
 
 	for _, o := range opts {
