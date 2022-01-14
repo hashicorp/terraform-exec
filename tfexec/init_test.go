@@ -33,7 +33,6 @@ func TestInitCmd_v012(t *testing.T) {
 		assertCmd(t, []string{
 			"init",
 			"-no-color",
-			"-force-copy",
 			"-input=false",
 			"-lock-timeout=0s",
 			"-backend=true",
@@ -46,7 +45,7 @@ func TestInitCmd_v012(t *testing.T) {
 	})
 
 	t.Run("override all defaults", func(t *testing.T) {
-		initCmd, err := tf.initCmd(context.Background(), Backend(false), BackendConfig("confpath1"), BackendConfig("confpath2"), FromModule("testsource"), Get(false), GetPlugins(false), Lock(false), LockTimeout("999s"), PluginDir("testdir1"), PluginDir("testdir2"), Reconfigure(true), Upgrade(true), VerifyPlugins(false), Dir("initdir"))
+		initCmd, err := tf.initCmd(context.Background(), Backend(false), BackendConfig("confpath1"), BackendConfig("confpath2"), ForceCopy(true), FromModule("testsource"), Get(false), GetPlugins(false), Lock(false), LockTimeout("999s"), PluginDir("testdir1"), PluginDir("testdir2"), Reconfigure(true), Upgrade(true), VerifyPlugins(false), Dir("initdir"))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -54,7 +53,6 @@ func TestInitCmd_v012(t *testing.T) {
 		assertCmd(t, []string{
 			"init",
 			"-no-color",
-			"-force-copy",
 			"-input=false",
 			"-from-module=testsource",
 			"-lock-timeout=999s",
@@ -64,6 +62,7 @@ func TestInitCmd_v012(t *testing.T) {
 			"-lock=false",
 			"-get-plugins=false",
 			"-verify-plugins=false",
+			"-force-copy",
 			"-reconfigure",
 			"-backend-config=confpath1",
 			"-backend-config=confpath2",
@@ -95,7 +94,6 @@ func TestInitCmd_v1(t *testing.T) {
 		assertCmd(t, []string{
 			"init",
 			"-no-color",
-			"-force-copy",
 			"-input=false",
 			"-backend=true",
 			"-get=true",
@@ -112,7 +110,6 @@ func TestInitCmd_v1(t *testing.T) {
 		assertCmd(t, []string{
 			"init",
 			"-no-color",
-			"-force-copy",
 			"-input=false",
 			"-from-module=testsource",
 			"-backend=false",
