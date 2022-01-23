@@ -15,17 +15,18 @@ import (
 )
 
 const (
-	checkpointDisableEnvVar  = "CHECKPOINT_DISABLE"
-	cliArgsEnvVar            = "TF_CLI_ARGS"
-	logEnvVar                = "TF_LOG"
-	inputEnvVar              = "TF_INPUT"
-	automationEnvVar         = "TF_IN_AUTOMATION"
-	logPathEnvVar            = "TF_LOG_PATH"
-	reattachEnvVar           = "TF_REATTACH_PROVIDERS"
-	appendUserAgentEnvVar    = "TF_APPEND_USER_AGENT"
-	workspaceEnvVar          = "TF_WORKSPACE"
-	disablePluginTLSEnvVar   = "TF_DISABLE_PLUGIN_TLS"
-	skipProviderVerifyEnvVar = "TF_SKIP_PROVIDER_VERIFY"
+	checkpointDisableEnvVar    = "CHECKPOINT_DISABLE"
+	cliArgsEnvVar              = "TF_CLI_ARGS"
+	logEnvVar                  = "TF_LOG"
+	inputEnvVar                = "TF_INPUT"
+	automationEnvVar           = "TF_IN_AUTOMATION"
+	logPathEnvVar              = "TF_LOG_PATH"
+	reattachEnvVar             = "TF_REATTACH_PROVIDERS"
+	appendUserAgentEnvVar      = "TF_APPEND_USER_AGENT"
+	workspaceEnvVar            = "TF_WORKSPACE"
+	disablePluginTLSEnvVar     = "TF_DISABLE_PLUGIN_TLS"
+	skipProviderVerifyEnvVar   = "TF_SKIP_PROVIDER_VERIFY"
+	pluginCacheDirectoryEnvVar = "TF_PLUGIN_CACHE_DIR"
 
 	varEnvVarPrefix    = "TF_VAR_"
 	cliArgEnvVarPrefix = "TF_CLI_ARGS_"
@@ -42,6 +43,7 @@ var prohibitedEnvVars = []string{
 	workspaceEnvVar,
 	disablePluginTLSEnvVar,
 	skipProviderVerifyEnvVar,
+	pluginCacheDirectoryEnvVar,
 }
 
 var prohibitedEnvVarPrefixes = []string{
@@ -165,6 +167,10 @@ func (tf *Terraform) buildEnv(mergeEnv map[string]string) []string {
 
 	if tf.skipProviderVerify {
 		env[skipProviderVerifyEnvVar] = "1"
+	}
+
+	if tf.pluginCacheDirectory != "" {
+		env[pluginCacheDirectoryEnvVar] = tf.pluginCacheDirectory
 	}
 
 	return envSlice(env)

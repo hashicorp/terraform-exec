@@ -40,13 +40,15 @@ type printfer interface {
 //  - TF_REATTACH_PROVIDERS
 //  - TF_DISABLE_PLUGIN_TLS
 //  - TF_SKIP_PROVIDER_VERIFY
+//  - TF_PLUGIN_CACHE_DIR
 type Terraform struct {
-	execPath           string
-	workingDir         string
-	appendUserAgent    string
-	disablePluginTLS   bool
-	skipProviderVerify bool
-	env                map[string]string
+	execPath             string
+	workingDir           string
+	appendUserAgent      string
+	disablePluginTLS     bool
+	skipProviderVerify   bool
+	pluginCacheDirectory string
+	env                  map[string]string
 
 	stdout  io.Writer
 	stderr  io.Writer
@@ -151,6 +153,23 @@ func (tf *Terraform) SetSkipProviderVerify(skip bool) error {
 		return err
 	}
 	tf.skipProviderVerify = skip
+	return nil
+}
+
+// SetPluginCacheDirectory sets the TF_PLUGIN_CACHE_DIR environment variable
+// for Terraform CLI execution.
+func (tf *Terraform) SetPluginCacheDirectory(dir string) error {
+	err := tf.compatible(context.Background(), nil, tf0_10_7)
+	if err != nil {
+		return err
+	}
+	if dir == "" {
+		return fmt.Errorf("provider cache directory cannot be empty")
+	}
+	if _, err := os.Stat(dir); err != nil {
+		return fmt.Errorf("error initialising cache directory %s: %s", dir, err)
+	}
+	tf.pluginCacheDirectory = dir
 	return nil
 }
 
