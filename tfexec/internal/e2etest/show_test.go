@@ -81,16 +81,71 @@ func TestShow(t *testing.T) {
 	})
 }
 
-func TestShow_errInitRequired(t *testing.T) {
-	runTest(t, "basic", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+func TestShow_emptyDir(t *testing.T) {
+	runTest(t, "empty", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		if tfv.LessThan(showMinVersion) {
 			t.Skip("terraform show was added in Terraform 0.12, so test is not valid")
 		}
+
+		formatVersion := "0.1"
+		if tfv.Core().GreaterThanOrEqual(v1_0_1) {
+			formatVersion = "0.2"
+		}
+		if tfv.Core().GreaterThanOrEqual(v1_1) {
+			formatVersion = "1.0"
+		}
+
+		expected := &tfjson.State{
+			FormatVersion: formatVersion,
+		}
+
+		actual, err := tf.Show(context.Background())
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if diff := diffState(expected, actual); diff != "" {
+			t.Fatalf("mismatch (-want +got):\n%s", diff)
+		}
+	})
+}
+
+func TestShow_noInit(t *testing.T) {
+	// terraform show was added in 0.12
+	// before v1.2, running show without init first results in ErrNoInit
+	runTestVersions(t, []string{testutil.Latest012, testutil.Latest013, testutil.Latest014, testutil.Latest015, testutil.Latest_v1, testutil.Latest_v1_1}, "basic", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 
 		var noInit *tfexec.ErrNoInit
 		_, err := tf.Show(context.Background())
 		if !errors.As(err, &noInit) {
 			t.Fatalf("expected error ErrNoInit, got %T: %s", err, err)
+		}
+	})
+
+	runTest(t, "basic", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		// KEM: Really I mean tfv.LessThan(version.Must(version.NewVersion("1.2.0")))
+		if tfv.LessThanOrEqual(version.Must(version.NewVersion(testutil.Latest_v1_1))) {
+			t.Skip("test applies only to v1.2.0 and greater")
+		}
+		t.Fatalf("PLACEHOLDER: UNDEFINED BEHAVIOUR")
+	})
+}
+
+func TestShow_statefileDoesNotExist(t *testing.T) {
+	runTest(t, "basic", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		if tfv.LessThan(showMinVersion) {
+			t.Skip("terraform show was added in Terraform 0.12, so test is not valid")
+		}
+
+		err := tf.Init(context.Background())
+		if err != nil {
+			t.Fatalf("error running Init in test directory: %s", err)
+		}
+
+		var statePlanReadErr *tfexec.ErrStatePlanRead
+		_, err = tf.ShowStateFile(context.Background(), "statefilefoo")
+		if !errors.As(err, &statePlanReadErr) {
+			t.Fatalf("expected error ErrStatePlanRead, got %T: %s", err, err)
 		}
 	})
 }
