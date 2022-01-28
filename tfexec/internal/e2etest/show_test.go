@@ -110,11 +110,13 @@ func TestShow_emptyDir(t *testing.T) {
 	})
 }
 
-func TestShow_noInit(t *testing.T) {
-	// terraform show was added in 0.12
-	// before v1.2, running show without init first results in ErrNoInit
+func TestShow_noInitBasic(t *testing.T) {
+	// Prior to v1.2.0, running show before init always results in ErrNoInit.
+	// In the basic case, in which the local backend is implicit and there are
+	// no providers to download, this is unintended behaviour, as
+	// init is not actually necessary. This is considered a known issue in
+	// pre-1.2.0 versions.
 	runTestVersions(t, []string{testutil.Latest012, testutil.Latest013, testutil.Latest014, testutil.Latest015, testutil.Latest_v1, testutil.Latest_v1_1}, "basic", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
-
 		var noInit *tfexec.ErrNoInit
 		_, err := tf.Show(context.Background())
 		if !errors.As(err, &noInit) {
@@ -122,12 +124,106 @@ func TestShow_noInit(t *testing.T) {
 		}
 	})
 
+	// From v1.2.0 onwards, running show before init in the basic case returns
+	// an empty state with no error.
 	runTest(t, "basic", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
-		// KEM: Really I mean tfv.LessThan(version.Must(version.NewVersion("1.2.0")))
+		// HACK KEM: Really I mean tfv.LessThan(version.Must(version.NewVersion("1.2.0"))),
+		// but I want this test to run for refs/heads/main prior to the release of v1.2.0.
+		if tfv.LessThan(version.Must(version.NewVersion("1.2.0"))) {
+
+			t.Skip("test applies only to v1.2.0 and greater")
+		}
+		expected := &tfjson.State{
+			FormatVersion: "1.0",
+		}
+
+		actual, err := tf.Show(context.Background())
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if diff := diffState(expected, actual); diff != "" {
+			t.Fatalf("mismatch (-want +got):\n%s", diff)
+		}
+	})
+}
+
+func TestShow_noInitModule(t *testing.T) {
+	// Prior to v1.2.0, running show before init always results in ErrNoInit.
+	// In the basic case, in which the local backend is implicit and there are
+	// no providers to download, this is unintended behaviour, as
+	// init is not actually necessary. This is considered a known issue in
+	// pre-1.2.0 versions.
+	runTestVersions(t, []string{testutil.Latest012, testutil.Latest013, testutil.Latest014, testutil.Latest015, testutil.Latest_v1, testutil.Latest_v1_1}, "registry_module", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		var noInit *tfexec.ErrNoInit
+		_, err := tf.Show(context.Background())
+		if !errors.As(err, &noInit) {
+			t.Fatalf("expected error ErrNoInit, got %T: %s", err, err)
+		}
+	})
+
+	// From v1.2.0 onwards, running show before init in the basic case returns
+	// an empty state with no error.
+	runTest(t, "registry_module", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		// HACK KEM: Really I mean tfv.LessThan(version.Must(version.NewVersion("1.2.0"))),
+		// but I want this test to run for refs/heads/main prior to the release of v1.2.0.
 		if tfv.LessThanOrEqual(version.Must(version.NewVersion(testutil.Latest_v1_1))) {
 			t.Skip("test applies only to v1.2.0 and greater")
 		}
-		t.Fatalf("PLACEHOLDER: UNDEFINED BEHAVIOUR")
+		expected := &tfjson.State{
+			FormatVersion: "1.0",
+		}
+
+		actual, err := tf.Show(context.Background())
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if diff := diffState(expected, actual); diff != "" {
+			t.Fatalf("mismatch (-want +got):\n%s", diff)
+		}
+	})
+}
+
+func TestShow_noInitNonLocalBackend(t *testing.T) {
+	runTest(t, "inmem_backend", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		if tfv.LessThan(showMinVersion) {
+			t.Skip("terraform show was added in Terraform 0.12, so test is not valid")
+		}
+
+		var noInit *tfexec.ErrNoInit
+		_, err := tf.Show(context.Background())
+		if !errors.As(err, &noInit) {
+			t.Fatalf("expected error ErrNoInit, got %T: %s", err, err)
+		}
+	})
+}
+
+func TestShow_noInitLocalBackendNonDefaultState(t *testing.T) {
+	runTest(t, "local_backend_non_default_state", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		if tfv.LessThan(showMinVersion) {
+			t.Skip("terraform show was added in Terraform 0.12, so test is not valid")
+		}
+
+		var noInit *tfexec.ErrNoInit
+		_, err := tf.Show(context.Background())
+		if !errors.As(err, &noInit) {
+			t.Fatalf("expected error ErrNoInit, got %T: %s", err, err)
+		}
+	})
+}
+
+func TestShow_noInitEtcdBackend(t *testing.T) {
+	runTest(t, "etcd_backend", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		if tfv.LessThan(showMinVersion) {
+			t.Skip("terraform show was added in Terraform 0.12, so test is not valid")
+		}
+
+		var noInit *tfexec.ErrNoInit
+		_, err := tf.Show(context.Background())
+		if !errors.As(err, &noInit) {
+			t.Fatalf("expected error ErrNoInit, got %T: %s", err, err)
+		}
 	})
 }
 

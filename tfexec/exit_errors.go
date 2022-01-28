@@ -18,10 +18,18 @@ var (
 
 	usageRegexp = regexp.MustCompile(`Too many command line arguments|^Usage: .*Options:.*|Error: Invalid -\d+ option`)
 
-	noInitErrRegexp = regexp.MustCompile(`Error: Could not satisfy plugin requirements|` +
-		`Error: Could not load plugin|` + // v0.13
-		`Please run \"terraform init\"|` + // v1.1.0 early alpha versions (ref 89b05050)
-		`run:\s+terraform init`) // v1.1.0 (ref df578afd)
+	noInitErrRegexp = regexp.MustCompile(
+		// UNINITIALISED PROVIDERS/MODULES
+		`Error: Could not satisfy plugin requirements|` +
+			`Error: Could not load plugin|` + // v0.13
+			`Please run \"terraform init\"|` + // v1.1.0 early alpha versions (ref 89b05050)
+			`run:\s+terraform init|` + // v1.1.0 (ref df578afd)
+			`Run\s+\"terraform init\"|` + // v1.2.0
+
+			// UNINITIALISED BACKENDS
+			`Error: Initialization required.|` + // v0.13
+			`Error: Backend initialization required, please run \"terraform init\"`, // v0.15
+	)
 
 	noConfigErrRegexp = regexp.MustCompile(`Error: No configuration files`)
 
@@ -35,7 +43,9 @@ var (
 
 	stateLockErrRegexp     = regexp.MustCompile(`Error acquiring the state lock`)
 	stateLockInfoRegexp    = regexp.MustCompile(`Lock Info:\n\s*ID:\s*([^\n]+)\n\s*Path:\s*([^\n]+)\n\s*Operation:\s*([^\n]+)\n\s*Who:\s*([^\n]+)\n\s*Version:\s*([^\n]+)\n\s*Created:\s*([^\n]+)\n`)
-	statePlanReadErrRegexp = regexp.MustCompile(`Terraform couldn't read the given file as a state or plan file.|Error: Failed to read the given file as a state or plan file`)
+	statePlanReadErrRegexp = regexp.MustCompile(
+		`Terraform couldn't read the given file as a state or plan file.|` +
+			`Error: Failed to read the given file as a state or plan file`)
 )
 
 func (tf *Terraform) wrapExitError(ctx context.Context, err error, stderr string) error {
