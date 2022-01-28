@@ -17,6 +17,7 @@ FEATURES:
  - Add support for `graph` command [GH-257]
  - Add support for `taint` command [GH-251]
  - Add support for `untaint` command [GH-251]
+ - Add `ErrStatePlanRead`, returned when Terraform cannot read a given state or plan file [GH-273]
 
 # 0.15.0 (October 05, 2021)
 
