@@ -15,7 +15,7 @@ const inmemLockID = "2b6a6738-5dd5-50d6-c0ae-f6352977666b"
 var forceUnlockDirArgMaxVersion = version.Must(version.NewVersion("0.15.0"))
 
 func TestForceUnlock(t *testing.T) {
-	runTest(t, "inmem-backend-locked", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+	runTest(t, "inmem_backend_locked", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		err := tf.Init(context.Background())
 		if err != nil {
 			t.Fatalf("error running Init: %v", err)
@@ -26,7 +26,7 @@ func TestForceUnlock(t *testing.T) {
 			t.Fatalf("error running ForceUnlock: %v", err)
 		}
 	})
-	runTest(t, "inmem-backend-locked", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+	runTest(t, "inmem_backend_locked", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		if tfv.GreaterThanOrEqual(forceUnlockDirArgMaxVersion) {
 			t.Skip("legacy positional path argument deprecated in favor of global -chdir flag")
 		}
