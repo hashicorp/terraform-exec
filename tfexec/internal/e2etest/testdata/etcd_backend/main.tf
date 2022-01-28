@@ -1,0 +1,4 @@
+terraform {
+  backend "etcd" {
+  }
+}
