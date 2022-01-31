@@ -2,7 +2,7 @@
 
 This release removes the experimental `tfinstall` package. We recommend users of `tfinstall` switch to https://github.com/hashicorp/hc-install.
 
-Please note also terraform-exec's Go version support policy, which, like Go's own release policy, commits to supporting the last two major releases. This means that currently terraform-exec requires Go 1.16 or later.
+Please note also terraform-exec's Go version support policy, which, like Go's own release policy, commits to supporting the last two major releases. This means that currently terraform-exec requires Go 1.17 or later.
 
 BREAKING CHANGES:
 
