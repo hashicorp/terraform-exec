@@ -1,4 +1,4 @@
-# 0.16.0 (Unreleased)
+# 0.16.0 (January 31, 2022)
 
 This release removes the experimental `tfinstall` package. We recommend users of `tfinstall` switch to https://github.com/hashicorp/hc-install.
 
@@ -6,18 +6,18 @@ Please note also terraform-exec's Go version support policy, which, like Go's ow
 
 BREAKING CHANGES:
 
- - Remove `tfinstall` and `cmd/tfinstall` packages [GH-235]
- - Remove support for `add` command [GH-232]
+ - Remove `tfinstall` and `cmd/tfinstall` packages ([#235](https://github.com/hashicorp/terraform-exec/issues/235))
+ - Remove support for `add` command ([#232](https://github.com/hashicorp/terraform-exec/issues/232))
 
 FEATURES:
 
- - Add support for `workspace delete` command [GH-212]
- - Add support for `workspace show` command [GH-245]
- - Add support for `force-unlock` command [GH-223]
- - Add support for `graph` command [GH-257]
- - Add support for `taint` command [GH-251]
- - Add support for `untaint` command [GH-251]
- - Add `ErrStatePlanRead`, returned when Terraform cannot read a given state or plan file [GH-273]
+ - Add support for `workspace delete` command ([#212](https://github.com/hashicorp/terraform-exec/issues/212))
+ - Add support for `workspace show` command ([#245](https://github.com/hashicorp/terraform-exec/issues/245))
+ - Add support for `force-unlock` command ([#223](https://github.com/hashicorp/terraform-exec/issues/223))
+ - Add support for `graph` command ([#257](https://github.com/hashicorp/terraform-exec/issues/257))
+ - Add support for `taint` command ([#251](https://github.com/hashicorp/terraform-exec/issues/251))
+ - Add support for `untaint` command ([#251](https://github.com/hashicorp/terraform-exec/issues/251))
+ - Add `ErrStatePlanRead`, returned when Terraform cannot read a given state or plan file ([#273](https://github.com/hashicorp/terraform-exec/issues/273))
 
 # 0.15.0 (October 05, 2021)
 
