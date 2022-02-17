@@ -58,9 +58,23 @@ Unit tests live alongside command implementations in `tfexec/`. A unit test asse
 
 End-to-end tests test both `tfinstall` and `tfexec`, using the former to install Terraform binaries according to various version constraints, and exercising the latter in as many combinations as possible, after real-world use cases.
 
-By default, each test is run against the latest versions of Terraform 0.11, Terraform 0.12, and Terraform 0.13. Copy an existing test and use the `runTest()` helper for this purpose.
+By default, each test is run against the latest patch versions of all Terraform minor version releases, starting at 0.11. Copy an existing test and use the `runTest()` helper for this purpose.
 
-If the command implemented differs in any way between Terraform versions (e.g. a flag is added or removed, or the subcommand does not exist in earlier versions), the `runTestVersions()` helper should be used to make both positive and negative assertions against the Terraform version being run, or skip the test as appropriate.
+#### Testing behaviour that differs between Terraform versions
+
+Subject to [compatibility guarantees](https://www.terraform.io/language/v1-compatibility-promises), each new version of Terraform CLI may:
+ - Add a command or flag not previously present
+ - Remove a command or flag
+ - Change stdout or stderr output
+ - Change the format of output files, e.g. the state file
+ - Change a command's exit code
+ 
+These and any other differences between versions should be specified in test assertions.
+
+If the command implemented differs in any way between Terraform versions (e.g. a flag is added or removed, or the subcommand does not exist in earlier versions), use `t.Skip()` directives and version checks to adapt test behaviour as appropriate. For example:
+https://github.com/hashicorp/terraform-exec/blob/d0cb3efafda90dd47bbfabdccde3cf7e45e0376d/tfexec/internal/e2etest/validate_test.go#L15-L23
+
+The `runTestVersions()` helper can be used to run tests against specific Terraform versions. This should be used only alongside a test using `runTest()` to cover the remaining past and future versions.
 
 ## Versioning
 
