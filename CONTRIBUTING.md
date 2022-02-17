@@ -34,18 +34,6 @@ func (tf *Terraform) refreshCmd(ctx context.Context, opts ...RefreshCmdOption) (
 
 Command options are implemented using the functional variadic options pattern. For further reading on this pattern, please see [Functional options for friendly APIs](https://dave.cheney.net/2014/10/17/functional-options-for-friendly-apis) by Dave Cheney.
 
-### `tfinstall`
-
-Package `github.com/hashicorp/terraform-exec/tfinstall` offers multiple strategies for finding and/or installing a binary version of Terraform. Some of the strategies can also authenticate the source of the binary as an official HashiCorp release.
-
-**The public API of `tfinstall` is experimental and we welcome suggestions and ideas for its improvement, and accounts of current or proposed use cases.**
-
-As in `tfexec`, a variadic options pattern is used to supply a list of strategies for locating the Terraform executable. Each is implemented in a separate Go file. Our aim is to present a flexible and reasonably intuitive interface for ensuring a Terraform executable is available, with or without version constraints.
-
-### `cmd/tfinstall`
-
-Package `github.com/hashicorp/terraform-exec/cmd/tfinstall` has no public Go API and is distributed as a compiled binary which can be run to download and install a version of Terraform. 
-
 ## Testing
 
 We aim for full test coverage of all Terraform CLI commands implemented in `tfexec`, with as many combinations of command-line options as possible. New command implementations will not be merged without both unit and end-to-end tests.
@@ -82,7 +70,7 @@ The `github.com/hashicorp/terraform-exec` Go module in its entirety is versioned
 
 ## Releases
 
-Releases are made on a reasonably regular basis by the Terraform Plugin SDK team, using our custom CI workflows. There is currently no set release schedule and no requirement for contributors to write CHANGELOG entries.
+Releases are made on a reasonably regular basis by the Terraform team, using our custom CI workflows. There is currently no set release schedule and no requirement for contributors to write CHANGELOG entries.
 
 ## Security vulnerabilities
 
@@ -100,8 +88,6 @@ In general we do not accept PRs containing only the following changes:
  
 While we appreciate the effort that goes into preparing PRs, there is always a tradeoff between benefit and cost. The costs involved in accepting such contributions include the time taken for thorough review, the noise created in the git history, and the increased number of GitHub notifications that maintainers must attend to.
 
-In the case of `terraform-plugin-sdk`, the repo's close relationship to the `terraform` repo means that maintainers will sometimes port changes from `terraform` to `terraform-plugin-sdk`. Cosmetic changes to the SDK repo make this much more time-consuming as they will cause merge conflicts. This is the major hidden cost of cosmetic PRs, and the main reason we do not accept them at this time.
-
 #### Exceptions
 
-We belive that one should "leave the campsite cleaner than you found it", so you are welcome to clean up cosmetic issues in the neighbourhood when submitting a patch that makes functional changes or fixes.
+We believe that one should "leave the campsite cleaner than you found it", so you are welcome to clean up cosmetic issues in the neighbourhood when submitting a patch that makes functional changes or fixes.
