@@ -57,7 +57,7 @@ func (tf *Terraform) untaintCmd(ctx context.Context, address string, opts ...Unt
 		o.configureUntaint(&c)
 	}
 
-	args := []string{"untaint", "-no-color"}
+	args := []string{"untaint"}
 
 	if c.lockTimeout != "" {
 		args = append(args, "-lock-timeout="+c.lockTimeout)

@@ -26,13 +26,13 @@ func TestDestroyCmd(t *testing.T) {
 
 		assertCmd(t, []string{
 			"destroy",
-			"-no-color",
 			"-auto-approve",
 			"-input=false",
 			"-lock-timeout=0s",
 			"-lock=true",
 			"-parallelism=10",
 			"-refresh=true",
+			"-no-color",
 		}, nil, destroyCmd)
 	})
 
@@ -44,7 +44,6 @@ func TestDestroyCmd(t *testing.T) {
 
 		assertCmd(t, []string{
 			"destroy",
-			"-no-color",
 			"-auto-approve",
 			"-input=false",
 			"-backup=testbackup",
@@ -60,6 +59,7 @@ func TestDestroyCmd(t *testing.T) {
 			"-var", "var1=foo",
 			"-var", "var2=bar",
 			"destroydir",
+			"-no-color",
 		}, nil, destroyCmd)
 	})
 }

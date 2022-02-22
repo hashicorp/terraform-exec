@@ -55,7 +55,7 @@ func (tf *Terraform) upgrade012Cmd(ctx context.Context, opts ...Upgrade012Option
 		o.configureUpgrade012(&c)
 	}
 
-	args := []string{"0.12upgrade", "-no-color", "-yes"}
+	args := []string{"0.12upgrade", "-yes"}
 
 	// boolean opts: only pass if set
 	if c.force {

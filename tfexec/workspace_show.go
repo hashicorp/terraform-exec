@@ -31,5 +31,5 @@ func (tf *Terraform) workspaceShowCmd(ctx context.Context) (*exec.Cmd, error) {
 		return nil, fmt.Errorf("workspace show was first introduced in Terraform 0.10.0: %w", err)
 	}
 
-	return tf.buildTerraformCmd(ctx, nil, "workspace", "show", "-no-color"), nil
+	return tf.buildTerraformCmd(ctx, nil, "workspace", "show"), nil
 }

@@ -43,7 +43,6 @@ func TestApplyCmd(t *testing.T) {
 
 		assertCmd(t, []string{
 			"apply",
-			"-no-color",
 			"-auto-approve",
 			"-input=false",
 			"-backup=testbackup",
@@ -62,6 +61,7 @@ func TestApplyCmd(t *testing.T) {
 			"-var", "var1=foo",
 			"-var", "var2=bar",
 			"testfile",
+			"-no-color",
 		}, nil, applyCmd)
 	})
 }

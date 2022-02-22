@@ -24,6 +24,7 @@ func TestProvidersLockCmd(t *testing.T) {
 		assertCmd(t, []string{
 			"providers",
 			"lock",
+			"-no-color",
 		}, nil, lockCmd)
 	})
 
@@ -37,6 +38,7 @@ func TestProvidersLockCmd(t *testing.T) {
 			"-net-mirror=test",
 			"-platform=linux_amd64",
 			"workingdir",
+			"-no-color",
 		}, nil, lockCmd)
 	})
 }

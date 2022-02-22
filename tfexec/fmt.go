@@ -145,7 +145,7 @@ func (tf *Terraform) formatCmd(ctx context.Context, args []string, opts ...Forma
 		o.configureFormat(&c)
 	}
 
-	args = append([]string{"fmt", "-no-color"}, args...)
+	args = append([]string{"fmt"}, args...)
 
 	if c.recursive {
 		args = append(args, "-recursive")

@@ -32,7 +32,7 @@ func TestInitCmd_v012(t *testing.T) {
 
 		assertCmd(t, []string{
 			"init",
-			"-no-color",
+			"-force-copy",
 			"-input=false",
 			"-lock-timeout=0s",
 			"-backend=true",
@@ -41,6 +41,7 @@ func TestInitCmd_v012(t *testing.T) {
 			"-lock=true",
 			"-get-plugins=true",
 			"-verify-plugins=true",
+			"-no-color",
 		}, nil, initCmd)
 	})
 
@@ -52,7 +53,7 @@ func TestInitCmd_v012(t *testing.T) {
 
 		assertCmd(t, []string{
 			"init",
-			"-no-color",
+			"-force-copy",
 			"-input=false",
 			"-from-module=testsource",
 			"-lock-timeout=999s",
@@ -69,6 +70,7 @@ func TestInitCmd_v012(t *testing.T) {
 			"-plugin-dir=testdir1",
 			"-plugin-dir=testdir2",
 			"initdir",
+			"-no-color",
 		}, nil, initCmd)
 	})
 }

@@ -694,7 +694,7 @@ func TestCheckpointDisablePropagation_v012(t *testing.T) {
 
 		assertCmd(t, []string{
 			"init",
-			"-no-color",
+			"-force-copy",
 			"-input=false",
 			"-lock-timeout=0s",
 			"-backend=true",
@@ -703,6 +703,7 @@ func TestCheckpointDisablePropagation_v012(t *testing.T) {
 			"-lock=true",
 			"-get-plugins=true",
 			"-verify-plugins=true",
+			"-no-color",
 		}, map[string]string{
 			"CHECKPOINT_DISABLE": "1",
 			"FOOBAR":             "1",
@@ -725,7 +726,7 @@ func TestCheckpointDisablePropagation_v012(t *testing.T) {
 
 		assertCmd(t, []string{
 			"init",
-			"-no-color",
+			"-force-copy",
 			"-input=false",
 			"-lock-timeout=0s",
 			"-backend=true",
@@ -734,6 +735,7 @@ func TestCheckpointDisablePropagation_v012(t *testing.T) {
 			"-lock=true",
 			"-get-plugins=true",
 			"-verify-plugins=true",
+			"-no-color",
 		}, map[string]string{
 			"CHECKPOINT_DISABLE": "",
 			"FOOBAR":             "2",

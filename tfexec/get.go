@@ -40,7 +40,7 @@ func (tf *Terraform) getCmd(ctx context.Context, opts ...GetCmdOption) (*exec.Cm
 		o.configureGet(&c)
 	}
 
-	args := []string{"get", "-no-color"}
+	args := []string{"get"}
 
 	args = append(args, "-update="+fmt.Sprint(c.update))
 
