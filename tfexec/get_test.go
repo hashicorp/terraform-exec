@@ -26,8 +26,8 @@ func TestGetCmd(t *testing.T) {
 
 		assertCmd(t, []string{
 			"get",
-			"-update=false",
 			"-no-color",
+			"-update=false",
 		}, nil, getCmd)
 	})
 }

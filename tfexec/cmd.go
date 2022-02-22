@@ -181,10 +181,10 @@ func (tf *Terraform) buildEnv(mergeEnv map[string]string) []string {
 
 func (tf *Terraform) buildTerraformCmd(ctx context.Context, mergeEnv map[string]string, args ...string) *exec.Cmd {
 	if !tf.colors {
-		args = append(args, "-no-color")
+		args = addColorFlag(args)
 	}
 
-	cmd := exec.Command(tf.execPath, args...)
+	cmd := exec.CommandContext(ctx, tf.execPath, args...)
 
 	cmd.Env = tf.buildEnv(mergeEnv)
 	cmd.Dir = tf.workingDir
@@ -192,6 +192,36 @@ func (tf *Terraform) buildTerraformCmd(ctx context.Context, mergeEnv map[string]
 	tf.logger.Printf("[INFO] running Terraform command: %s", cmd.String())
 
 	return cmd
+}
+
+func addColorFlag(args []string) []string {
+	found := false
+	insertIndex := 0
+	for i, a := range args {
+		if strings.HasPrefix(a, "-") && insertIndex == 0 {
+			insertIndex = i
+		}
+
+		if a == "-no-color" {
+			found = true
+		}
+	}
+	if insertIndex == 0 {
+		insertIndex = len(args)
+	}
+	if !found {
+		args = insert(args, insertIndex, "-no-color")
+	}
+	return args
+}
+
+func insert(a []string, index int, value string) []string {
+	if len(a) == index {
+		return append(a, value)
+	}
+	a = append(a[:index+1], a[index:]...)
+	a[index] = value
+	return a
 }
 
 func (tf *Terraform) runTerraformCmdJSON(ctx context.Context, cmd *exec.Cmd, v interface{}) error {

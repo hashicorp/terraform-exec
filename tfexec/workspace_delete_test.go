@@ -23,7 +23,8 @@ func TestWorkspaceDeleteCmd(t *testing.T) {
 		}
 
 		assertCmd(t, []string{
-			"workspace", "delete",
+			"workspace",
+			"delete",
 			"workspace-name",
 			"-no-color",
 		}, nil, workspaceDeleteCmd)
@@ -39,12 +40,13 @@ func TestWorkspaceDeleteCmd(t *testing.T) {
 		}
 
 		assertCmd(t, []string{
-			"workspace", "delete",
+			"workspace",
+			"delete",
+			"-no-color",
 			"-force",
 			"-lock-timeout=200s",
 			"-lock=false",
 			"workspace-name",
-			"-no-color",
 		}, nil, workspaceDeleteCmd)
 	})
 }

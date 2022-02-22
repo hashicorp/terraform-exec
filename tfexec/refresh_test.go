@@ -26,10 +26,10 @@ func TestRefreshCmd(t *testing.T) {
 
 		assertCmd(t, []string{
 			"refresh",
+			"-no-color",
 			"-input=false",
 			"-lock-timeout=0s",
 			"-lock=true",
-			"-no-color",
 		}, nil, refreshCmd)
 	})
 
@@ -41,6 +41,7 @@ func TestRefreshCmd(t *testing.T) {
 
 		assertCmd(t, []string{
 			"refresh",
+			"-no-color",
 			"-input=false",
 			"-backup=testbackup",
 			"-lock-timeout=200s",
@@ -53,7 +54,6 @@ func TestRefreshCmd(t *testing.T) {
 			"-var", "var1=foo",
 			"-var", "var2=bar",
 			"refreshdir",
-			"-no-color",
 		}, nil, refreshCmd)
 	})
 }
