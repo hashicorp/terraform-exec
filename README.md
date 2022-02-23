@@ -32,26 +32,24 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
-	"os"
 	"log"
 
-	"github.com/hashicorp/terraform-exec/tfexec"
-	"github.com/hashicorp/hc-install/releases"
-	"github.com/hashicorp/hc-install/product"
 	"github.com/hashicorp/go-version"
+	"github.com/hashicorp/hc-install/product"
+	"github.com/hashicorp/hc-install/releases"
+	"github.com/hashicorp/terraform-exec/tfexec"
 )
 
 func main() {
-    installer := &releases.ExactVersion{
+	installer := &releases.ExactVersion{
 		Product: product.Terraform,
 		Version: version.Must(version.NewVersion("1.0.6")),
 	}
 
-    execPath, err := installer.Install(context.Background())
-    if err != nil {
-    	log.Fatalf("error installing Terraform: %s", err)
-    }
+	execPath, err := installer.Install(context.Background())
+	if err != nil {
+		log.Fatalf("error installing Terraform: %s", err)
+	}
 
 	workingDir := "/path/to/working/dir"
 	tf, err := tfexec.NewTerraform(workingDir, execPath)
