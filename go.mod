@@ -9,7 +9,7 @@ require (
 	github.com/hashicorp/hc-install v0.3.1
 	github.com/hashicorp/terraform-json v0.13.0
 	github.com/sergi/go-diff v1.2.0
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.1
 	github.com/zclconf/go-cty v1.10.0
 	github.com/zclconf/go-cty-debug v0.0.0-20191215020915-b22d67c1ba0b
 )
