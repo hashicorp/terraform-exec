@@ -57,24 +57,6 @@ jobs:
       - go_e2e_test
 
   # previous stable Go version
-  go116_build:
-    docker:
-      - image: circleci/golang:1.16
-    steps:
-      - checkout
-      - go_build
-  go116_test:
-    docker:
-      - image: circleci/golang:1.16
-    parameters:
-      test_results:
-        type: string
-        default: /tmp/test-results
-    steps:
-      - checkout
-      - go_unit_test
-
-  # latest stable Go version
   go117_build:
     docker:
       - image: circleci/golang:1.17
@@ -91,11 +73,29 @@ jobs:
     steps:
       - checkout
       - go_unit_test
-  go117_test_main:
+
+  # latest stable Go version
+  go118_build:
+    docker:
+      - image: circleci/golang:1.18
+    steps:
+      - checkout
+      - go_build
+  go118_test:
+    docker:
+      - image: circleci/golang:1.18
+    parameters:
+      test_results:
+        type: string
+        default: /tmp/test-results
+    steps:
+      - checkout
+      - go_unit_test
+  go118_test_main:
     environment:
       TFEXEC_E2ETEST_VERSIONS: refs/heads/main
     docker:
-      - image: circleci/golang:1.17
+      - image: circleci/golang:1.18
     parameters:
       test_results:
         type: string
@@ -104,21 +104,21 @@ jobs:
       - checkout
       - go_unit_test
       - go_e2e_test
-  go117_vet:
+  go118_vet:
     docker:
-      - image: circleci/golang:1.17
+      - image: circleci/golang:1.18
     steps:
       - checkout
       - run: go vet ./...
-  go117_fmt:
+  go118_fmt:
     docker:
-      - image: circleci/golang:1.17
+      - image: circleci/golang:1.18
     steps:
       - checkout
       - run: gofmt -s -l .
-  go117_release:
+  go118_release:
     docker:
-      - image: circleci/golang:1.17
+      - image: circleci/golang:1.18
     steps:
       - add_ssh_keys:
           fingerprints:
@@ -133,23 +133,23 @@ workflows:
       - winbuildtest
       - macosbuildtest
 
-      - go116_build
-      - go116_test:
-          requires:
-            - go116_build
       - go117_build
       - go117_test:
           requires:
             - go117_build
-      - go117_test_main:
+      - go118_build
+      - go118_test:
           requires:
-            - go117_build
-      - go117_vet:
+            - go118_build
+      - go118_test_main:
           requires:
-            - go117_build
-      - go117_fmt:
+            - go118_build
+      - go118_vet:
           requires:
-            - go117_build
+            - go118_build
+      - go118_fmt:
+          requires:
+            - go118_build
   release:
     jobs:
       - winbuildtest:
@@ -162,19 +162,6 @@ workflows:
             branches:
               only:
                 - main
-      - go116_build:
-          filters:
-            branches:
-              only:
-                - main
-      - go116_test:
-          requires:
-            - go116_build
-          filters:
-            branches:
-              only:
-                - main
-
       - go117_build:
           filters:
             branches:
@@ -188,23 +175,36 @@ workflows:
               only:
                 - main
 
-      - go117_test_main:
-          requires:
-            - go117_build
+      - go118_build:
           filters:
             branches:
               only:
                 - main
-      - go117_vet:
+      - go118_test:
           requires:
-            - go117_build
+            - go118_build
           filters:
             branches:
               only:
                 - main
-      - go117_fmt:
+
+      - go118_test_main:
           requires:
-            - go117_build
+            - go118_build
+          filters:
+            branches:
+              only:
+                - main
+      - go118_vet:
+          requires:
+            - go118_build
+          filters:
+            branches:
+              only:
+                - main
+      - go118_fmt:
+          requires:
+            - go118_build
           filters:
             branches:
               only:
@@ -217,16 +217,16 @@ workflows:
                 - main
           type: approval
 
-      - go117_release:
+      - go118_release:
           filters:
             branches:
               only:
                 - main
           requires:
             - trigger-release
-            - go117_test_main
-            - go117_vet
-            - go117_fmt
+            - go118_test_main
+            - go118_vet
+            - go118_fmt
             - winbuildtest
             - macosbuildtest
   nightly:
@@ -244,18 +244,6 @@ workflows:
             - slack/notify:
                 event: fail
                 template: basic_fail_1
-      - go116_build:
-          post-steps:
-            - slack/notify:
-                event: fail
-                template: basic_fail_1
-      - go116_test:
-          post-steps:
-            - slack/notify:
-                event: fail
-                template: basic_fail_1
-          requires:
-            - go116_build
       - go117_build:
           post-steps:
             - slack/notify:
@@ -268,7 +256,19 @@ workflows:
                 template: basic_fail_1
           requires:
             - go117_build
-      - go117_test_main:
+      - go118_build:
+          post-steps:
+            - slack/notify:
+                event: fail
+                template: basic_fail_1
+      - go118_test:
+          post-steps:
+            - slack/notify:
+                event: fail
+                template: basic_fail_1
+          requires:
+            - go118_build
+      - go118_test_main:
           post-steps:
             - slack/notify:
                 event: fail
@@ -291,8 +291,8 @@ workflows:
                     ]
                   }
           requires:
-            - go116_build
-            - go116_test
             - go117_build
+            - go117_test
+            - go118_build
             - winbuildtest
             - macosbuildtest
