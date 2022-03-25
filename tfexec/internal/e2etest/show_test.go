@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"runtime"
+	"strings"
 	"testing"
 
 	"github.com/andybalholm/crlf"
@@ -608,7 +609,7 @@ func TestShowPlanFileRaw012_linux(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if diff := cmp.Diff(actual, expected); diff != "" {
+		if diff := cmp.Diff(strings.TrimSpace(actual), strings.TrimSpace(string(expected))); diff != "" {
 			t.Fatalf("unexpected difference: %s", diff)
 		}
 	})
@@ -637,7 +638,7 @@ func TestShowPlanFileRaw013(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if diff := cmp.Diff(actual, expected); diff != "" {
+		if diff := cmp.Diff(strings.TrimSpace(actual), strings.TrimSpace(string(expected))); diff != "" {
 			t.Fatalf("unexpected difference: %s", diff)
 		}
 	})
@@ -665,7 +666,7 @@ func TestShowPlanFileRaw014(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if diff := cmp.Diff(actual, expected); diff != "" {
+		if diff := cmp.Diff(strings.TrimSpace(actual), strings.TrimSpace(string(expected))); diff != "" {
 			t.Fatalf("unexpected difference: %s", diff)
 		}
 	})
