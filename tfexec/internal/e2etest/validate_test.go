@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/hashicorp/go-version"
-	"github.com/stretchr/testify/assert"
 
 	"github.com/hashicorp/terraform-exec/tfexec"
 	tfjson "github.com/hashicorp/terraform-json"
@@ -157,7 +157,9 @@ func TestValidate(t *testing.T) {
 			cleanActual = append(cleanActual, diag)
 		}
 
-		assert.Equal(t, expectedDiags, cleanActual)
+		if diff := cmp.Diff(expectedDiags, cleanActual); diff != "" {
+			t.Fatalf("diags do not match: %s", diff)
+		}
 	})
 }
 
