@@ -6,13 +6,12 @@ import (
 	"errors"
 	"io/ioutil"
 	"runtime"
-	"strings"
 	"testing"
 
 	"github.com/andybalholm/crlf"
+	"github.com/google/go-cmp/cmp"
 	"github.com/hashicorp/go-version"
 	tfjson "github.com/hashicorp/terraform-json"
-	"github.com/sergi/go-diff/diffmatchpatch"
 
 	"github.com/hashicorp/terraform-exec/tfexec"
 	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
@@ -609,10 +608,8 @@ func TestShowPlanFileRaw012_linux(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if strings.TrimSpace(actual) != strings.TrimSpace(string(expected)) {
-			dmp := diffmatchpatch.New()
-			diffs := dmp.DiffMain(strings.TrimSpace(actual), strings.TrimSpace(string(expected)), false)
-			t.Fatalf("actual:\n\n%s\n\nexpected:\n\n%s\n\ndiff:\n\n%s", actual, string(expected), dmp.DiffPrettyText(diffs))
+		if diff := cmp.Diff(actual, expected); diff != "" {
+			t.Fatalf("unexpected difference: %s", diff)
 		}
 	})
 }
@@ -640,10 +637,8 @@ func TestShowPlanFileRaw013(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if strings.TrimSpace(actual) != strings.TrimSpace(string(expected)) {
-			dmp := diffmatchpatch.New()
-			diffs := dmp.DiffMain(strings.TrimSpace(actual), strings.TrimSpace(string(expected)), false)
-			t.Fatalf("actual:\n\n%s\n\nexpected:\n\n%s\n\ndiff:\n\n%s", actual, string(expected), dmp.DiffPrettyText(diffs))
+		if diff := cmp.Diff(actual, expected); diff != "" {
+			t.Fatalf("unexpected difference: %s", diff)
 		}
 	})
 }
@@ -670,10 +665,8 @@ func TestShowPlanFileRaw014(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if strings.TrimSpace(actual) != strings.TrimSpace(string(expected)) {
-			dmp := diffmatchpatch.New()
-			diffs := dmp.DiffMain(strings.TrimSpace(actual), strings.TrimSpace(string(expected)), false)
-			t.Fatalf("actual:\n\n%s\n\nexpected:\n\n%s\n\ndiff:\n\n%s", actual, string(expected), dmp.DiffPrettyText(diffs))
+		if diff := cmp.Diff(actual, expected); diff != "" {
+			t.Fatalf("unexpected difference: %s", diff)
 		}
 	})
 }
