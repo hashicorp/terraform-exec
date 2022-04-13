@@ -1,4 +1,4 @@
-# 0.16.1 (Unreleased)
+# 0.16.1 (April 13, 2022)
 
 This patch version removes some unnecessary dependencies, and bumps Go module compatibility to 1.17.
 
