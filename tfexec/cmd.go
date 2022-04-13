@@ -149,8 +149,7 @@ func (tf *Terraform) buildEnv(mergeEnv map[string]string) []string {
 		env[logPathEnvVar] = ""
 	} else {
 		env[logPathEnvVar] = tf.logPath
-		// Log levels other than TRACE are currently unreliable, the CLI recommends using TRACE only.
-		env[logEnvVar] = "TRACE"
+		env[logEnvVar] = tf.log
 	}
 
 	// constant automation override env vars
