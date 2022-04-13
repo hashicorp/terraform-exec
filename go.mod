@@ -3,7 +3,6 @@ module github.com/hashicorp/terraform-exec
 go 1.17
 
 require (
-	github.com/andybalholm/crlf v0.0.0-20171020200849-670099aa064f
 	github.com/google/go-cmp v0.5.7
 	github.com/hashicorp/go-version v1.4.0
 	github.com/hashicorp/hc-install v0.3.1
