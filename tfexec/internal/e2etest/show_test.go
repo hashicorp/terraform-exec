@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
+	"os"
 	"runtime"
 	"strings"
 	"testing"
 
-	"github.com/andybalholm/crlf"
 	"github.com/google/go-cmp/cmp"
 	"github.com/hashicorp/go-version"
 	tfjson "github.com/hashicorp/terraform-json"
@@ -588,8 +588,7 @@ func TestShowPlanFileRaw012_linux(t *testing.T) {
 			t.Skip("plan file created in 0.12 on Linux is not compatible with other systems")
 		}
 
-		// crlf will standardize our line endings for us
-		f, err := crlf.Open("testdata/non_default_planfile_012/human_readable_output.txt")
+		f, err := os.Open("testdata/non_default_planfile_012/human_readable_output.txt")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -609,7 +608,7 @@ func TestShowPlanFileRaw012_linux(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if diff := cmp.Diff(strings.TrimSpace(actual), strings.TrimSpace(string(expected))); diff != "" {
+		if diff := cmp.Diff(normalizePlanOutput(actual), normalizePlanOutput(string(expected))); diff != "" {
 			t.Fatalf("unexpected difference: %s", diff)
 		}
 	})
@@ -617,8 +616,7 @@ func TestShowPlanFileRaw012_linux(t *testing.T) {
 
 func TestShowPlanFileRaw013(t *testing.T) {
 	runTestVersions(t, []string{testutil.Latest013}, "non_default_planfile_013", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
-		// crlf will standardize our line endings for us
-		f, err := crlf.Open("testdata/non_default_planfile_013/human_readable_output.txt")
+		f, err := os.Open("testdata/non_default_planfile_013/human_readable_output.txt")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -638,7 +636,7 @@ func TestShowPlanFileRaw013(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if diff := cmp.Diff(strings.TrimSpace(actual), strings.TrimSpace(string(expected))); diff != "" {
+		if diff := cmp.Diff(normalizePlanOutput(actual), normalizePlanOutput(string(expected))); diff != "" {
 			t.Fatalf("unexpected difference: %s", diff)
 		}
 	})
@@ -646,8 +644,7 @@ func TestShowPlanFileRaw013(t *testing.T) {
 
 func TestShowPlanFileRaw014(t *testing.T) {
 	runTestVersions(t, []string{testutil.Latest014}, "non_default_planfile_014", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
-		// crlf will standardize our line endings for us
-		f, err := crlf.Open("testdata/non_default_planfile_013/human_readable_output.txt")
+		f, err := os.Open("testdata/non_default_planfile_013/human_readable_output.txt")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -666,7 +663,7 @@ func TestShowPlanFileRaw014(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if diff := cmp.Diff(strings.TrimSpace(actual), strings.TrimSpace(string(expected))); diff != "" {
+		if diff := cmp.Diff(normalizePlanOutput(actual), normalizePlanOutput(string(expected))); diff != "" {
 			t.Fatalf("unexpected difference: %s", diff)
 		}
 	})
@@ -738,4 +735,15 @@ func TestShowBigInt(t *testing.T) {
 			t.Fatalf("mismatch (-want +got):\n%s", diff)
 		}
 	})
+}
+
+// Since our plan strings are not large, prefer simple cross-platform
+// normalization handling over pulling in a dependency.
+func normalizePlanOutput(str string) string {
+	// Ignore any extra newlines at the beginning or end of output
+	str = strings.TrimSpace(str)
+	// Normalize CRLF to LF for cross-platform testing
+	str = strings.Replace(str, "\r\n", "\n", -1)
+
+	return str
 }
