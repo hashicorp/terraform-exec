@@ -1,3 +1,7 @@
+# 0.16.1 (Unreleased)
+
+This patch version removes some unnecessary dependencies, and bumps Go module compatibility to 1.17.
+
 # 0.16.0 (January 31, 2022)
 
 This release removes the experimental `tfinstall` package. We recommend users of `tfinstall` switch to https://github.com/hashicorp/hc-install.
