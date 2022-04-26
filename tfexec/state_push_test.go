@@ -8,9 +8,7 @@ import (
 )
 
 func TestStatePushCmd(t *testing.T) {
-	td := testTempDir(t)
-
-	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest_v1))
+	tf, err := NewTerraform(t.TempDir(), tfVersion(t, testutil.Latest_v1))
 	if err != nil {
 		t.Fatal(err)
 	}
