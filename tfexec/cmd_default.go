@@ -5,6 +5,7 @@ package tfexec
 
 import (
 	"context"
+	"fmt"
 	"os/exec"
 	"strings"
 )
@@ -17,6 +18,7 @@ func (tf *Terraform) runTerraformCmd(ctx context.Context, cmd *exec.Cmd) error {
 
 	go func() {
 		<-ctx.Done()
+		fmt.Println("context done", ctx.Err(), cmd.Process, cmd.ProcessState)
 		if ctx.Err() == context.DeadlineExceeded || ctx.Err() == context.Canceled {
 			if cmd != nil && cmd.Process != nil && cmd.ProcessState != nil {
 				err := cmd.Process.Kill()
