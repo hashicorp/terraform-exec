@@ -23,7 +23,8 @@ func (tf *Terraform) runTerraformCmd(ctx context.Context, cmd *exec.Cmd) error {
 	go func() {
 		<-ctx.Done()
 		if ctx.Err() == context.DeadlineExceeded || ctx.Err() == context.Canceled {
-			if cmd != nil && cmd.Process != nil && cmd.ProcessState != nil {
+			if cmd != nil && cmd.Process != nil {
+				tf.logger.Printf("killing process. cmd.ProcessState=%v", cmd.ProcessState)
 				// send SIGINT to process group
 				err := syscall.Kill(-cmd.Process.Pid, syscall.SIGINT)
 				if err != nil {
