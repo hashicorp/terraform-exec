@@ -205,13 +205,21 @@ func TestContext_sleepTimeoutExpired(t *testing.T) {
 		ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 		defer cancel()
 
-		err = tf.Apply(ctx)
-		if err == nil {
-			t.Fatal("expected error, but didn't find one")
-		}
+		errCh := make(chan error)
+		go func() {
+			err = tf.Apply(ctx)
+			if err != nil {
+				errCh <- err
+			}
+		}()
 
-		if !errors.Is(err, context.DeadlineExceeded) {
-			t.Fatalf("expected context.DeadlineExceeded, got %T %s", err, err)
+		select {
+		case err := <-errCh:
+			if !errors.Is(err, context.DeadlineExceeded) {
+				t.Fatalf("expected context.DeadlineExceeded, got %T %s", err, err)
+			}
+		case <-time.After(time.Second * 10):
+			t.Fatal("terraform apply should have canceled and returned in ~5s")
 		}
 	})
 }
