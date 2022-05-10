@@ -1,9 +1,11 @@
 package tfexec
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -229,4 +231,23 @@ func mergeWriters(writers ...io.Writer) io.Writer {
 		return compact[0]
 	}
 	return io.MultiWriter(compact...)
+}
+
+func writeOutput(r io.ReadCloser, w io.Writer) error {
+	buf := bufio.NewReader(r)
+	for {
+		line, err := buf.ReadBytes('\n')
+		if len(line) > 0 {
+			if _, err := w.Write(line); err != nil {
+				return err
+			}
+		}
+		if err != nil {
+			if errors.As(err, &io.EOF) {
+				return nil
+			}
+
+			return err
+		}
+	}
 }
