@@ -243,7 +243,7 @@ func writeOutput(r io.ReadCloser, w io.Writer) error {
 			}
 		}
 		if err != nil {
-			if errors.As(err, &io.EOF) {
+			if errors.Is(err, io.EOF) {
 				return nil
 			}
 
