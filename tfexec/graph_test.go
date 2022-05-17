@@ -2,12 +2,17 @@ package tfexec
 
 import (
 	"context"
+	"runtime"
 	"testing"
 
 	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
 )
 
-func TestGraphCmd(t *testing.T) {
+func TestGraphCmd_v013(t *testing.T) {
+	if runtime.GOOS == "darwin" && runtime.GOARCH == "arm64" {
+		t.Skip("Terraform for darwin/arm64 is not available until v1")
+	}
+
 	td := t.TempDir()
 
 	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest013))
@@ -41,10 +46,10 @@ func TestGraphCmd(t *testing.T) {
 	})
 }
 
-func TestGraphCmd15(t *testing.T) {
+func TestGraphCmd_v1(t *testing.T) {
 	td := t.TempDir()
 
-	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest015))
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest_v1))
 	if err != nil {
 		t.Fatal(err)
 	}

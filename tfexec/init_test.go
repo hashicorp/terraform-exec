@@ -2,12 +2,17 @@ package tfexec
 
 import (
 	"context"
+	"runtime"
 	"testing"
 
 	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
 )
 
-func TestInitCmd(t *testing.T) {
+func TestInitCmd_v012(t *testing.T) {
+	if runtime.GOOS == "darwin" && runtime.GOARCH == "arm64" {
+		t.Skip("Terraform for darwin/arm64 is not available until v1")
+	}
+
 	td := t.TempDir()
 
 	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest012))

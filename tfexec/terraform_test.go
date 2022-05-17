@@ -32,7 +32,7 @@ func TestMain(m *testing.M) {
 func TestSetEnv(t *testing.T) {
 	td := t.TempDir()
 
-	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest012))
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest_v1))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -273,6 +273,10 @@ func TestSetLogPath(t *testing.T) {
 }
 
 func TestCheckpointDisablePropagation(t *testing.T) {
+	if runtime.GOOS == "darwin" && runtime.GOARCH == "arm64" {
+		t.Skip("Terraform for darwin/arm64 is not available until v1")
+	}
+
 	td := t.TempDir()
 
 	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest012))

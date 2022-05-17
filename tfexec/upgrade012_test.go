@@ -4,12 +4,17 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"runtime"
 	"testing"
 
 	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
 )
 
 func TestUpgrade012(t *testing.T) {
+	if runtime.GOOS == "darwin" && runtime.GOARCH == "arm64" {
+		t.Skip("Terraform for darwin/arm64 is not available until v1")
+	}
+
 	td := t.TempDir()
 
 	t.Run("defaults", func(t *testing.T) {
