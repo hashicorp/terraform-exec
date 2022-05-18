@@ -670,9 +670,6 @@ func TestShowPlanFileRaw014(t *testing.T) {
 }
 
 func TestShowBigInt(t *testing.T) {
-	if runtime.GOOS == "darwin" && runtime.GOARCH == "arm64" {
-		t.Skip("TODO")
-	}
 	runTest(t, "bigint", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		if tfv.LessThan(showMinVersion) {
 			t.Skip("terraform show was added in Terraform 0.12, so test is not valid")

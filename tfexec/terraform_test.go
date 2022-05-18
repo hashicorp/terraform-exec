@@ -272,7 +272,7 @@ func TestSetLogPath(t *testing.T) {
 	})
 }
 
-func TestCheckpointDisablePropagation(t *testing.T) {
+func TestCheckpointDisablePropagation_v012(t *testing.T) {
 	if runtime.GOOS == "darwin" && runtime.GOARCH == "arm64" {
 		t.Skip("Terraform for darwin/arm64 is not available until v1")
 	}
@@ -348,6 +348,77 @@ func TestCheckpointDisablePropagation(t *testing.T) {
 			"-lock=true",
 			"-get-plugins=true",
 			"-verify-plugins=true",
+		}, map[string]string{
+			"CHECKPOINT_DISABLE": "",
+			"FOOBAR":             "2",
+		}, initCmd)
+	})
+}
+
+func TestCheckpointDisablePropagation_v1(t *testing.T) {
+	td := t.TempDir()
+
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest_v1))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = os.Setenv("CHECKPOINT_DISABLE", "1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Unsetenv("CHECKPOINT_DISABLE")
+
+	t.Run("case 1: env var is set in environment and not overridden", func(t *testing.T) {
+
+		err = tf.SetEnv(map[string]string{
+			"FOOBAR": "1",
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		initCmd, err := tf.initCmd(context.Background())
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assertCmd(t, []string{
+			"init",
+			"-no-color",
+			"-force-copy",
+			"-input=false",
+			"-backend=true",
+			"-get=true",
+			"-upgrade=false",
+		}, map[string]string{
+			"CHECKPOINT_DISABLE": "1",
+			"FOOBAR":             "1",
+		}, initCmd)
+	})
+
+	t.Run("case 2: env var is set in environment and overridden with SetEnv", func(t *testing.T) {
+		err = tf.SetEnv(map[string]string{
+			"CHECKPOINT_DISABLE": "",
+			"FOOBAR":             "2",
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		initCmd, err := tf.initCmd(context.Background())
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assertCmd(t, []string{
+			"init",
+			"-no-color",
+			"-force-copy",
+			"-input=false",
+			"-backend=true",
+			"-get=true",
+			"-upgrade=false",
 		}, map[string]string{
 			"CHECKPOINT_DISABLE": "",
 			"FOOBAR":             "2",
