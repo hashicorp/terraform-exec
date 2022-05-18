@@ -38,6 +38,15 @@ Command options are implemented using the functional variadic options pattern. F
 
 We aim for full test coverage of all Terraform CLI commands implemented in `tfexec`, with as many combinations of command-line options as possible. New command implementations will not be merged without both unit and end-to-end tests.
 
+### Environment variables
+
+The following environment variables can be set during testing:
+
+ - `TFEXEC_E2ETEST_VERSIONS`: When set to a comma-separated list of version strings, this overrides the default list of Terraform versions for end-to-end tests, and runs those tests against only the versions supplied.
+ - `TFEXEC_E2ETEST_TERRAFORM_PATH`: When set to the path of a valid local Terraform executable, only tests appropriate to that executable's version are run. No other versions are downloaded or run. Note that this means that tests using `runTestVersions()` will only run if the test version matches the local executable exactly.
+
+If both of these environment variables are set, `TFEXEC_E2ETEST_TERRAFORM_PATH` takes precedence, and any other versions specified in `TFEXEC_E2ETEST_VERSIONS` are ignored.
+
 ### Unit tests
 
 Unit tests live alongside command implementations in `tfexec/`. A unit test asserts that the *string* version of the `exec.Cmd` returned by the `*Cmd` function (e.g. `refreshCmd`) is as expected. Minimally, commands must be tested with no options passed ("defaults"), and with all options set to non-default values. The `assertCmd()` helper can be used for this purpose. Please see `tfexec/init_test.go` for a reasonable starting point.
