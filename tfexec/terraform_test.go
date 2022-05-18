@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
@@ -59,6 +60,135 @@ func TestSetEnv(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestSetLog(t *testing.T) {
+	td := t.TempDir()
+
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest012))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Required so all testing environment variables are not copied.
+	err = tf.SetEnv(map[string]string{
+		"CLEARENV": "1",
+	})
+
+	if err != nil {
+		t.Fatalf("unexpected SetEnv error: %s", err)
+	}
+
+	t.Run("case 1: SetLog TRACE no SetLogPath", func(t *testing.T) {
+		err := tf.SetLog("TRACE")
+
+		if err != nil {
+			t.Fatalf("unexpected SetLog error: %s", err)
+		}
+
+		initCmd, err := tf.initCmd(context.Background())
+
+		if err != nil {
+			t.Fatalf("unexpected command error: %s", err)
+		}
+
+		assertCmd(t, []string{
+			"init",
+			"-no-color",
+			"-force-copy",
+			"-input=false",
+			"-lock-timeout=0s",
+			"-backend=true",
+			"-get=true",
+			"-upgrade=false",
+			"-lock=true",
+			"-get-plugins=true",
+			"-verify-plugins=true",
+		}, map[string]string{
+			"CLEARENV": "1",
+			"TF_LOG":   "",
+		}, initCmd)
+	})
+
+	t.Run("case 2: SetLog TRACE and SetLogPath", func(t *testing.T) {
+		tfLogPath := filepath.Join(td, "test.log")
+
+		err := tf.SetLog("TRACE")
+
+		if err != nil {
+			t.Fatalf("unexpected SetLog error: %s", err)
+		}
+
+		err = tf.SetLogPath(tfLogPath)
+
+		if err != nil {
+			t.Fatalf("unexpected SetLogPath error: %s", err)
+		}
+
+		initCmd, err := tf.initCmd(context.Background())
+
+		if err != nil {
+			t.Fatalf("unexpected command error: %s", err)
+		}
+
+		assertCmd(t, []string{
+			"init",
+			"-no-color",
+			"-force-copy",
+			"-input=false",
+			"-lock-timeout=0s",
+			"-backend=true",
+			"-get=true",
+			"-upgrade=false",
+			"-lock=true",
+			"-get-plugins=true",
+			"-verify-plugins=true",
+		}, map[string]string{
+			"CLEARENV":    "1",
+			"TF_LOG":      "TRACE",
+			"TF_LOG_PATH": tfLogPath,
+		}, initCmd)
+	})
+
+	t.Run("case 3: SetLog DEBUG and SetLogPath", func(t *testing.T) {
+		tfLogPath := filepath.Join(td, "test.log")
+
+		err := tf.SetLog("DEBUG")
+
+		if err != nil {
+			t.Fatalf("unexpected SetLog error: %s", err)
+		}
+
+		err = tf.SetLogPath(tfLogPath)
+
+		if err != nil {
+			t.Fatalf("unexpected SetLogPath error: %s", err)
+		}
+
+		initCmd, err := tf.initCmd(context.Background())
+
+		if err != nil {
+			t.Fatalf("unexpected command error: %s", err)
+		}
+
+		assertCmd(t, []string{
+			"init",
+			"-no-color",
+			"-force-copy",
+			"-input=false",
+			"-lock-timeout=0s",
+			"-backend=true",
+			"-get=true",
+			"-upgrade=false",
+			"-lock=true",
+			"-get-plugins=true",
+			"-verify-plugins=true",
+		}, map[string]string{
+			"CLEARENV":    "1",
+			"TF_LOG":      "DEBUG",
+			"TF_LOG_PATH": tfLogPath,
+		}, initCmd)
+	})
 }
 
 func TestCheckpointDisablePropagation(t *testing.T) {
