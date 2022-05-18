@@ -71,6 +71,17 @@ func main() {
 }
 ```
 
+## Testing Terraform binaries
+
+The terraform-exec test suite contains end-to-end tests which run realistic workflows against a real Terraform binary using `tfexec.Terraform{}`.
+
+To run these tests with a local Terraform binary, set the environment variable `TFEXEC_E2ETEST_TERRAFORM_PATH` to its path and run:
+```sh
+go test -timeout=20m ./tfexec/internal/e2etest
+```
+
+For more information on terraform-exec's test suite, please see Contributing below.
+
 ## Contributing
 
 Please see [CONTRIBUTING.md](./CONTRIBUTING.md).
