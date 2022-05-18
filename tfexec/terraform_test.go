@@ -191,6 +191,84 @@ func TestSetLog(t *testing.T) {
 	})
 }
 
+func TestSetLogPath(t *testing.T) {
+	td := t.TempDir()
+
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest012))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Required so all testing environment variables are not copied.
+	err = tf.SetEnv(map[string]string{
+		"CLEARENV": "1",
+	})
+
+	if err != nil {
+		t.Fatalf("unexpected SetEnv error: %s", err)
+	}
+
+	t.Run("case 1: No SetLogPath", func(t *testing.T) {
+		initCmd, err := tf.initCmd(context.Background())
+
+		if err != nil {
+			t.Fatalf("unexpected command error: %s", err)
+		}
+
+		assertCmd(t, []string{
+			"init",
+			"-no-color",
+			"-force-copy",
+			"-input=false",
+			"-lock-timeout=0s",
+			"-backend=true",
+			"-get=true",
+			"-upgrade=false",
+			"-lock=true",
+			"-get-plugins=true",
+			"-verify-plugins=true",
+		}, map[string]string{
+			"CLEARENV":    "1",
+			"TF_LOG":      "",
+			"TF_LOG_PATH": "",
+		}, initCmd)
+	})
+
+	t.Run("case 2: SetLogPath sets TF_LOG and TF_LOG_PATH", func(t *testing.T) {
+		tfLogPath := filepath.Join(td, "test.log")
+
+		err = tf.SetLogPath(tfLogPath)
+
+		if err != nil {
+			t.Fatalf("unexpected SetLogPath error: %s", err)
+		}
+
+		initCmd, err := tf.initCmd(context.Background())
+
+		if err != nil {
+			t.Fatalf("unexpected command error: %s", err)
+		}
+
+		assertCmd(t, []string{
+			"init",
+			"-no-color",
+			"-force-copy",
+			"-input=false",
+			"-lock-timeout=0s",
+			"-backend=true",
+			"-get=true",
+			"-upgrade=false",
+			"-lock=true",
+			"-get-plugins=true",
+			"-verify-plugins=true",
+		}, map[string]string{
+			"CLEARENV":    "1",
+			"TF_LOG":      "TRACE",
+			"TF_LOG_PATH": tfLogPath,
+		}, initCmd)
+	})
+}
+
 func TestCheckpointDisablePropagation(t *testing.T) {
 	td := t.TempDir()
 
