@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
+	"runtime"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -207,6 +208,10 @@ func TestVersionInRange(t *testing.T) {
 }
 
 func TestCompatible(t *testing.T) {
+	if runtime.GOOS == "darwin" && runtime.GOARCH == "arm64" {
+		t.Skip("Terraform for darwin/arm64 is not available until v1")
+	}
+
 	ev := &releases.ExactVersion{
 		Product: product.Terraform,
 		Version: version.Must(version.NewVersion("0.12.26")),

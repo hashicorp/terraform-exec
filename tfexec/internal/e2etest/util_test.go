@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -50,6 +51,16 @@ func runTestVersions(t *testing.T, versions []string, fixtureName string, cb fun
 	alreadyRunVersions := map[string]bool{}
 	for _, tfv := range versions {
 		t.Run(fmt.Sprintf("%s-%s", fixtureName, tfv), func(t *testing.T) {
+			if runtime.GOOS == "darwin" && runtime.GOARCH == "arm64" {
+				v, err := version.NewVersion(tfv)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if v.LessThan(version.Must(version.NewVersion("1.0.2"))) {
+					t.Skipf("Terraform not available for darwin/arm64 < 1.0.2 (%s)", v)
+				}
+			}
+
 			if alreadyRunVersions[tfv] {
 				t.Skipf("already run version %q", tfv)
 			}
