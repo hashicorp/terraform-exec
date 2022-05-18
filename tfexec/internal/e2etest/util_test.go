@@ -42,6 +42,32 @@ func runTest(t *testing.T, fixtureName string, cb func(t *testing.T, tfVersion *
 		versions = strings.Split(override, ",")
 	}
 
+	// If the env var TFEXEC_E2ETEST_TERRAFORM_PATH is set to the path of a
+	// valid Terraform executable, only tests appropriate to that
+	// executable's version will be run.
+	if localBinPath := os.Getenv("TFEXEC_E2ETEST_TERRAFORM_PATH"); localBinPath != "" {
+		td, err := ioutil.TempDir("", "tf")
+		if err != nil {
+			t.Fatalf("error creating temporary test directory: %s", err)
+		}
+		t.Cleanup(func() {
+			os.RemoveAll(td)
+		})
+		ltf, err := tfexec.NewTerraform(td, localBinPath)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		ltf.SetAppendUserAgent("tfexec-e2etest")
+
+		lVersion, _, err := ltf.Version(context.Background(), false)
+		if err != nil {
+			t.Fatalf("unable to determine version of Terraform binary at %s: %s", localBinPath, err)
+		}
+
+		versions = []string{lVersion.String()}
+	}
+
 	runTestVersions(t, versions, fixtureName, cb)
 }
 
@@ -74,12 +100,12 @@ func runTestVersions(t *testing.T, versions []string, fixtureName string, cb fun
 				os.RemoveAll(td)
 			})
 
-			// TODO: do this in a cleaner way than string comparison?
 			var execPath string
-			switch {
-			case strings.HasPrefix(tfv, "refs/"):
+			if localBinPath := os.Getenv("TFEXEC_E2ETEST_TERRAFORM_PATH"); localBinPath != "" {
+				execPath = localBinPath
+			} else if strings.HasPrefix(tfv, "refs/") {
 				execPath = tfcache.GitRef(t, tfv)
-			default:
+			} else {
 				execPath = tfcache.Version(t, tfv)
 			}
 
@@ -93,6 +119,19 @@ func runTestVersions(t *testing.T, versions []string, fixtureName string, cb fun
 			runningVersion, _, err := tf.Version(context.Background(), false)
 			if err != nil {
 				t.Fatalf("unable to determine running version (expected %q): %s", tfv, err)
+			}
+
+			// Check that the runningVersion matches the expected
+			// test version. This ensures non-matching tests are
+			// skipped when using a local Terraform executable.
+			if !strings.HasPrefix(tfv, "refs/") {
+				testVersion, err := version.NewVersion(tfv)
+				if err != nil {
+					t.Fatalf("unable to parse version %s: %s", testVersion, err)
+				}
+				if !testVersion.Equal(runningVersion) {
+					t.Skipf("test applies to version %s, but local executable is version %s", tfv, runningVersion)
+				}
 			}
 
 			if fixtureName != "" {
