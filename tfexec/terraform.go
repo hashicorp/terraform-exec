@@ -134,7 +134,7 @@ func (tf *Terraform) SetStderr(w io.Writer) {
 // log level was unreliable in earlier versions. It will default to TRACE for
 // those earlier versions when SetLogPath is called.
 func (tf *Terraform) SetLog(log string) error {
-	err := tf.compatible(context.Background(), nil, tf0_15_0)
+	err := tf.compatible(context.Background(), tf0_15_0, nil)
 	if err != nil {
 		return err
 	}

@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 
 	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
@@ -65,9 +66,10 @@ func TestSetEnv(t *testing.T) {
 func TestSetLog(t *testing.T) {
 	td := t.TempDir()
 
-	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest012))
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest_v1))
+
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("unexpected NewTerraform error: %s", err)
 	}
 
 	// Required so all testing environment variables are not copied.
@@ -79,7 +81,27 @@ func TestSetLog(t *testing.T) {
 		t.Fatalf("unexpected SetEnv error: %s", err)
 	}
 
-	t.Run("case 1: SetLog TRACE no SetLogPath", func(t *testing.T) {
+	t.Run("case 1: SetLog <= 0.15 error", func(t *testing.T) {
+		if runtime.GOOS == "darwin" && runtime.GOARCH == "arm64" {
+			t.Skip("Terraform for darwin/arm64 is not available until v1")
+		}
+
+		td012 := t.TempDir()
+
+		tf012, err := NewTerraform(td012, tfVersion(t, testutil.Latest012))
+
+		if err != nil {
+			t.Fatalf("unexpected NewTerraform error: %s", err)
+		}
+
+		err = tf012.SetLog("TRACE")
+
+		if err == nil {
+			t.Fatal("expected SetLog error, got none")
+		}
+	})
+
+	t.Run("case 2: SetLog TRACE no SetLogPath", func(t *testing.T) {
 		err := tf.SetLog("TRACE")
 
 		if err != nil {
@@ -97,20 +119,16 @@ func TestSetLog(t *testing.T) {
 			"-no-color",
 			"-force-copy",
 			"-input=false",
-			"-lock-timeout=0s",
 			"-backend=true",
 			"-get=true",
 			"-upgrade=false",
-			"-lock=true",
-			"-get-plugins=true",
-			"-verify-plugins=true",
 		}, map[string]string{
 			"CLEARENV": "1",
 			"TF_LOG":   "",
 		}, initCmd)
 	})
 
-	t.Run("case 2: SetLog TRACE and SetLogPath", func(t *testing.T) {
+	t.Run("case 3: SetLog TRACE and SetLogPath", func(t *testing.T) {
 		tfLogPath := filepath.Join(td, "test.log")
 
 		err := tf.SetLog("TRACE")
@@ -136,13 +154,9 @@ func TestSetLog(t *testing.T) {
 			"-no-color",
 			"-force-copy",
 			"-input=false",
-			"-lock-timeout=0s",
 			"-backend=true",
 			"-get=true",
 			"-upgrade=false",
-			"-lock=true",
-			"-get-plugins=true",
-			"-verify-plugins=true",
 		}, map[string]string{
 			"CLEARENV":    "1",
 			"TF_LOG":      "TRACE",
@@ -150,7 +164,7 @@ func TestSetLog(t *testing.T) {
 		}, initCmd)
 	})
 
-	t.Run("case 3: SetLog DEBUG and SetLogPath", func(t *testing.T) {
+	t.Run("case 4: SetLog DEBUG and SetLogPath", func(t *testing.T) {
 		tfLogPath := filepath.Join(td, "test.log")
 
 		err := tf.SetLog("DEBUG")
@@ -176,13 +190,9 @@ func TestSetLog(t *testing.T) {
 			"-no-color",
 			"-force-copy",
 			"-input=false",
-			"-lock-timeout=0s",
 			"-backend=true",
 			"-get=true",
 			"-upgrade=false",
-			"-lock=true",
-			"-get-plugins=true",
-			"-verify-plugins=true",
 		}, map[string]string{
 			"CLEARENV":    "1",
 			"TF_LOG":      "DEBUG",
@@ -194,9 +204,10 @@ func TestSetLog(t *testing.T) {
 func TestSetLogPath(t *testing.T) {
 	td := t.TempDir()
 
-	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest012))
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest_v1))
+
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("unexpected NewTerraform error: %s", err)
 	}
 
 	// Required so all testing environment variables are not copied.
@@ -220,13 +231,9 @@ func TestSetLogPath(t *testing.T) {
 			"-no-color",
 			"-force-copy",
 			"-input=false",
-			"-lock-timeout=0s",
 			"-backend=true",
 			"-get=true",
 			"-upgrade=false",
-			"-lock=true",
-			"-get-plugins=true",
-			"-verify-plugins=true",
 		}, map[string]string{
 			"CLEARENV":    "1",
 			"TF_LOG":      "",
@@ -254,13 +261,9 @@ func TestSetLogPath(t *testing.T) {
 			"-no-color",
 			"-force-copy",
 			"-input=false",
-			"-lock-timeout=0s",
 			"-backend=true",
 			"-get=true",
 			"-upgrade=false",
-			"-lock=true",
-			"-get-plugins=true",
-			"-verify-plugins=true",
 		}, map[string]string{
 			"CLEARENV":    "1",
 			"TF_LOG":      "TRACE",
