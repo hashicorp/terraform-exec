@@ -1,3 +1,9 @@
+# 0.17.0 (Unreleased)
+
+BUG FIXES:
+
+ - Avoid data race conditions ([#299](https://github.com/hashicorp/terraform-exec/pull/299))
+
 # 0.16.1 (April 13, 2022)
 
 This patch version removes some unnecessary dependencies, and bumps Go module compatibility to 1.17.
