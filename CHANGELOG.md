@@ -3,10 +3,15 @@
 FEATURES:
 
  - Add `SetLog()` method for `Terraform` ([#291](https://github.com/hashicorp/terraform-exec/pull/291))
+ - Add support for `state pull` and `state push` ([#215](https://github.com/hashicorp/terraform-exec/pull/215))
 
 BUG FIXES:
 
  - Avoid data race conditions ([#299](https://github.com/hashicorp/terraform-exec/pull/299))
+
+INTERNAL:
+
+ - Bump github.com/hashicorp/go-version from 1.4.0 to 1.5.0 ([#306](https://github.com/hashicorp/terraform-exec/pull/306))
 
 # 0.16.1 (April 13, 2022)
 
