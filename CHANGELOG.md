@@ -1,5 +1,9 @@
 # 0.17.0 (Unreleased)
 
+FEATURES:
+
+ - Add `SetLog()` method for `Terraform` ([#291](https://github.com/hashicorp/terraform-exec/pull/291))
+
 BUG FIXES:
 
  - Avoid data race conditions ([#299](https://github.com/hashicorp/terraform-exec/pull/299))
