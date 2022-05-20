@@ -7,6 +7,7 @@ import (
 	"context"
 	"os/exec"
 	"strings"
+	"sync"
 )
 
 func (tf *Terraform) runTerraformCmd(ctx context.Context, cmd *exec.Cmd) error {
@@ -46,14 +47,23 @@ func (tf *Terraform) runTerraformCmd(ctx context.Context, cmd *exec.Cmd) error {
 		return tf.wrapExitError(ctx, err, "")
 	}
 
-	exitChLen := 2
-	exitCh := make(chan error, exitChLen)
+	var errStdout, errStderr error
+	var wg sync.WaitGroup
+	wg.Add(1)
 	go func() {
-		exitCh <- writeOutput(stdoutPipe, stdoutWriter)
+		defer wg.Done()
+		errStdout = writeOutput(ctx, stdoutPipe, stdoutWriter)
 	}()
+
+	wg.Add(1)
 	go func() {
-		exitCh <- writeOutput(stderrPipe, stderrWriter)
+		defer wg.Done()
+		errStderr = writeOutput(ctx, stderrPipe, stderrWriter)
 	}()
+
+	// Reads from pipes must be completed before calling cmd.Wait(). Otherwise
+	// can cause a race condition
+	wg.Wait()
 
 	err = cmd.Wait()
 	if err == nil && ctx.Err() != nil {
@@ -63,16 +73,13 @@ func (tf *Terraform) runTerraformCmd(ctx context.Context, cmd *exec.Cmd) error {
 		return tf.wrapExitError(ctx, err, errBuf.String())
 	}
 
-	// Wait for the logs to finish writing
-	counter := 0
-	for {
-		counter++
-		err := <-exitCh
-		if err != nil && err != context.Canceled {
-			return tf.wrapExitError(ctx, err, errBuf.String())
-		}
-		if counter >= exitChLen {
-			return ctx.Err()
-		}
+	// Return error if there was an issue reading the std out/err
+	if errStdout != nil && ctx.Err() != nil {
+		return tf.wrapExitError(ctx, errStdout, errBuf.String())
 	}
+	if errStderr != nil && ctx.Err() != nil {
+		return tf.wrapExitError(ctx, errStderr, errBuf.String())
+	}
+
+	return nil
 }
