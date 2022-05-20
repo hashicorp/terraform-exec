@@ -91,16 +91,21 @@ func runTestVersions(t *testing.T, versions []string, fixtureName string, cb fun
 				}
 			}
 
-			var stdouterr strings.Builder
-			tf.SetStdout(&stdouterr)
-			tf.SetStderr(&stdouterr)
+			// Separate strings.Builder because it's not concurrent safe
+			var stdout strings.Builder
+			tf.SetStdout(&stdout)
+			var stderr strings.Builder
+			tf.SetStderr(&stderr)
 
 			tf.SetLogger(&testingPrintfer{t})
 
 			// TODO: capture panics here?
 			cb(t, runningVersion, tf)
 
-			t.Logf("CLI Output:\n%s", stdouterr.String())
+			t.Logf("CLI Output:\n%s", stdout.String())
+			if len(stderr.String()) > 0 {
+				t.Logf("CLI Error:\n%s", stderr.String())
+			}
 		})
 	}
 }
