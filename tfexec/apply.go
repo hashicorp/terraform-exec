@@ -12,6 +12,7 @@ type applyConfig struct {
 	dirOrPlan string
 	lock      bool
 
+	json bool
 	// LockTimeout must be a string with time unit, e.g. '10s'
 	lockTimeout  string
 	parallelism  int
@@ -64,6 +65,10 @@ func (opt *StateOutOption) configureApply(conf *applyConfig) {
 
 func (opt *VarFileOption) configureApply(conf *applyConfig) {
 	conf.varFiles = append(conf.varFiles, opt.path)
+}
+
+func (opt *JSONOption) configureApply(conf *applyConfig) {
+	conf.json = opt.json
 }
 
 func (opt *LockOption) configureApply(conf *applyConfig) {
@@ -120,6 +125,9 @@ func (tf *Terraform) applyCmd(ctx context.Context, opts ...ApplyOption) (*exec.C
 	}
 	if c.stateOut != "" {
 		args = append(args, "-state-out="+c.stateOut)
+	}
+	if c.json {
+		args = append(args, "-json")
 	}
 	for _, vf := range c.varFiles {
 		args = append(args, "-var-file="+vf)

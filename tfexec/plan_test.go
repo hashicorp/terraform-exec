@@ -39,6 +39,7 @@ func TestPlanCmd(t *testing.T) {
 	t.Run("override all defaults", func(t *testing.T) {
 		planCmd, err := tf.planCmd(context.Background(),
 			Destroy(true),
+			JSON(true),
 			Lock(false),
 			LockTimeout("22s"),
 			Out("whale"),
@@ -65,6 +66,7 @@ func TestPlanCmd(t *testing.T) {
 			"-lock-timeout=22s",
 			"-out=whale",
 			"-state=marvin",
+			"-json",
 			"-var-file=trillian",
 			"-lock=false",
 			"-parallelism=42",
