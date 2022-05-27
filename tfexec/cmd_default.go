@@ -1,3 +1,4 @@
+//go:build !linux
 // +build !linux
 
 package tfexec
@@ -10,9 +11,10 @@ import (
 
 func (tf *Terraform) runTerraformCmd(ctx context.Context, cmd *exec.Cmd) error {
 	var errBuf strings.Builder
-
-	cmd.Stdout = mergeWriters(cmd.Stdout, tf.stdout)
-	cmd.Stderr = mergeWriters(cmd.Stderr, tf.stderr, &errBuf)
+	// ensure we don't mix up stdout and stderr
+	sw := &syncWriter{w: &errBuf}
+	cmd.Stdout = mergeWriters(cmd.Stdout, tf.stdout, sw)
+	cmd.Stderr = mergeWriters(cmd.Stderr, tf.stderr, sw)
 
 	go func() {
 		<-ctx.Done()
