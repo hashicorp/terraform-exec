@@ -185,6 +185,16 @@ func GetPlugins(getPlugins bool) *GetPluginsOption {
 	return &GetPluginsOption{getPlugins}
 }
 
+// JSONOption represents the -json flag.
+type JSONOption struct {
+	json bool
+}
+
+// JSON represents the -json flag.
+func JSON(json bool) *JSONOption {
+	return &JSONOption{json}
+}
+
 // LockOption represents the -lock flag.
 type LockOption struct {
 	lock bool
