@@ -11,6 +11,7 @@ type planConfig struct {
 	destroy      bool
 	dir          string
 	lock         bool
+	json         bool
 	lockTimeout  string
 	out          string
 	parallelism  int
@@ -76,6 +77,10 @@ func (opt *OutOption) configurePlan(conf *planConfig) {
 	conf.out = opt.path
 }
 
+func (opt *JSONOption) configurePlan(conf *planConfig) {
+	conf.json = opt.json
+}
+
 func (opt *LockTimeoutOption) configurePlan(conf *planConfig) {
 	conf.lockTimeout = opt.timeout
 }
@@ -126,6 +131,9 @@ func (tf *Terraform) planCmd(ctx context.Context, opts ...PlanOption) (*exec.Cmd
 	}
 	if c.state != "" {
 		args = append(args, "-state="+c.state)
+	}
+	if c.json {
+		args = append(args, "-json")
 	}
 	for _, vf := range c.varFiles {
 		args = append(args, "-var-file="+vf)
