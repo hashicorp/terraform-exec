@@ -12,6 +12,22 @@ import (
 
 func (tf *Terraform) runTerraformCmd(ctx context.Context, cmd *exec.Cmd) error {
 	var errBuf strings.Builder
+	// ensure we don't mix up stdout and stderr
+	sw := &syncWriter{w: &errBuf}
+	cmd.Stdout = mergeWriters(cmd.Stdout, tf.stdout, sw)
+	cmd.Stderr = mergeWriters(cmd.Stderr, tf.stderr, sw)
+
+	go func() {
+		<-ctx.Done()
+		if ctx.Err() == context.DeadlineExceeded || ctx.Err() == context.Canceled {
+			if cmd != nil && cmd.Process != nil && cmd.ProcessState != nil {
+				err := cmd.Process.Kill()
+				if err != nil {
+					tf.logger.Printf("error from kill: %s", err)
+				}
+			}
+		}
+	}()
 
 	// check for early cancellation
 	select {
