@@ -61,5 +61,7 @@ func (tf *Terraform) statePushCmd(ctx context.Context, path string, opts ...Stat
 		args = append(args, "-lock-timeout="+c.lockTimeout)
 	}
 
+	args = append(args, path)
+
 	return tf.buildTerraformCmd(ctx, nil, args...), nil
 }
