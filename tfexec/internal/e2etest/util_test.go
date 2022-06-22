@@ -45,6 +45,11 @@ func runTest(t *testing.T, fixtureName string, cb func(t *testing.T, tfVersion *
 	// valid Terraform executable, only tests appropriate to that
 	// executable's version will be run.
 	if localBinPath := os.Getenv("TFEXEC_E2ETEST_TERRAFORM_PATH"); localBinPath != "" {
+		// By convention, every new Terraform struct is given a clean
+		// temp dir, even if we are only invoking tf.Version(). This
+		// prevents any possible confusion that could result from
+		// reusing an os.TempDir() (for example) that already contained
+		// Terraform files.
 		td, err := ioutil.TempDir("", "tf")
 		if err != nil {
 			t.Fatalf("error creating temporary test directory: %s", err)
