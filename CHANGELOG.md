@@ -4,6 +4,7 @@ FEATURES:
 
  - Add `SetLog()` method for `Terraform` ([#291](https://github.com/hashicorp/terraform-exec/pull/291))
  - Add support for `state pull` and `state push` ([#215](https://github.com/hashicorp/terraform-exec/pull/215))
+ - Add support for running e2e tests against a local Terraform executable with `TFEXEC_E2ETEST_TERRAFORM_PATH` ([#305](https://github.com/hashicorp/terraform-exec/pull/305))
 
 BUG FIXES:
 
