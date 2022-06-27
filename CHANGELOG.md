@@ -1,3 +1,9 @@
+# 0.17.1 (Unreleased)
+
+BUG FIXES:
+
+ - Fix bug in which `StatePush` would fail with "Exactly one argument expected" [GH-316]
+
 # 0.17.0 (June 22, 2022)
 
 FEATURES:
