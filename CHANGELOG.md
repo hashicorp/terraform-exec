@@ -1,8 +1,8 @@
-# 0.17.1 (Unreleased)
+# 0.17.1 (June 27, 2022)
 
 BUG FIXES:
 
- - Fix bug in which `StatePush` would fail with "Exactly one argument expected" [GH-316]
+ - Fix bug in which `StatePush` would fail with "Exactly one argument expected" ([#316](https://github.com/hashicorp/terraform-exec/issues/316))
 
 # 0.17.0 (June 22, 2022)
 
