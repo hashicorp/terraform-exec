@@ -1,3 +1,9 @@
+# 0.17.2 (Unreleased)
+
+INTERNAL:
+
+ - Bump github.com/hashicorp/go-version from 1.5.0 to 1.6.0 ([#323](https://github.com/hashicorp/terraform-exec/pull/323))
+
 # 0.17.1 (June 27, 2022)
 
 BUG FIXES:
