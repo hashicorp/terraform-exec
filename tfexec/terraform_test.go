@@ -123,8 +123,11 @@ func TestSetLog(t *testing.T) {
 			"-get=true",
 			"-upgrade=false",
 		}, map[string]string{
-			"CLEARENV": "1",
-			"TF_LOG":   "",
+			"CLEARENV":        "1",
+			"TF_LOG":          "",
+			"TF_LOG_CORE":     "",
+			"TF_LOG_PATH":     "",
+			"TF_LOG_PROVIDER": "",
 		}, initCmd)
 	})
 
@@ -158,9 +161,11 @@ func TestSetLog(t *testing.T) {
 			"-get=true",
 			"-upgrade=false",
 		}, map[string]string{
-			"CLEARENV":    "1",
-			"TF_LOG":      "TRACE",
-			"TF_LOG_PATH": tfLogPath,
+			"CLEARENV":        "1",
+			"TF_LOG":          "TRACE",
+			"TF_LOG_CORE":     "",
+			"TF_LOG_PATH":     tfLogPath,
+			"TF_LOG_PROVIDER": "",
 		}, initCmd)
 	})
 
@@ -194,9 +199,156 @@ func TestSetLog(t *testing.T) {
 			"-get=true",
 			"-upgrade=false",
 		}, map[string]string{
-			"CLEARENV":    "1",
-			"TF_LOG":      "DEBUG",
-			"TF_LOG_PATH": tfLogPath,
+			"CLEARENV":        "1",
+			"TF_LOG":          "DEBUG",
+			"TF_LOG_CORE":     "",
+			"TF_LOG_PATH":     tfLogPath,
+			"TF_LOG_PROVIDER": "",
+		}, initCmd)
+	})
+}
+
+func TestSetLogCore(t *testing.T) {
+	td := t.TempDir()
+
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest_v1))
+
+	if err != nil {
+		t.Fatalf("unexpected NewTerraform error: %s", err)
+	}
+
+	// Required so all testing environment variables are not copied.
+	err = tf.SetEnv(map[string]string{
+		"CLEARENV": "1",
+	})
+
+	if err != nil {
+		t.Fatalf("unexpected SetEnv error: %s", err)
+	}
+
+	t.Run("case 1: SetLogCore <= 0.15 error", func(t *testing.T) {
+		if runtime.GOOS == "darwin" && runtime.GOARCH == "arm64" {
+			t.Skip("Terraform for darwin/arm64 is not available until v1")
+		}
+
+		td012 := t.TempDir()
+
+		tf012, err := NewTerraform(td012, tfVersion(t, testutil.Latest012))
+
+		if err != nil {
+			t.Fatalf("unexpected NewTerraform error: %s", err)
+		}
+
+		err = tf012.SetLogCore("TRACE")
+
+		if err == nil {
+			t.Fatal("expected SetLogCore error, got none")
+		}
+	})
+
+	t.Run("case 2: SetLogCore TRACE no SetLogPath", func(t *testing.T) {
+		err := tf.SetLogCore("TRACE")
+
+		if err != nil {
+			t.Fatalf("unexpected SetLogCore error: %s", err)
+		}
+
+		initCmd, err := tf.initCmd(context.Background())
+
+		if err != nil {
+			t.Fatalf("unexpected command error: %s", err)
+		}
+
+		assertCmd(t, []string{
+			"init",
+			"-no-color",
+			"-force-copy",
+			"-input=false",
+			"-backend=true",
+			"-get=true",
+			"-upgrade=false",
+		}, map[string]string{
+			"CLEARENV":        "1",
+			"TF_LOG":          "",
+			"TF_LOG_CORE":     "",
+			"TF_LOG_PATH":     "",
+			"TF_LOG_PROVIDER": "",
+		}, initCmd)
+	})
+
+	t.Run("case 3: SetLogCore TRACE and SetLogPath", func(t *testing.T) {
+		tfLogPath := filepath.Join(td, "test.log")
+
+		err := tf.SetLogCore("TRACE")
+
+		if err != nil {
+			t.Fatalf("unexpected SetLogCore error: %s", err)
+		}
+
+		err = tf.SetLogPath(tfLogPath)
+
+		if err != nil {
+			t.Fatalf("unexpected SetLogPath error: %s", err)
+		}
+
+		initCmd, err := tf.initCmd(context.Background())
+
+		if err != nil {
+			t.Fatalf("unexpected command error: %s", err)
+		}
+
+		assertCmd(t, []string{
+			"init",
+			"-no-color",
+			"-force-copy",
+			"-input=false",
+			"-backend=true",
+			"-get=true",
+			"-upgrade=false",
+		}, map[string]string{
+			"CLEARENV":        "1",
+			"TF_LOG":          "",
+			"TF_LOG_CORE":     "TRACE",
+			"TF_LOG_PATH":     tfLogPath,
+			"TF_LOG_PROVIDER": "",
+		}, initCmd)
+	})
+
+	t.Run("case 4: SetLogCore DEBUG and SetLogPath", func(t *testing.T) {
+		tfLogPath := filepath.Join(td, "test.log")
+
+		err := tf.SetLogCore("DEBUG")
+
+		if err != nil {
+			t.Fatalf("unexpected SetLogCore error: %s", err)
+		}
+
+		err = tf.SetLogPath(tfLogPath)
+
+		if err != nil {
+			t.Fatalf("unexpected SetLogPath error: %s", err)
+		}
+
+		initCmd, err := tf.initCmd(context.Background())
+
+		if err != nil {
+			t.Fatalf("unexpected command error: %s", err)
+		}
+
+		assertCmd(t, []string{
+			"init",
+			"-no-color",
+			"-force-copy",
+			"-input=false",
+			"-backend=true",
+			"-get=true",
+			"-upgrade=false",
+		}, map[string]string{
+			"CLEARENV":        "1",
+			"TF_LOG":          "",
+			"TF_LOG_CORE":     "DEBUG",
+			"TF_LOG_PATH":     tfLogPath,
+			"TF_LOG_PROVIDER": "",
 		}, initCmd)
 	})
 }
@@ -235,13 +387,15 @@ func TestSetLogPath(t *testing.T) {
 			"-get=true",
 			"-upgrade=false",
 		}, map[string]string{
-			"CLEARENV":    "1",
-			"TF_LOG":      "",
-			"TF_LOG_PATH": "",
+			"CLEARENV":        "1",
+			"TF_LOG":          "",
+			"TF_LOG_CORE":     "",
+			"TF_LOG_PATH":     "",
+			"TF_LOG_PROVIDER": "",
 		}, initCmd)
 	})
 
-	t.Run("case 2: SetLogPath sets TF_LOG and TF_LOG_PATH", func(t *testing.T) {
+	t.Run("case 2: SetLogPath sets TF_LOG (if no TF_LOG_CORE or TF_LOG_PROVIDER) and TF_LOG_PATH", func(t *testing.T) {
 		tfLogPath := filepath.Join(td, "test.log")
 
 		err = tf.SetLogPath(tfLogPath)
@@ -265,9 +419,256 @@ func TestSetLogPath(t *testing.T) {
 			"-get=true",
 			"-upgrade=false",
 		}, map[string]string{
-			"CLEARENV":    "1",
-			"TF_LOG":      "TRACE",
-			"TF_LOG_PATH": tfLogPath,
+			"CLEARENV":        "1",
+			"TF_LOG":          "TRACE",
+			"TF_LOG_CORE":     "",
+			"TF_LOG_PATH":     tfLogPath,
+			"TF_LOG_PROVIDER": "",
+		}, initCmd)
+	})
+
+	t.Run("case 3: SetLogPath does not set TF_LOG if TF_LOG_CORE", func(t *testing.T) {
+		tfLogPath := filepath.Join(td, "test.log")
+
+		err := tf.SetLog("")
+
+		if err != nil {
+			t.Fatalf("unexpected SetLog error: %s", err)
+		}
+
+		err = tf.SetLogCore("TRACE")
+
+		if err != nil {
+			t.Fatalf("unexpected SetLogCore error: %s", err)
+		}
+
+		err = tf.SetLogProvider("")
+
+		if err != nil {
+			t.Fatalf("unexpected SetLogProvider error: %s", err)
+		}
+
+		err = tf.SetLogPath(tfLogPath)
+
+		if err != nil {
+			t.Fatalf("unexpected SetLogPath error: %s", err)
+		}
+
+		initCmd, err := tf.initCmd(context.Background())
+
+		if err != nil {
+			t.Fatalf("unexpected command error: %s", err)
+		}
+
+		assertCmd(t, []string{
+			"init",
+			"-no-color",
+			"-force-copy",
+			"-input=false",
+			"-backend=true",
+			"-get=true",
+			"-upgrade=false",
+		}, map[string]string{
+			"CLEARENV":        "1",
+			"TF_LOG":          "",
+			"TF_LOG_CORE":     "TRACE",
+			"TF_LOG_PATH":     tfLogPath,
+			"TF_LOG_PROVIDER": "",
+		}, initCmd)
+	})
+
+	t.Run("case 4: SetLogPath does not set TF_LOG if TF_LOG_PROVIDER", func(t *testing.T) {
+		tfLogPath := filepath.Join(td, "test.log")
+
+		err := tf.SetLog("")
+
+		if err != nil {
+			t.Fatalf("unexpected SetLog error: %s", err)
+		}
+
+		err = tf.SetLogCore("")
+
+		if err != nil {
+			t.Fatalf("unexpected SetLogCore error: %s", err)
+		}
+
+		err = tf.SetLogProvider("TRACE")
+
+		if err != nil {
+			t.Fatalf("unexpected SetLogProvider error: %s", err)
+		}
+
+		err = tf.SetLogPath(tfLogPath)
+
+		if err != nil {
+			t.Fatalf("unexpected SetLogPath error: %s", err)
+		}
+
+		initCmd, err := tf.initCmd(context.Background())
+
+		if err != nil {
+			t.Fatalf("unexpected command error: %s", err)
+		}
+
+		assertCmd(t, []string{
+			"init",
+			"-no-color",
+			"-force-copy",
+			"-input=false",
+			"-backend=true",
+			"-get=true",
+			"-upgrade=false",
+		}, map[string]string{
+			"CLEARENV":        "1",
+			"TF_LOG":          "",
+			"TF_LOG_CORE":     "",
+			"TF_LOG_PATH":     tfLogPath,
+			"TF_LOG_PROVIDER": "TRACE",
+		}, initCmd)
+	})
+}
+
+func TestSetLogProvider(t *testing.T) {
+	td := t.TempDir()
+
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest_v1))
+
+	if err != nil {
+		t.Fatalf("unexpected NewTerraform error: %s", err)
+	}
+
+	// Required so all testing environment variables are not copied.
+	err = tf.SetEnv(map[string]string{
+		"CLEARENV": "1",
+	})
+
+	if err != nil {
+		t.Fatalf("unexpected SetEnv error: %s", err)
+	}
+
+	t.Run("case 1: SetLogProvider <= 0.15 error", func(t *testing.T) {
+		if runtime.GOOS == "darwin" && runtime.GOARCH == "arm64" {
+			t.Skip("Terraform for darwin/arm64 is not available until v1")
+		}
+
+		td012 := t.TempDir()
+
+		tf012, err := NewTerraform(td012, tfVersion(t, testutil.Latest012))
+
+		if err != nil {
+			t.Fatalf("unexpected NewTerraform error: %s", err)
+		}
+
+		err = tf012.SetLogProvider("TRACE")
+
+		if err == nil {
+			t.Fatal("expected SetLogProvider error, got none")
+		}
+	})
+
+	t.Run("case 2: SetLogProvider TRACE no SetLogPath", func(t *testing.T) {
+		err := tf.SetLogProvider("TRACE")
+
+		if err != nil {
+			t.Fatalf("unexpected SetLogProvider error: %s", err)
+		}
+
+		initCmd, err := tf.initCmd(context.Background())
+
+		if err != nil {
+			t.Fatalf("unexpected command error: %s", err)
+		}
+
+		assertCmd(t, []string{
+			"init",
+			"-no-color",
+			"-force-copy",
+			"-input=false",
+			"-backend=true",
+			"-get=true",
+			"-upgrade=false",
+		}, map[string]string{
+			"CLEARENV":        "1",
+			"TF_LOG":          "",
+			"TF_LOG_CORE":     "",
+			"TF_LOG_PATH":     "",
+			"TF_LOG_PROVIDER": "",
+		}, initCmd)
+	})
+
+	t.Run("case 3: SetLogProvider TRACE and SetLogPath", func(t *testing.T) {
+		tfLogPath := filepath.Join(td, "test.log")
+
+		err := tf.SetLogProvider("TRACE")
+
+		if err != nil {
+			t.Fatalf("unexpected SetLogProvider error: %s", err)
+		}
+
+		err = tf.SetLogPath(tfLogPath)
+
+		if err != nil {
+			t.Fatalf("unexpected SetLogPath error: %s", err)
+		}
+
+		initCmd, err := tf.initCmd(context.Background())
+
+		if err != nil {
+			t.Fatalf("unexpected command error: %s", err)
+		}
+
+		assertCmd(t, []string{
+			"init",
+			"-no-color",
+			"-force-copy",
+			"-input=false",
+			"-backend=true",
+			"-get=true",
+			"-upgrade=false",
+		}, map[string]string{
+			"CLEARENV":        "1",
+			"TF_LOG":          "",
+			"TF_LOG_CORE":     "",
+			"TF_LOG_PATH":     tfLogPath,
+			"TF_LOG_PROVIDER": "TRACE",
+		}, initCmd)
+	})
+
+	t.Run("case 4: SetLogProvider DEBUG and SetLogPath", func(t *testing.T) {
+		tfLogPath := filepath.Join(td, "test.log")
+
+		err := tf.SetLogProvider("DEBUG")
+
+		if err != nil {
+			t.Fatalf("unexpected SetLogProvider error: %s", err)
+		}
+
+		err = tf.SetLogPath(tfLogPath)
+
+		if err != nil {
+			t.Fatalf("unexpected SetLogPath error: %s", err)
+		}
+
+		initCmd, err := tf.initCmd(context.Background())
+
+		if err != nil {
+			t.Fatalf("unexpected command error: %s", err)
+		}
+
+		assertCmd(t, []string{
+			"init",
+			"-no-color",
+			"-force-copy",
+			"-input=false",
+			"-backend=true",
+			"-get=true",
+			"-upgrade=false",
+		}, map[string]string{
+			"CLEARENV":        "1",
+			"TF_LOG":          "",
+			"TF_LOG_CORE":     "",
+			"TF_LOG_PATH":     tfLogPath,
+			"TF_LOG_PROVIDER": "DEBUG",
 		}, initCmd)
 	})
 }
