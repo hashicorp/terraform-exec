@@ -20,6 +20,7 @@ var (
 	tf0_7_7  = version.Must(version.NewVersion("0.7.7"))
 	tf0_8_0  = version.Must(version.NewVersion("0.8.0"))
 	tf0_10_0 = version.Must(version.NewVersion("0.10.0"))
+	tf0_10_7 = version.Must(version.NewVersion("0.10.7"))
 	tf0_12_0 = version.Must(version.NewVersion("0.12.0"))
 	tf0_13_0 = version.Must(version.NewVersion("0.13.0"))
 	tf0_14_0 = version.Must(version.NewVersion("0.14.0"))
