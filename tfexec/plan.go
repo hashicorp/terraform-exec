@@ -21,6 +21,9 @@ type planConfig struct {
 	targets      []string
 	vars         []string
 	varFiles     []string
+
+	// WorkSpace: when leveraging TF_WORKSPACE env variable
+	workSpace string
 }
 
 var defaultPlanOptions = planConfig{
@@ -86,6 +89,10 @@ func (opt *LockOption) configurePlan(conf *planConfig) {
 
 func (opt *DestroyFlagOption) configurePlan(conf *planConfig) {
 	conf.destroy = opt.destroy
+}
+
+func (opt *WorkSpaceOption) configurePlan(conf *planConfig) {
+	conf.workSpace = opt.workSpace
 }
 
 // Plan executes `terraform plan` with the specified options and waits for it
@@ -174,6 +181,11 @@ func (tf *Terraform) planCmd(ctx context.Context, opts ...PlanOption) (*exec.Cmd
 			return nil, err
 		}
 		mergeEnv[reattachEnvVar] = reattachStr
+	}
+
+	// Check if TF_WORKSPACE is specified.
+	if c.workSpace != "" {
+		mergeEnv[workspaceEnvVar] = c.workSpace
 	}
 
 	return tf.buildTerraformCmd(ctx, mergeEnv, args...), nil

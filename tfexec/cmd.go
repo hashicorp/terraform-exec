@@ -41,7 +41,6 @@ var prohibitedEnvVars = []string{
 	logEnvVar,
 	reattachEnvVar,
 	appendUserAgentEnvVar,
-	workspaceEnvVar,
 	disablePluginTLSEnvVar,
 	skipProviderVerifyEnvVar,
 }
@@ -156,9 +155,6 @@ func (tf *Terraform) buildEnv(mergeEnv map[string]string) []string {
 
 	// constant automation override env vars
 	env[automationEnvVar] = "1"
-
-	// force usage of workspace methods for switching
-	env[workspaceEnvVar] = ""
 
 	if tf.disablePluginTLS {
 		env[disablePluginTLSEnvVar] = "1"

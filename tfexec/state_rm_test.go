@@ -35,7 +35,13 @@ func TestStateRmCmd(t *testing.T) {
 	})
 
 	t.Run("override all defaults", func(t *testing.T) {
-		stateRmCmd, err := tf.stateRmCmd(context.Background(), "testAddress", Backup("testbackup"), BackupOut("testbackupout"), LockTimeout("200s"), State("teststate"), StateOut("teststateout"), Lock(false))
+		stateRmCmd, err := tf.stateRmCmd(context.Background(), "testAddress", Backup("testbackup"),
+			BackupOut("testbackupout"),
+			LockTimeout("200s"),
+			State("teststate"),
+			StateOut("teststateout"),
+			Lock(false),
+			WorkSpace("some_workspace"))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -51,6 +57,6 @@ func TestStateRmCmd(t *testing.T) {
 			"-state-out=teststateout",
 			"-lock=false",
 			"testAddress",
-		}, nil, stateRmCmd)
+		}, map[string]string{"TF_WORKSPACE": "some_workspace"}, stateRmCmd)
 	})
 }

@@ -36,6 +36,7 @@ func TestApplyCmd(t *testing.T) {
 			Var("var1=foo"),
 			Var("var2=bar"),
 			DirOrPlan("testfile"),
+			WorkSpace("some_workspace"),
 		)
 		if err != nil {
 			t.Fatal(err)
@@ -62,6 +63,7 @@ func TestApplyCmd(t *testing.T) {
 			"-var", "var1=foo",
 			"-var", "var2=bar",
 			"testfile",
-		}, nil, applyCmd)
+		}, map[string]string{"TF_WORKSPACE": "some_workspace"}, applyCmd)
 	})
+
 }

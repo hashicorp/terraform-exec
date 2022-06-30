@@ -52,7 +52,8 @@ func TestPlanCmd(t *testing.T) {
 			Var("android=paranoid"),
 			Var("brain_size=planet"),
 			VarFile("trillian"),
-			Dir("earth"))
+			Dir("earth"),
+			WorkSpace("some_workspace"))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -77,6 +78,6 @@ func TestPlanCmd(t *testing.T) {
 			"-var", "android=paranoid",
 			"-var", "brain_size=planet",
 			"earth",
-		}, nil, planCmd)
+		}, map[string]string{"TF_WORKSPACE": "some_workspace"}, planCmd)
 	})
 }

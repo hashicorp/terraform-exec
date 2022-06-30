@@ -41,7 +41,6 @@ func defaultEnv() []string {
 		"TF_IN_AUTOMATION=1",
 		"TF_LOG_PATH=",
 		"TF_LOG=",
-		"TF_WORKSPACE=",
 	}
 }
 
