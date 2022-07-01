@@ -1,4 +1,4 @@
-# 0.17.2 (Unreleased)
+# 0.17.2 (July 01, 2022)
 
 ENHANCEMENTS:
 
