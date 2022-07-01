@@ -1,5 +1,9 @@
 # 0.17.2 (Unreleased)
 
+ENHANCEMENTS:
+
+ - tfexec: Add `(Terraform).SetLogCore()` and `(Terraform).SetLogProvider()` methods ([#324](https://github.com/hashicorp/terraform-exec/pull/324))
+
 INTERNAL:
 
  - Bump github.com/hashicorp/go-version from 1.5.0 to 1.6.0 ([#323](https://github.com/hashicorp/terraform-exec/pull/323))
