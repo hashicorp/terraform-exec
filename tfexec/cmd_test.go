@@ -39,8 +39,10 @@ func defaultEnv() []string {
 		"CHECKPOINT_DISABLE=",
 		"TF_APPEND_USER_AGENT=HashiCorp-terraform-exec/" + version.ModuleVersion(),
 		"TF_IN_AUTOMATION=1",
-		"TF_LOG_PATH=",
 		"TF_LOG=",
+		"TF_LOG_CORE=",
+		"TF_LOG_PATH=",
+		"TF_LOG_PROVIDER=",
 		"TF_WORKSPACE=",
 	}
 }
