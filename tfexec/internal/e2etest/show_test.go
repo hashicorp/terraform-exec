@@ -185,7 +185,7 @@ func TestShow_noInitModule(t *testing.T) {
 	})
 }
 
-func TestShow_noInitNonLocalBackend(t *testing.T) {
+func TestShow_noInitInmemBackend(t *testing.T) {
 	runTest(t, "inmem_backend", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		if tfv.LessThan(showMinVersion) {
 			t.Skip("terraform show was added in Terraform 0.12, so test is not valid")
@@ -213,8 +213,40 @@ func TestShow_noInitLocalBackendNonDefaultState(t *testing.T) {
 	})
 }
 
+func TestShow_noInitCloudBackend(t *testing.T) {
+	runTest(t, "cloud_backend", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		if tfv.LessThan(version.Must(version.NewVersion("1.1.0"))) {
+			t.Skip("cloud backend was added in Terraform 1.1, so test is not valid")
+		}
+
+		var noInit *tfexec.ErrNoInit
+		_, err := tf.Show(context.Background())
+		if !errors.As(err, &noInit) {
+			t.Fatalf("expected error ErrNoInit, got %T: %s", err, err)
+		}
+	})
+}
+
 func TestShow_noInitEtcdBackend(t *testing.T) {
 	runTest(t, "etcd_backend", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		if tfv.LessThan(showMinVersion) {
+			t.Skip("terraform show was added in Terraform 0.12, so test is not valid")
+		}
+
+		if tfv.GreaterThanOrEqual(version.Must(version.NewVersion("1.3.0"))) || tfv.Prerelease() != "" {
+			t.Skip("etcd backend was removed in Terraform 1.3, so test is not valid")
+		}
+
+		var noInit *tfexec.ErrNoInit
+		_, err := tf.Show(context.Background())
+		if !errors.As(err, &noInit) {
+			t.Fatalf("expected error ErrNoInit, got %T: %s", err, err)
+		}
+	})
+}
+
+func TestShow_noInitRemoteBackend(t *testing.T) {
+	runTest(t, "remote_backend", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		if tfv.LessThan(showMinVersion) {
 			t.Skip("terraform show was added in Terraform 0.12, so test is not valid")
 		}
