@@ -1,3 +1,9 @@
+# 0.17.3 (Unreleased)
+
+BUG FIXES:
+
+ - Fix bug in which `terraform init` was always called with the `-force-copy` flag [GH-268]
+
 # 0.17.2 (July 01, 2022)
 
 ENHANCEMENTS:
