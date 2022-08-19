@@ -3,6 +3,7 @@
 BUG FIXES:
 
  - Fix bug in which `terraform init` was always called with the `-force-copy` flag [GH-268]
+ - Always pass `-no-color` flag when calling `terraform force-unlock` [GH-270]
 
 # 0.17.2 (July 01, 2022)
 
