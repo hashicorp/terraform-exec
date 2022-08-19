@@ -19,7 +19,10 @@ func TestForceUnlockCmd(t *testing.T) {
 	tf.SetEnv(map[string]string{})
 
 	t.Run("defaults", func(t *testing.T) {
-		forceUnlockCmd := tf.forceUnlockCmd(context.Background(), "12345")
+		forceUnlockCmd, err := tf.forceUnlockCmd(context.Background(), "12345")
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		assertCmd(t, []string{
 			"force-unlock",
@@ -28,14 +31,32 @@ func TestForceUnlockCmd(t *testing.T) {
 			"12345",
 		}, nil, forceUnlockCmd)
 	})
+}
+
+// The optional final positional [DIR] argument is available
+// until v0.15.0.
+func TestForceUnlockCmd_pre015(t *testing.T) {
+	td := t.TempDir()
+
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest014))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// empty env, to avoid environ mismatch in testing
+	tf.SetEnv(map[string]string{})
 
 	t.Run("override all defaults", func(t *testing.T) {
-		forceUnlockCmd := tf.forceUnlockCmd(context.Background(), "12345", Dir("mydir"))
+		forceUnlockCmd, err := tf.forceUnlockCmd(context.Background(), "12345", Dir("mydir"))
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		assertCmd(t, []string{
 			"force-unlock",
 			"-no-color",
 			"-force",
+			"12345",
 			"mydir",
 		}, nil, forceUnlockCmd)
 	})
