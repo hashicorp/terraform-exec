@@ -59,13 +59,13 @@ jobs:
   # previous stable Go version
   go118_build:
     docker:
-      - image: circleci/golang:1.18
+      - image: cimg/go:1.18
     steps:
       - checkout
       - go_build
   go118_test:
     docker:
-      - image: circleci/golang:1.18
+      - image: cimg/go:1.18
     parameters:
       test_results:
         type: string
@@ -77,13 +77,13 @@ jobs:
   # latest stable Go version
   go119_build:
     docker:
-      - image: circleci/golang:1.19
+      - image: cimg/go:1.19
     steps:
       - checkout
       - go_build
   go119_test:
     docker:
-      - image: circleci/golang:1.19
+      - image: cimg/go:1.19
     parameters:
       test_results:
         type: string
@@ -95,7 +95,7 @@ jobs:
     environment:
       TFEXEC_E2ETEST_VERSIONS: refs/heads/main
     docker:
-      - image: circleci/golang:1.19
+      - image: cimg/go:1.19
     parameters:
       test_results:
         type: string
@@ -106,19 +106,19 @@ jobs:
       - go_e2e_test
   go119_vet:
     docker:
-      - image: circleci/golang:1.19
+      - image: cimg/go:1.19
     steps:
       - checkout
       - run: go vet ./...
   go119_fmt:
     docker:
-      - image: circleci/golang:1.19
+      - image: cimg/go:1.19
     steps:
       - checkout
       - run: gofmt -s -l .
   go119_release:
     docker:
-      - image: circleci/golang:1.9
+      - image: cimg/go:1.9
     steps:
       - add_ssh_keys:
           fingerprints:
