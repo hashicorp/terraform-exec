@@ -5,12 +5,21 @@ package tfexec
 
 import (
 	"context"
+	"errors"
+	"os"
 	"os/exec"
 	"strings"
 	"sync"
+	"time"
 )
 
-func (tf *Terraform) runTerraformCmd(ctx context.Context, cmd *exec.Cmd) error {
+const defaultGracefulShutdownTimeout = 0
+
+func (tf *Terraform) runTerraformCmd(parentCtx context.Context, cmd *exec.Cmd) error {
+	return tf.runTerraformCmdWithGracefulshutdownTimeout(parentCtx, cmd, defaultGracefulShutdownTimeout)
+}
+
+func (tf *Terraform) runTerraformCmdWithGracefulshutdownTimeout(ctx context.Context, cmd *exec.Cmd, _ time.Duration) error {
 	var errBuf strings.Builder
 
 	// check for early cancellation
@@ -38,7 +47,19 @@ func (tf *Terraform) runTerraformCmd(ctx context.Context, cmd *exec.Cmd) error {
 	if err != nil {
 		return err
 	}
-
+	cmdDoneCh := make(chan error, 1)
+	returnCh := make(chan error, 1)
+	defer close(cmdDoneCh)
+	go func() {
+		defer close(returnCh)
+		select {
+		case <-ctx.Done(): // wait for context cancelled
+			cmd.Process.Signal(os.Kill)
+			returnCh <- errors.New("terraform forcefully killed")
+		case err := <-cmdDoneCh:
+			returnCh <- err
+		}
+	}()
 	err = cmd.Start()
 	if err == nil && ctx.Err() != nil {
 		err = ctx.Err()
@@ -65,7 +86,9 @@ func (tf *Terraform) runTerraformCmd(ctx context.Context, cmd *exec.Cmd) error {
 	// can cause a race condition
 	wg.Wait()
 
-	err = cmd.Wait()
+	cmdDoneCh <- cmd.Wait()
+	err = <-returnCh
+
 	if err == nil && ctx.Err() != nil {
 		err = ctx.Err()
 	}
