@@ -63,5 +63,5 @@ func (tf *Terraform) statePushCmd(ctx context.Context, path string, opts ...Stat
 
 	args = append(args, path)
 
-	return tf.buildTerraformCmd(ctx, nil, args...), nil
+	return tf.buildTerraformCmd(nil, args...), nil
 }

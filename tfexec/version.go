@@ -47,7 +47,7 @@ func (tf *Terraform) Version(ctx context.Context, skipCache bool) (tfVersion *ve
 
 // version does not use the locking on the Terraform instance and should probably not be used directly, prefer Version.
 func (tf *Terraform) version(ctx context.Context) (*version.Version, map[string]*version.Version, error) {
-	versionCmd := tf.buildTerraformCmd(ctx, nil, "version", "-json")
+	versionCmd := tf.buildTerraformCmd(nil, "version", "-json")
 
 	var outBuf bytes.Buffer
 	versionCmd.Stdout = &outBuf
@@ -93,7 +93,7 @@ func parseJsonVersionOutput(stdout []byte) (*version.Version, map[string]*versio
 }
 
 func (tf *Terraform) versionFromPlaintext(ctx context.Context) (*version.Version, map[string]*version.Version, error) {
-	versionCmd := tf.buildTerraformCmd(ctx, nil, "version")
+	versionCmd := tf.buildTerraformCmd(nil, "version")
 
 	var outBuf strings.Builder
 	versionCmd.Stdout = &outBuf

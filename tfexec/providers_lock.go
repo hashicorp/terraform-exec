@@ -78,5 +78,5 @@ func (tf *Terraform) providersLockCmd(ctx context.Context, opts ...ProvidersLock
 		args = append(args, p)
 	}
 
-	return tf.buildTerraformCmd(ctx, nil, args...)
+	return tf.buildTerraformCmd(nil, args...)
 }

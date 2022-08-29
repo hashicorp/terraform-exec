@@ -48,5 +48,5 @@ func (tf *Terraform) getCmd(ctx context.Context, opts ...GetCmdOption) (*exec.Cm
 		args = append(args, c.dir)
 	}
 
-	return tf.buildTerraformCmd(ctx, nil, args...), nil
+	return tf.buildTerraformCmd(nil, args...), nil
 }

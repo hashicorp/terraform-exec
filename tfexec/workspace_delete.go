@@ -75,7 +75,7 @@ func (tf *Terraform) workspaceDeleteCmd(ctx context.Context, workspace string, o
 
 	args = append(args, workspace)
 
-	cmd := tf.buildTerraformCmd(ctx, nil, args...)
+	cmd := tf.buildTerraformCmd(nil, args...)
 
 	return cmd, nil
 }

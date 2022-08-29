@@ -74,5 +74,5 @@ func (tf *Terraform) untaintCmd(ctx context.Context, address string, opts ...Unt
 	}
 	args = append(args, address)
 
-	return tf.buildTerraformCmd(ctx, nil, args...)
+	return tf.buildTerraformCmd(nil, args...)
 }

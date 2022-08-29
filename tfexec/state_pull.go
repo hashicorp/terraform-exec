@@ -51,5 +51,5 @@ func (tf *Terraform) StatePull(ctx context.Context, opts ...StatePullOption) (st
 func (tf *Terraform) statePullCmd(ctx context.Context, mergeEnv map[string]string) *exec.Cmd {
 	args := []string{"state", "pull"}
 
-	return tf.buildTerraformCmd(ctx, mergeEnv, args...)
+	return tf.buildTerraformCmd(mergeEnv, args...)
 }

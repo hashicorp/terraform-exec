@@ -155,5 +155,5 @@ func (tf *Terraform) formatCmd(ctx context.Context, args []string, opts ...Forma
 		args = append(args, c.dir)
 	}
 
-	return tf.buildTerraformCmd(ctx, nil, args...), nil
+	return tf.buildTerraformCmd(nil, args...), nil
 }

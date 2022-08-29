@@ -28,7 +28,7 @@ func (tf *Terraform) Refresh(ctx context.Context, opts ...RefreshCmdOption) erro
 
 func (tf *Terraform) refreshCmd(ctx context.Context, opts ...RefreshCmdOption) (*exec.Cmd, error) {
 	...
-  	return tf.buildTerraformCmd(ctx, mergeEnv, args...), nil
+  	return tf.buildTerraformCmd( mergeEnv, args...), nil
 }
 ```
 

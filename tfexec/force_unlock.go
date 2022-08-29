@@ -54,5 +54,5 @@ func (tf *Terraform) forceUnlockCmd(ctx context.Context, lockID string, opts ...
 		args = append(args, c.dir)
 	}
 
-	return tf.buildTerraformCmd(ctx, nil, args...), nil
+	return tf.buildTerraformCmd(nil, args...), nil
 }

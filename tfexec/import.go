@@ -137,5 +137,5 @@ func (tf *Terraform) importCmd(ctx context.Context, address, id string, opts ...
 		mergeEnv[reattachEnvVar] = reattachStr
 	}
 
-	return tf.buildTerraformCmd(ctx, mergeEnv, args...), nil
+	return tf.buildTerraformCmd(mergeEnv, args...), nil
 }

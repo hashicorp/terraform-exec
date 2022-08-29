@@ -21,7 +21,7 @@ func Test_runTerraformCmd_linux(t *testing.T) {
 
 	ctx, cancel := context.WithCancel(context.Background())
 
-	cmd := tf.buildTerraformCmd(ctx, nil, "hello tf-exec!")
+	cmd := tf.buildTerraformCmd(nil, "hello tf-exec!")
 	err := tf.runTerraformCmd(ctx, cmd)
 	if err != nil {
 		t.Fatal(err)

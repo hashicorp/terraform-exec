@@ -76,5 +76,5 @@ func (tf *Terraform) upgrade012Cmd(ctx context.Context, opts ...Upgrade012Option
 		mergeEnv[reattachEnvVar] = reattachStr
 	}
 
-	return tf.buildTerraformCmd(ctx, mergeEnv, args...), nil
+	return tf.buildTerraformCmd(mergeEnv, args...), nil
 }

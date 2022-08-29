@@ -81,5 +81,5 @@ func (tf *Terraform) graphCmd(ctx context.Context, opts ...GraphOption) (*exec.C
 		args = append(args, "-type="+c.graphType)
 	}
 
-	return tf.buildTerraformCmd(ctx, nil, args...), nil
+	return tf.buildTerraformCmd(nil, args...), nil
 }

@@ -179,8 +179,8 @@ func (tf *Terraform) buildEnv(mergeEnv map[string]string) []string {
 	return envSlice(env)
 }
 
-func (tf *Terraform) buildTerraformCmd(ctx context.Context, mergeEnv map[string]string, args ...string) *exec.Cmd {
-	cmd := exec.CommandContext(ctx, tf.execPath, args...)
+func (tf *Terraform) buildTerraformCmd(mergeEnv map[string]string, args ...string) *exec.Cmd {
+	cmd := exec.Command(tf.execPath, args...)
 
 	cmd.Env = tf.buildEnv(mergeEnv)
 	cmd.Dir = tf.workingDir

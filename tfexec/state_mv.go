@@ -101,5 +101,5 @@ func (tf *Terraform) stateMvCmd(ctx context.Context, source string, destination 
 	args = append(args, source)
 	args = append(args, destination)
 
-	return tf.buildTerraformCmd(ctx, nil, args...), nil
+	return tf.buildTerraformCmd(nil, args...), nil
 }
