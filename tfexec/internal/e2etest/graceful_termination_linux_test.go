@@ -36,8 +36,8 @@ func Test_gracefulTerminationRunTerraformCmd_linux(t *testing.T) {
 			t.Log(err)
 		}
 		output := bufStderr.String() + bufStdout.String()
+		t.Log(output)
 		if !strings.Contains(output, "Gracefully shutting down...") {
-			t.Log(output)
 			t.Fatal("canceling context should gracefully shut terraform down")
 		}
 	})
@@ -68,8 +68,8 @@ func Test_gracefulTerminationRunTerraformCmdWithNoGracefulShutdownTimeout_linux(
 			t.Log(err)
 		}
 		output := bufStderr.String() + bufStdout.String()
+		t.Log(output)
 		if strings.Contains(output, "Gracefully shutting down...") {
-			t.Log(output)
 			t.Fatal("canceling context with no graceful shutdown timeout should immediately kill the process and not start a graceful cancellation")
 		}
 	})

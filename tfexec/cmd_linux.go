@@ -56,7 +56,12 @@ func (tf *Terraform) runTerraformCmdWithGracefulshutdownTimeout(parentCtx contex
 	if err != nil {
 		return err
 	}
-
+	cmdMu := sync.Mutex{}
+	withCmdLock := func(fn func() error) error {
+		cmdMu.Lock()
+		defer cmdMu.Unlock()
+		return fn()
+	}
 	cmdDoneCh := make(chan error, 1)
 	returnCh := make(chan error, 1)
 	defer close(returnCh)
@@ -64,15 +69,17 @@ func (tf *Terraform) runTerraformCmdWithGracefulshutdownTimeout(parentCtx contex
 		select {
 		case <-parentCtx.Done(): // wait for context cancelled
 			tf.logger.Printf("[WARN] The context was cancelled, we'll let Terraform finish by sending SIGINT signal")
-			cmd.Process.Signal(os.Interrupt)
-			if err != nil {
-				tf.logger.Printf("[WARN] Error sending SIGINT to terraform: %v", err)
+			if err := withCmdLock(func() error { return cmd.Process.Signal(os.Interrupt) }); err != nil {
+				tf.logger.Printf("[ERROR] Error sending SIGINT to terraform: %v", err)
 			}
 			// give some time to the process before forcefully killing it
 			select {
 			case <-time.After(gracefulShutdownTimeout):
-				cmd.Process.Signal(os.Kill) // to kill the process
-				cancel()                    // to cancel stdout/stderr writers
+				// Forcefully kill the process
+				if err := withCmdLock(func() error { return cmd.Process.Signal(os.Kill) }); err != nil {
+					tf.logger.Printf("[ERROR] Error sending SIGKILL to terraform: %v", err)
+				}
+				cancel() // to cancel stdout/stderr writers
 				tf.logger.Printf("[ERROR] terraform forcefully killed after graceful shutdown timeout")
 				returnCh <- errors.New("terraform forcefully killed after graceful shutdown timeout")
 			case err := <-cmdDoneCh:
@@ -84,7 +91,7 @@ func (tf *Terraform) runTerraformCmdWithGracefulshutdownTimeout(parentCtx contex
 			returnCh <- err
 		}
 	}()
-	err = cmd.Start()
+	err = withCmdLock(func() error { return cmd.Start() })
 	if err == nil && ctx.Err() != nil {
 		err = ctx.Err()
 	}
