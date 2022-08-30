@@ -3,6 +3,7 @@ package tfexec
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
 )
@@ -19,7 +20,7 @@ func TestApplyCmd(t *testing.T) {
 	tf.SetEnv(map[string]string{})
 
 	t.Run("basic", func(t *testing.T) {
-		applyCmd, err := tf.applyCmd(context.Background(),
+		applyCmd, applyOpts, err := tf.applyCmd(context.Background(),
 			Backup("testbackup"),
 			LockTimeout("200s"),
 			State("teststate"),
@@ -36,6 +37,7 @@ func TestApplyCmd(t *testing.T) {
 			Var("var1=foo"),
 			Var("var2=bar"),
 			DirOrPlan("testfile"),
+			GracefulShutdownTimeout(10*time.Second),
 		)
 		if err != nil {
 			t.Fatal(err)
@@ -63,5 +65,10 @@ func TestApplyCmd(t *testing.T) {
 			"-var", "var2=bar",
 			"testfile",
 		}, nil, applyCmd)
+
+		if applyOpts.gracefulShutdownTimeout != 10*time.Second {
+			t.Fatalf("graceful shutdown timeout mismatch\n\nexpected:\n%v\n\ngot:\n%v", 10*time.Second, applyOpts.gracefulShutdownTimeout)
+		}
 	})
+
 }

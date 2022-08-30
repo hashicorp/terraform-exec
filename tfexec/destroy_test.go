@@ -3,6 +3,7 @@ package tfexec
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
 )
@@ -19,7 +20,7 @@ func TestDestroyCmd(t *testing.T) {
 	tf.SetEnv(map[string]string{})
 
 	t.Run("defaults", func(t *testing.T) {
-		destroyCmd, err := tf.destroyCmd(context.Background())
+		destroyCmd, destroyOpts, err := tf.destroyCmd(context.Background())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -34,10 +35,14 @@ func TestDestroyCmd(t *testing.T) {
 			"-parallelism=10",
 			"-refresh=true",
 		}, nil, destroyCmd)
+
+		if destroyOpts.gracefulShutdownTimeout != 0 {
+			t.Fatalf("graceful shutdown timeout mismatch\n\nexpected:\n%v\n\ngot:\n%v", 0, destroyOpts.gracefulShutdownTimeout)
+		}
 	})
 
 	t.Run("override all defaults", func(t *testing.T) {
-		destroyCmd, err := tf.destroyCmd(context.Background(), Backup("testbackup"), LockTimeout("200s"), State("teststate"), StateOut("teststateout"), VarFile("testvarfile"), Lock(false), Parallelism(99), Refresh(false), Target("target1"), Target("target2"), Var("var1=foo"), Var("var2=bar"), Dir("destroydir"))
+		destroyCmd, destroyOpts, err := tf.destroyCmd(context.Background(), Backup("testbackup"), LockTimeout("200s"), State("teststate"), StateOut("teststateout"), VarFile("testvarfile"), Lock(false), Parallelism(99), Refresh(false), Target("target1"), Target("target2"), Var("var1=foo"), Var("var2=bar"), Dir("destroydir"), GracefulShutdownTimeout(5*time.Minute))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -61,5 +66,9 @@ func TestDestroyCmd(t *testing.T) {
 			"-var", "var2=bar",
 			"destroydir",
 		}, nil, destroyCmd)
+
+		if destroyOpts.gracefulShutdownTimeout != 5*time.Minute {
+			t.Fatalf("graceful shutdown timeout mismatch\n\nexpected:\n%v\n\ngot:\n%v", 5*time.Minute, destroyOpts.gracefulShutdownTimeout)
+		}
 	})
 }

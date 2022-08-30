@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os/exec"
 	"strconv"
+	"time"
 )
 
 type destroyConfig struct {
@@ -13,13 +14,14 @@ type destroyConfig struct {
 	lock   bool
 
 	// LockTimeout must be a string with time unit, e.g. '10s'
-	lockTimeout  string
-	parallelism  int
-	reattachInfo ReattachInfo
-	refresh      bool
-	state        string
-	stateOut     string
-	targets      []string
+	lockTimeout             string
+	parallelism             int
+	reattachInfo            ReattachInfo
+	refresh                 bool
+	state                   string
+	stateOut                string
+	targets                 []string
+	gracefulShutdownTimeout time.Duration
 
 	// Vars: each var must be supplied as a single string, e.g. 'foo=bar'
 	vars     []string
@@ -27,10 +29,11 @@ type destroyConfig struct {
 }
 
 var defaultDestroyOptions = destroyConfig{
-	lock:        true,
-	lockTimeout: "0s",
-	parallelism: 10,
-	refresh:     true,
+	lock:                    true,
+	lockTimeout:             "0s",
+	parallelism:             10,
+	refresh:                 true,
+	gracefulShutdownTimeout: 0,
 }
 
 // DestroyOption represents options used in the Destroy method.
@@ -44,6 +47,10 @@ func (opt *DirOption) configureDestroy(conf *destroyConfig) {
 
 func (opt *ParallelismOption) configureDestroy(conf *destroyConfig) {
 	conf.parallelism = opt.parallelism
+}
+
+func (opt *GracefulShutdownTimeoutOption) configureDestroy(conf *destroyConfig) {
+	conf.gracefulShutdownTimeout = opt.timeout
 }
 
 func (opt *BackupOption) configureDestroy(conf *destroyConfig) {
@@ -88,14 +95,14 @@ func (opt *ReattachOption) configureDestroy(conf *destroyConfig) {
 
 // Destroy represents the terraform destroy subcommand.
 func (tf *Terraform) Destroy(ctx context.Context, opts ...DestroyOption) error {
-	cmd, err := tf.destroyCmd(ctx, opts...)
+	cmd, destroyOpts, err := tf.destroyCmd(ctx, opts...)
 	if err != nil {
 		return err
 	}
-	return tf.runTerraformCmd(ctx, cmd)
+	return tf.runTerraformCmdWithGracefulshutdownTimeout(ctx, cmd, destroyOpts.gracefulShutdownTimeout)
 }
 
-func (tf *Terraform) destroyCmd(ctx context.Context, opts ...DestroyOption) (*exec.Cmd, error) {
+func (tf *Terraform) destroyCmd(ctx context.Context, opts ...DestroyOption) (*exec.Cmd, *destroyConfig, error) {
 	c := defaultDestroyOptions
 
 	for _, o := range opts {
@@ -147,10 +154,10 @@ func (tf *Terraform) destroyCmd(ctx context.Context, opts ...DestroyOption) (*ex
 	if c.reattachInfo != nil {
 		reattachStr, err := c.reattachInfo.marshalString()
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		mergeEnv[reattachEnvVar] = reattachStr
 	}
 
-	return tf.buildTerraformCmd(mergeEnv, args...), nil
+	return tf.buildTerraformCmd(mergeEnv, args...), &c, nil
 }

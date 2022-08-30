@@ -11,7 +11,13 @@ import (
 	"time"
 )
 
+const defaultGracefulShutdownTimeout = 0
+
 func (tf *Terraform) runTerraformCmd(parentCtx context.Context, cmd *exec.Cmd) error {
+	return tf.runTerraformCmdWithGracefulshutdownTimeout(parentCtx, cmd, defaultGracefulShutdownTimeout)
+}
+
+func (tf *Terraform) runTerraformCmdWithGracefulshutdownTimeout(parentCtx context.Context, cmd *exec.Cmd, gracefulShutdownTimeout time.Duration) error {
 	var errBuf strings.Builder
 
 	cmd.SysProcAttr = &syscall.SysProcAttr{
@@ -50,9 +56,9 @@ func (tf *Terraform) runTerraformCmd(parentCtx context.Context, cmd *exec.Cmd) e
 	if err != nil {
 		return err
 	}
-	// TODO: select
-	cmdDoneCh := make(chan error)
-	returnCh := make(chan error)
+
+	cmdDoneCh := make(chan error, 1)
+	returnCh := make(chan error, 1)
 	defer close(returnCh)
 	go func() {
 		select {
@@ -62,10 +68,9 @@ func (tf *Terraform) runTerraformCmd(parentCtx context.Context, cmd *exec.Cmd) e
 			if err != nil {
 				tf.logger.Printf("[WARN] Error sending SIGINT to terraform: %v", err)
 			}
-			// give 10 seconds to the process before force killing it
-			// TODO: make it configurable
+			// give some time to the process before forcefully killing it
 			select {
-			case <-time.After(10 * time.Second):
+			case <-time.After(gracefulShutdownTimeout):
 				cmd.Process.Signal(os.Kill) // to kill the process
 				cancel()                    // to cancel stdout/stderr writers
 				tf.logger.Printf("[ERROR] terraform forcefully killed after graceful shutdown timeout")

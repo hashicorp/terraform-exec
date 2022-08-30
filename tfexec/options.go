@@ -2,6 +2,7 @@ package tfexec
 
 import (
 	"encoding/json"
+	"time"
 )
 
 // AllowMissingConfigOption represents the -allow-missing-config flag.
@@ -229,6 +230,14 @@ type ParallelismOption struct {
 
 func Parallelism(n int) *ParallelismOption {
 	return &ParallelismOption{n}
+}
+
+type GracefulShutdownTimeoutOption struct {
+	timeout time.Duration
+}
+
+func GracefulShutdownTimeout(timeout time.Duration) *GracefulShutdownTimeoutOption {
+	return &GracefulShutdownTimeoutOption{timeout}
 }
 
 type GraphPlanOption struct {

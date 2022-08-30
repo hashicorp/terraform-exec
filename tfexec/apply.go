@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os/exec"
 	"strconv"
+	"time"
 )
 
 type applyConfig struct {
@@ -13,14 +14,15 @@ type applyConfig struct {
 	lock      bool
 
 	// LockTimeout must be a string with time unit, e.g. '10s'
-	lockTimeout  string
-	parallelism  int
-	reattachInfo ReattachInfo
-	refresh      bool
-	replaceAddrs []string
-	state        string
-	stateOut     string
-	targets      []string
+	lockTimeout             string
+	parallelism             int
+	reattachInfo            ReattachInfo
+	refresh                 bool
+	replaceAddrs            []string
+	state                   string
+	stateOut                string
+	targets                 []string
+	gracefulShutdownTimeout time.Duration
 
 	// Vars: each var must be supplied as a single string, e.g. 'foo=bar'
 	vars     []string
@@ -28,9 +30,10 @@ type applyConfig struct {
 }
 
 var defaultApplyOptions = applyConfig{
-	lock:        true,
-	parallelism: 10,
-	refresh:     true,
+	lock:                    true,
+	parallelism:             10,
+	refresh:                 true,
+	gracefulShutdownTimeout: 0,
 }
 
 // ApplyOption represents options used in the Apply method.
@@ -40,6 +43,10 @@ type ApplyOption interface {
 
 func (opt *ParallelismOption) configureApply(conf *applyConfig) {
 	conf.parallelism = opt.parallelism
+}
+
+func (opt *GracefulShutdownTimeoutOption) configureApply(conf *applyConfig) {
+	conf.gracefulShutdownTimeout = opt.timeout
 }
 
 func (opt *BackupOption) configureApply(conf *applyConfig) {
@@ -92,14 +99,15 @@ func (opt *ReattachOption) configureApply(conf *applyConfig) {
 
 // Apply represents the terraform apply subcommand.
 func (tf *Terraform) Apply(ctx context.Context, opts ...ApplyOption) error {
-	cmd, err := tf.applyCmd(ctx, opts...)
+	cmd, applyOpts, err := tf.applyCmd(ctx, opts...)
 	if err != nil {
 		return err
 	}
-	return tf.runTerraformCmd(ctx, cmd)
+
+	return tf.runTerraformCmdWithGracefulshutdownTimeout(ctx, cmd, applyOpts.gracefulShutdownTimeout)
 }
 
-func (tf *Terraform) applyCmd(ctx context.Context, opts ...ApplyOption) (*exec.Cmd, error) {
+func (tf *Terraform) applyCmd(ctx context.Context, opts ...ApplyOption) (*exec.Cmd, *applyConfig, error) {
 	c := defaultApplyOptions
 
 	for _, o := range opts {
@@ -134,7 +142,7 @@ func (tf *Terraform) applyCmd(ctx context.Context, opts ...ApplyOption) (*exec.C
 	if c.replaceAddrs != nil {
 		err := tf.compatible(ctx, tf0_15_2, nil)
 		if err != nil {
-			return nil, fmt.Errorf("replace option was introduced in Terraform 0.15.2: %w", err)
+			return nil, nil, fmt.Errorf("replace option was introduced in Terraform 0.15.2: %w", err)
 		}
 		for _, addr := range c.replaceAddrs {
 			args = append(args, "-replace="+addr)
@@ -160,10 +168,10 @@ func (tf *Terraform) applyCmd(ctx context.Context, opts ...ApplyOption) (*exec.C
 	if c.reattachInfo != nil {
 		reattachStr, err := c.reattachInfo.marshalString()
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		mergeEnv[reattachEnvVar] = reattachStr
 	}
 
-	return tf.buildTerraformCmd(mergeEnv, args...), nil
+	return tf.buildTerraformCmd(mergeEnv, args...), &c, nil
 }
