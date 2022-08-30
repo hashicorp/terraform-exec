@@ -5,7 +5,7 @@ package tfexec
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"strings"
@@ -55,7 +55,7 @@ func (tf *Terraform) runTerraformCmdWithGracefulshutdownTimeout(ctx context.Cont
 		select {
 		case <-ctx.Done(): // wait for context cancelled
 			cmd.Process.Signal(os.Kill)
-			returnCh <- errors.New("terraform forcefully killed")
+			returnCh <- fmt.Errorf("%w: terraform forcefully killed", ctx.Err())
 		case err := <-cmdDoneCh:
 			returnCh <- err
 		}

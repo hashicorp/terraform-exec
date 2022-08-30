@@ -2,7 +2,7 @@ package tfexec
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"strings"
@@ -81,9 +81,9 @@ func (tf *Terraform) runTerraformCmdWithGracefulshutdownTimeout(parentCtx contex
 				}
 				cancel() // to cancel stdout/stderr writers
 				tf.logger.Printf("[ERROR] terraform forcefully killed after graceful shutdown timeout")
-				returnCh <- errors.New("terraform forcefully killed after graceful shutdown timeout")
+				returnCh <- fmt.Errorf("%w: terraform forcefully killed after graceful shutdown timeout", parentCtx.Err())
 			case err := <-cmdDoneCh:
-				returnCh <- err
+				returnCh <- fmt.Errorf("%w: %v", parentCtx.Err(), err)
 				tf.logger.Printf("[INFO] terraform successfully interrupted")
 			}
 		case err := <-cmdDoneCh:
