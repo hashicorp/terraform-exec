@@ -118,7 +118,7 @@ jobs:
       - run: gofmt -s -l .
   go119_release:
     docker:
-      - image: cimg/go:1.9
+      - image: cimg/go:1.19
     steps:
       - add_ssh_keys:
           fingerprints:
