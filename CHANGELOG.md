@@ -1,11 +1,11 @@
-# 0.17.3 (Unreleased)
+# 0.17.3 (August 31, 2022)
 
 Please note that terraform-exec now requires Go 1.18.
 
 BUG FIXES:
 
- - Fix bug in which `terraform init` was always called with the `-force-copy` flag [GH-268]
- - Always pass `-no-color` flag when calling `terraform force-unlock` [GH-270]
+ - Fix bug in which `terraform init` was always called with the `-force-copy` flag ([#268](https://github.com/hashicorp/terraform-exec/issues/268))
+ - Always pass `-no-color` flag when calling `terraform force-unlock` ([#270](https://github.com/hashicorp/terraform-exec/issues/270))
 
 # 0.17.2 (July 01, 2022)
 
