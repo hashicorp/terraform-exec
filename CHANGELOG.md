@@ -1,5 +1,7 @@
 # 0.17.3 (Unreleased)
 
+Please note that terraform-exec now requires Go 1.18.
+
 BUG FIXES:
 
  - Fix bug in which `terraform init` was always called with the `-force-copy` flag [GH-268]
