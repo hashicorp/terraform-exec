@@ -16,6 +16,12 @@ import (
 	"github.com/hashicorp/terraform-exec/internal/version"
 )
 
+// If using the InterruptSignal option, we stuff the interrupt channel into the
+// context to keep our APIs simpler (and non-changing).
+//
+//     context.WithValue(ctx, interruptContext, interruptCh)
+var interruptContext = new(struct{})
+
 const (
 	checkpointDisableEnvVar  = "CHECKPOINT_DISABLE"
 	cliArgsEnvVar            = "TF_CLI_ARGS"
@@ -191,7 +197,7 @@ func (tf *Terraform) buildTerraformCmd(ctx context.Context, mergeEnv map[string]
 }
 
 func (tf *Terraform) runTerraformCmdJSON(ctx context.Context, cmd *exec.Cmd, v interface{}) error {
-	var outbuf = bytes.Buffer{}
+	var outbuf bytes.Buffer
 	cmd.Stdout = mergeWriters(cmd.Stdout, &outbuf)
 
 	err := tf.runTerraformCmd(ctx, cmd)

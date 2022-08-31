@@ -2,6 +2,7 @@ package tfexec
 
 import (
 	"context"
+	"os"
 	"os/exec"
 	"strings"
 	"sync"
@@ -50,6 +51,19 @@ func (tf *Terraform) runTerraformCmd(ctx context.Context, cmd *exec.Cmd) error {
 	}
 	if err != nil {
 		return tf.wrapExitError(ctx, err, "")
+	}
+
+	if interruptCh := ctx.Value(interruptContext); interruptCh != nil {
+		exited := make(chan struct{})
+		defer close(exited)
+		go func() {
+			select {
+			case <-interruptCh.(<-chan struct{}):
+				cmd.Process.Signal(os.Interrupt)
+			case <-exited:
+			case <-ctx.Done():
+			}
+		}()
 	}
 
 	var errStdout, errStderr error

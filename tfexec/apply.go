@@ -8,6 +8,8 @@ import (
 )
 
 type applyConfig struct {
+	interruptCh <-chan struct{}
+
 	backup    string
 	dirOrPlan string
 	lock      bool
@@ -40,6 +42,10 @@ type ApplyOption interface {
 
 func (opt *ParallelismOption) configureApply(conf *applyConfig) {
 	conf.parallelism = opt.parallelism
+}
+
+func (opt *InterruptChannelOption) configureApply(conf *applyConfig) {
+	conf.interruptCh = opt.interrupt
 }
 
 func (opt *BackupOption) configureApply(conf *applyConfig) {
@@ -92,14 +98,17 @@ func (opt *ReattachOption) configureApply(conf *applyConfig) {
 
 // Apply represents the terraform apply subcommand.
 func (tf *Terraform) Apply(ctx context.Context, opts ...ApplyOption) error {
-	cmd, err := tf.applyCmd(ctx, opts...)
+	cmd, cfg, err := tf.applyCmd(ctx, opts...)
 	if err != nil {
 		return err
+	}
+	if cfg.interruptCh != nil {
+		ctx = context.WithValue(ctx, interruptContext, cfg.interruptCh)
 	}
 	return tf.runTerraformCmd(ctx, cmd)
 }
 
-func (tf *Terraform) applyCmd(ctx context.Context, opts ...ApplyOption) (*exec.Cmd, error) {
+func (tf *Terraform) applyCmd(ctx context.Context, opts ...ApplyOption) (*exec.Cmd, *applyConfig, error) {
 	c := defaultApplyOptions
 
 	for _, o := range opts {
@@ -134,7 +143,7 @@ func (tf *Terraform) applyCmd(ctx context.Context, opts ...ApplyOption) (*exec.C
 	if c.replaceAddrs != nil {
 		err := tf.compatible(ctx, tf0_15_2, nil)
 		if err != nil {
-			return nil, fmt.Errorf("replace option was introduced in Terraform 0.15.2: %w", err)
+			return nil, nil, fmt.Errorf("replace option was introduced in Terraform 0.15.2: %w", err)
 		}
 		for _, addr := range c.replaceAddrs {
 			args = append(args, "-replace="+addr)
@@ -160,10 +169,10 @@ func (tf *Terraform) applyCmd(ctx context.Context, opts ...ApplyOption) (*exec.C
 	if c.reattachInfo != nil {
 		reattachStr, err := c.reattachInfo.marshalString()
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		mergeEnv[reattachEnvVar] = reattachStr
 	}
 
-	return tf.buildTerraformCmd(ctx, mergeEnv, args...), nil
+	return tf.buildTerraformCmd(ctx, mergeEnv, args...), &c, nil
 }
