@@ -41,7 +41,7 @@ func TestForceUnlock(t *testing.T) {
 			t.Fatalf("error running ForceUnlock: %v", err)
 		}
 	})
-	runTest(t, "invalid lock id", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+	runTest(t, "inmem_backend_locked", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		err := tf.Init(context.Background())
 		if err != nil {
 			t.Fatalf("error running Init: %v", err)

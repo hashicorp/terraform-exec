@@ -46,7 +46,7 @@ var (
 	statePlanReadErrRegexp = regexp.MustCompile(
 		`Terraform couldn't read the given file as a state or plan file.|` +
 			`Error: Failed to read the given file as a state or plan file`)
-	lockIdInvalidErrRegexp = regexp.MustCompile(`Failed to unlock state: Lock ID should be numerical value`)
+	lockIdInvalidErrRegexp = regexp.MustCompile(`Failed to unlock state: `)
 )
 
 func (tf *Terraform) wrapExitError(ctx context.Context, err error, stderr string) error {
