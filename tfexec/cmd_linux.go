@@ -68,6 +68,15 @@ func (tf *Terraform) runTerraformCmdWithGracefulshutdownTimeout(parentCtx contex
 	go func() {
 		select {
 		case <-parentCtx.Done(): // wait for context cancelled
+			if gracefulShutdownTimeout == 0 {
+				if err := withCmdLock(func() error { return cmd.Process.Signal(os.Kill) }); err != nil {
+					tf.logger.Printf("[ERROR] Error sending SIGKILL to terraform: %v", err)
+				}
+				cancel() // to cancel stdout/stderr writers
+				tf.logger.Printf("[ERROR] terraform forcefully killed")
+				returnCh <- fmt.Errorf("%w: terraform forcefully killed", parentCtx.Err())
+				return
+			}
 			tf.logger.Printf("[WARN] The context was cancelled, we'll let Terraform finish by sending SIGINT signal")
 			if err := withCmdLock(func() error { return cmd.Process.Signal(os.Interrupt) }); err != nil {
 				tf.logger.Printf("[ERROR] Error sending SIGINT to terraform: %v", err)
