@@ -10,18 +10,12 @@ import (
 	"os/exec"
 	"strings"
 	"sync"
-	"syscall"
 )
 
 func (tf *Terraform) runTerraformCmd(ctx context.Context, cmd *exec.Cmd) error {
 	var errBuf strings.Builder
 
-	cmd.SysProcAttr = &syscall.SysProcAttr{
-		// kill children if parent is dead
-		Pdeathsig: syscall.SIGKILL,
-		// set process group ID
-		Setpgid: true,
-	}
+	cmd.SysProcAttr = defaultSysProcAttr
 
 	// check for early cancellation
 	select {
