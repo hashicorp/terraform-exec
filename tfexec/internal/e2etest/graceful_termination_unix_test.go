@@ -1,3 +1,7 @@
+// list taken from https://github.com/golang/go/blob/91ef076562dfcf783074dbd84ad7c6db60fdd481/src/go/build/syslist.go#L38-L51
+//go:build aix || android || darwin || dragonfly || freebsd || hurd || illumos || ios || linux || netbsd || openbsd || solaris
+// +build aix android darwin dragonfly freebsd hurd illumos ios linux netbsd openbsd solaris
+
 package e2etest
 
 import (

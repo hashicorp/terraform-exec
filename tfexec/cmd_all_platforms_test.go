@@ -1,6 +1,3 @@
-//go:build !linux
-// +build !linux
-
 package tfexec
 
 import (
@@ -13,7 +10,7 @@ import (
 	"time"
 )
 
-func Test_runTerraformCmd_default(t *testing.T) {
+func Test_runTerraformCmd(t *testing.T) {
 	// Checks runTerraformCmd for race condition when using
 	// go test -race -run Test_runTerraformCmd_default ./tfexec
 	var buf bytes.Buffer
@@ -39,7 +36,7 @@ func Test_runTerraformCmd_default(t *testing.T) {
 	}
 }
 
-func Test_runTerraformCmdCancel_default(t *testing.T) {
+func Test_runTerraformCmdCancel(t *testing.T) {
 	var buf bytes.Buffer
 
 	tf := &Terraform{
