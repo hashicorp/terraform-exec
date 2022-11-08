@@ -19,7 +19,7 @@ func TestStateRmCmd(t *testing.T) {
 	tf.SetEnv(map[string]string{})
 
 	t.Run("defaults", func(t *testing.T) {
-		stateRmCmd, err := tf.stateRmCmd(context.Background(), "testAddress")
+		stateRmCmd, err := tf.stateRmCmd(context.Background(), []string{"testAddress"})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -34,8 +34,25 @@ func TestStateRmCmd(t *testing.T) {
 		}, nil, stateRmCmd)
 	})
 
+	t.Run("multiple addresses", func(t *testing.T) {
+		stateRmCmd, err := tf.stateRmCmd(context.Background(), []string{"resource.A", "resource.B"})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assertCmd(t, []string{
+			"state",
+			"rm",
+			"-no-color",
+			"-lock-timeout=0s",
+			"-lock=true",
+			"resource.A",
+			"resource.B",
+		}, nil, stateRmCmd)
+	})
+
 	t.Run("override all defaults", func(t *testing.T) {
-		stateRmCmd, err := tf.stateRmCmd(context.Background(), "testAddress", Backup("testbackup"), BackupOut("testbackupout"), LockTimeout("200s"), State("teststate"), StateOut("teststateout"), Lock(false))
+		stateRmCmd, err := tf.stateRmCmd(context.Background(), []string{"testAddress"}, Backup("testbackup"), BackupOut("testbackupout"), LockTimeout("200s"), State("teststate"), StateOut("teststateout"), Lock(false))
 		if err != nil {
 			t.Fatal(err)
 		}
