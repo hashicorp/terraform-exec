@@ -56,14 +56,19 @@ func (opt *StateOutOption) configureStateRm(conf *stateRmConfig) {
 
 // StateRm represents the terraform state rm subcommand.
 func (tf *Terraform) StateRm(ctx context.Context, address string, opts ...StateRmCmdOption) error {
-	cmd, err := tf.stateRmCmd(ctx, address, opts...)
+	return tf.StateRmAll(ctx, []string{address}, opts...)
+}
+
+// StateRmAll represents the terraform state rm subcommand with multiple addresses
+func (tf *Terraform) StateRmAll(ctx context.Context, addresses []string, opts ...StateRmCmdOption) error {
+	cmd, err := tf.stateRmCmd(ctx, addresses, opts...)
 	if err != nil {
 		return err
 	}
 	return tf.runTerraformCmd(ctx, cmd)
 }
 
-func (tf *Terraform) stateRmCmd(ctx context.Context, address string, opts ...StateRmCmdOption) (*exec.Cmd, error) {
+func (tf *Terraform) stateRmCmd(ctx context.Context, addresses []string, opts ...StateRmCmdOption) (*exec.Cmd, error) {
 	c := defaultStateRmOptions
 
 	for _, o := range opts {
@@ -98,7 +103,7 @@ func (tf *Terraform) stateRmCmd(ctx context.Context, address string, opts ...Sta
 	}
 
 	// positional arguments
-	args = append(args, address)
+	args = append(args, addresses...)
 
 	return tf.buildTerraformCmd(ctx, nil, args...), nil
 }
