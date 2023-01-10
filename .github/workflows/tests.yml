@@ -1,0 +1,147 @@
+name: Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+env:
+  GOPROXY: https://proxy.golang.org/
+
+jobs:
+  # resolve-versions allows us to show resolved Go versions in job titles
+  # for added clarity and quick orientation in a long list of past jobs
+  resolve-versions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      -
+        name: Resolve old stable version
+        id: oldstable
+        uses: actions/setup-go@6edd4406fa81c3da01a34fa6f6343087c207a568 # https://github.com/actions/setup-go/releases/tag/v3.5.0
+        with:
+          go-version: oldstable
+      -
+        name: Resolve stable version
+        id: stable
+        uses: actions/setup-go@6edd4406fa81c3da01a34fa6f6343087c207a568 # https://github.com/actions/setup-go/releases/tag/v3.5.0
+        with:
+          go-version: stable
+    outputs:
+      oldstable: ${{ steps.oldstable.outputs.go-version }}
+      stable: ${{ steps.stable.outputs.go-version }}
+
+  static-checks:
+    name: static-checks (go ${{ matrix.go_version }})
+    needs: resolve-versions
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        go_version:
+          - ${{ needs.resolve-versions.outputs.oldstable }}
+          - ${{ needs.resolve-versions.outputs.stable }}
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b # https://github.com/actions/checkout/releases/tag/v3.2.0
+      -
+        name: Set up Go
+        uses: actions/setup-go@6edd4406fa81c3da01a34fa6f6343087c207a568 # https://github.com/actions/setup-go/releases/tag/v3.5.0
+        with:
+          go-version: ${{ matrix.go_version }}
+      -
+        name: Go fmt
+        run:
+          # exit 1 if any files need go fmt
+          test -z $(gofmt -s -l .)
+      -
+        name: Go vet
+        run: go vet ./...
+
+  unit-tests:
+    name: unit-tests (${{ matrix.os }}, go ${{ matrix.go_version }})
+    needs:
+      - resolve-versions
+      - static-checks
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+        go_version:
+          - ${{ needs.resolve-versions.outputs.oldstable }}
+          - ${{ needs.resolve-versions.outputs.stable }}
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b # https://github.com/actions/checkout/releases/tag/v3.2.0
+      -
+        name: Set up Go
+        uses: actions/setup-go@6edd4406fa81c3da01a34fa6f6343087c207a568 # https://github.com/actions/setup-go/releases/tag/v3.5.0
+        with:
+          go-version: ${{ matrix.go_version }}
+      -
+        name: Go mod download
+        run: go mod download -x
+      -
+        name: Go mod verify
+        run: go mod verify
+      -
+        name: Run build
+        run: go build ./...
+      -
+        name: Run unit tests
+        run: go test -race $(go list ./... | grep -v /tfexec/internal/e2etest)
+
+  e2e-tests:
+    name: e2e-tests (${{ matrix.os }}, go ${{ matrix.go_version }}, terraform ${{ matrix.terraform_version }})
+    needs:
+      - resolve-versions
+      - static-checks
+      - unit-tests
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+        go_version:
+          - ${{ needs.resolve-versions.outputs.oldstable }}
+          - ${{ needs.resolve-versions.outputs.stable }}
+        terraform_version:
+          - "0.11.15"
+          - "0.12.31"
+          - "0.13.7"
+          - "0.14.11"
+          - "0.15.5"
+          - "1.0.11"
+          - "1.1.9"
+          - "1.2.9"
+          - "1.3.7"
+          - "refs/heads/main"
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b # https://github.com/actions/checkout/releases/tag/v3.2.0
+      -
+        name: Set up Go
+        uses: actions/setup-go@6edd4406fa81c3da01a34fa6f6343087c207a568 # https://github.com/actions/setup-go/releases/tag/v3.5.0
+        with:
+          go-version: ${{ matrix.go_version }}
+      -
+        name: Run E2E tests
+        env:
+          TFEXEC_E2ETEST_VERSIONS: ${{ matrix.terraform_version }}
+        run: go test -race -timeout=30m -v ./tfexec/internal/e2etest
