@@ -44,7 +44,7 @@ func (tf *Terraform) runTerraformCmd(ctx context.Context, cmd *exec.Cmd) error {
 		err = ctx.Err()
 	}
 	if err != nil {
-		return tf.wrapExitError(ctx, err, "")
+		return err
 	}
 
 	var errStdout, errStderr error
@@ -70,15 +70,15 @@ func (tf *Terraform) runTerraformCmd(ctx context.Context, cmd *exec.Cmd) error {
 		err = ctx.Err()
 	}
 	if err != nil {
-		return tf.wrapExitError(ctx, err, errBuf.String())
+		return err
 	}
 
 	// Return error if there was an issue reading the std out/err
 	if errStdout != nil && ctx.Err() != nil {
-		return tf.wrapExitError(ctx, errStdout, errBuf.String())
+		return errStdout
 	}
 	if errStderr != nil && ctx.Err() != nil {
-		return tf.wrapExitError(ctx, errStderr, errBuf.String())
+		return errStderr
 	}
 
 	return nil

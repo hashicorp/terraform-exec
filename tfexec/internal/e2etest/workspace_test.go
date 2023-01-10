@@ -2,7 +2,6 @@ package e2etest
 
 import (
 	"context"
-	"errors"
 	"reflect"
 	"testing"
 
@@ -45,12 +44,8 @@ func TestWorkspace_does_not_exist(t *testing.T) {
 	runTest(t, "basic", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		const doesNotExistWorkspace = "does-not-exist"
 		err := tf.WorkspaceSelect(context.Background(), doesNotExistWorkspace)
-		var wsErr *tfexec.ErrNoWorkspace
-		if !errors.As(err, &wsErr) {
-			t.Fatalf("expected ErrNoWorkspace, %T returned: %s", err, err)
-		}
-		if wsErr.Name != doesNotExistWorkspace {
-			t.Fatalf("expected %q, got %q", doesNotExistWorkspace, wsErr.Name)
+		if err == nil {
+			t.Fatalf("expected error, but did not get one")
 		}
 	})
 }
@@ -71,12 +66,8 @@ func TestWorkspace_already_exists(t *testing.T) {
 		t.Run("create existing workspace", func(t *testing.T) {
 			err := tf.WorkspaceNew(context.Background(), newWorkspace)
 
-			var wsErr *tfexec.ErrWorkspaceExists
-			if !errors.As(err, &wsErr) {
-				t.Fatalf("expected ErrWorkspaceExists, %T returned: %s", err, err)
-			}
-			if wsErr.Name != newWorkspace {
-				t.Fatalf("expected %q, got %q", newWorkspace, wsErr.Name)
+			if err == nil {
+				t.Fatalf("expected error, but did not get one")
 			}
 		})
 	})

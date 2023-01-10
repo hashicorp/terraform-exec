@@ -111,16 +111,15 @@ func TestShow_emptyDir(t *testing.T) {
 }
 
 func TestShow_noInitBasic(t *testing.T) {
-	// Prior to v1.2.0, running show before init always results in ErrNoInit.
+	// Prior to v1.2.0, running show before init always results in an error.
 	// In the basic case, in which the local backend is implicit and there are
 	// no providers to download, this is unintended behaviour, as
 	// init is not actually necessary. This is considered a known issue in
 	// pre-1.2.0 versions.
 	runTestWithVersions(t, []string{testutil.Latest012, testutil.Latest013, testutil.Latest014, testutil.Latest015, testutil.Latest_v1, testutil.Latest_v1_1}, "basic", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
-		var noInit *tfexec.ErrNoInit
 		_, err := tf.Show(context.Background())
-		if !errors.As(err, &noInit) {
-			t.Fatalf("expected error ErrNoInit, got %T: %s", err, err)
+		if err == nil {
+			t.Fatalf("expected error, but did not get one")
 		}
 	})
 
@@ -149,16 +148,15 @@ func TestShow_noInitBasic(t *testing.T) {
 }
 
 func TestShow_noInitModule(t *testing.T) {
-	// Prior to v1.2.0, running show before init always results in ErrNoInit.
+	// Prior to v1.2.0, running show before init always results in an error.
 	// In the basic case, in which the local backend is implicit and there are
 	// no providers to download, this is unintended behaviour, as
 	// init is not actually necessary. This is considered a known issue in
 	// pre-1.2.0 versions.
 	runTestWithVersions(t, []string{testutil.Latest012, testutil.Latest013, testutil.Latest014, testutil.Latest015, testutil.Latest_v1, testutil.Latest_v1_1}, "registry_module", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
-		var noInit *tfexec.ErrNoInit
 		_, err := tf.Show(context.Background())
-		if !errors.As(err, &noInit) {
-			t.Fatalf("expected error ErrNoInit, got %T: %s", err, err)
+		if err == nil {
+			t.Fatalf("expected error, but did not get one")
 		}
 	})
 
@@ -191,10 +189,9 @@ func TestShow_noInitInmemBackend(t *testing.T) {
 			t.Skip("terraform show was added in Terraform 0.12, so test is not valid")
 		}
 
-		var noInit *tfexec.ErrNoInit
 		_, err := tf.Show(context.Background())
-		if !errors.As(err, &noInit) {
-			t.Fatalf("expected error ErrNoInit, got %T: %s", err, err)
+		if err == nil {
+			t.Fatalf("expected error, but did not get one")
 		}
 	})
 }
@@ -205,10 +202,9 @@ func TestShow_noInitLocalBackendNonDefaultState(t *testing.T) {
 			t.Skip("terraform show was added in Terraform 0.12, so test is not valid")
 		}
 
-		var noInit *tfexec.ErrNoInit
 		_, err := tf.Show(context.Background())
-		if !errors.As(err, &noInit) {
-			t.Fatalf("expected error ErrNoInit, got %T: %s", err, err)
+		if err == nil {
+			t.Fatalf("expected error, but did not get one")
 		}
 	})
 }
@@ -219,10 +215,9 @@ func TestShow_noInitCloudBackend(t *testing.T) {
 			t.Skip("cloud backend was added in Terraform 1.1, so test is not valid")
 		}
 
-		var noInit *tfexec.ErrNoInit
 		_, err := tf.Show(context.Background())
-		if !errors.As(err, &noInit) {
-			t.Fatalf("expected error ErrNoInit, got %T: %s", err, err)
+		if err == nil {
+			t.Fatalf("expected error, but did not get one")
 		}
 	})
 }
@@ -237,10 +232,9 @@ func TestShow_noInitEtcdBackend(t *testing.T) {
 			t.Skip("etcd backend was removed in Terraform 1.3, so test is not valid")
 		}
 
-		var noInit *tfexec.ErrNoInit
 		_, err := tf.Show(context.Background())
-		if !errors.As(err, &noInit) {
-			t.Fatalf("expected error ErrNoInit, got %T: %s", err, err)
+		if err == nil {
+			t.Fatalf("expected error, but did not get one")
 		}
 	})
 }
@@ -251,10 +245,9 @@ func TestShow_noInitRemoteBackend(t *testing.T) {
 			t.Skip("terraform show was added in Terraform 0.12, so test is not valid")
 		}
 
-		var noInit *tfexec.ErrNoInit
 		_, err := tf.Show(context.Background())
-		if !errors.As(err, &noInit) {
-			t.Fatalf("expected error ErrNoInit, got %T: %s", err, err)
+		if err == nil {
+			t.Fatalf("expected error, but did not get one")
 		}
 	})
 }
@@ -270,10 +263,9 @@ func TestShow_statefileDoesNotExist(t *testing.T) {
 			t.Fatalf("error running Init in test directory: %s", err)
 		}
 
-		var statePlanReadErr *tfexec.ErrStatePlanRead
 		_, err = tf.ShowStateFile(context.Background(), "statefilefoo")
-		if !errors.As(err, &statePlanReadErr) {
-			t.Fatalf("expected error ErrStatePlanRead, got %T: %s", err, err)
+		if err == nil {
+			t.Fatalf("expected error, but did not get one")
 		}
 	})
 }
