@@ -3,6 +3,7 @@ package tfexec
 import (
 	"context"
 	"fmt"
+	"io"
 	"os/exec"
 	"strconv"
 )
@@ -86,13 +87,37 @@ func (opt *ReattachOption) configureDestroy(conf *destroyConfig) {
 	conf.reattachInfo = opt.info
 }
 
-// Destroy represents the terraform destroy subcommand.
+// Destroy represents the Terraform destroy subcommand.
 func (tf *Terraform) Destroy(ctx context.Context, opts ...DestroyOption) error {
 	cmd, err := tf.destroyCmd(ctx, opts...)
 	if err != nil {
 		return err
 	}
 	return tf.runTerraformCmd(ctx, cmd)
+}
+
+// DestroyJSON represents the Terraform destroy subcommand with the `-json` flag.
+func (tf *Terraform) DestroyJSON(ctx context.Context, w io.Writer, opts ...DestroyOption) error {
+	tf.SetStdout(w)
+
+	cmd, err := tf.destroyJSONCmd(ctx, opts...)
+	if err != nil {
+		return err
+	}
+
+	return tf.runTerraformCmd(ctx, cmd)
+}
+
+func (tf *Terraform) destroyJSONCmd(ctx context.Context, opts ...DestroyOption) (*exec.Cmd, error) {
+	cmd, err := tf.destroyCmd(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	cmd.Args = append(cmd.Args[:3], cmd.Args[2:]...)
+	cmd.Args[2] = "-json"
+
+	return cmd, nil
 }
 
 func (tf *Terraform) destroyCmd(ctx context.Context, opts ...DestroyOption) (*exec.Cmd, error) {

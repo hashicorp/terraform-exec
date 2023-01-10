@@ -2,6 +2,7 @@ package tfexec
 
 import (
 	"context"
+	"io"
 	"os/exec"
 	"strconv"
 )
@@ -69,13 +70,37 @@ func (opt *VarFileOption) configureRefresh(conf *refreshConfig) {
 	conf.varFiles = append(conf.varFiles, opt.path)
 }
 
-// Refresh represents the terraform refresh subcommand.
+// Refresh represents the Terraform refresh subcommand.
 func (tf *Terraform) Refresh(ctx context.Context, opts ...RefreshCmdOption) error {
 	cmd, err := tf.refreshCmd(ctx, opts...)
 	if err != nil {
 		return err
 	}
 	return tf.runTerraformCmd(ctx, cmd)
+}
+
+// RefreshJSON represents the Terraform refresh subcommand with the `-json` flag.
+func (tf *Terraform) RefreshJSON(ctx context.Context, w io.Writer, opts ...RefreshCmdOption) error {
+	tf.SetStdout(w)
+
+	cmd, err := tf.refreshJSONCmd(ctx, opts...)
+	if err != nil {
+		return err
+	}
+
+	return tf.runTerraformCmd(ctx, cmd)
+}
+
+func (tf *Terraform) refreshJSONCmd(ctx context.Context, opts ...RefreshCmdOption) (*exec.Cmd, error) {
+	cmd, err := tf.refreshCmd(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	cmd.Args = append(cmd.Args[:3], cmd.Args[2:]...)
+	cmd.Args[2] = "-json"
+
+	return cmd, nil
 }
 
 func (tf *Terraform) refreshCmd(ctx context.Context, opts ...RefreshCmdOption) (*exec.Cmd, error) {

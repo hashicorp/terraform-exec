@@ -3,6 +3,7 @@ package tfexec
 import (
 	"context"
 	"fmt"
+	"io"
 	"os/exec"
 	"strconv"
 )
@@ -106,6 +107,42 @@ func (tf *Terraform) Plan(ctx context.Context, opts ...PlanOption) (bool, error)
 		return true, nil
 	}
 	return false, err
+}
+
+// PlanJSON executes `terraform plan` with the specified options as well as the
+// `-json` flag and waits for it to complete.
+//
+// The returned boolean is false when the plan diff is empty (no changes) and
+// true when the plan diff is non-empty (changes present).
+//
+// The returned error is nil if `terraform plan` has been executed and exits
+// with either 0 or 2.
+func (tf *Terraform) PlanJSON(ctx context.Context, w io.Writer, opts ...PlanOption) (bool, error) {
+	tf.SetStdout(w)
+
+	cmd, err := tf.planJSONCmd(ctx, opts...)
+	if err != nil {
+		return false, err
+	}
+
+	err = tf.runTerraformCmd(ctx, cmd)
+	if err != nil && cmd.ProcessState.ExitCode() == 2 {
+		return true, nil
+	}
+
+	return false, err
+}
+
+func (tf *Terraform) planJSONCmd(ctx context.Context, opts ...PlanOption) (*exec.Cmd, error) {
+	cmd, err := tf.planCmd(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	cmd.Args = append(cmd.Args[:3], cmd.Args[2:]...)
+	cmd.Args[2] = "-json"
+
+	return cmd, nil
 }
 
 func (tf *Terraform) planCmd(ctx context.Context, opts ...PlanOption) (*exec.Cmd, error) {

@@ -3,6 +3,7 @@ package tfexec
 import (
 	"context"
 	"fmt"
+	"io"
 	"os/exec"
 	"strconv"
 )
@@ -90,13 +91,37 @@ func (opt *ReattachOption) configureApply(conf *applyConfig) {
 	conf.reattachInfo = opt.info
 }
 
-// Apply represents the terraform apply subcommand.
+// Apply represents the Terraform apply subcommand.
 func (tf *Terraform) Apply(ctx context.Context, opts ...ApplyOption) error {
 	cmd, err := tf.applyCmd(ctx, opts...)
 	if err != nil {
 		return err
 	}
 	return tf.runTerraformCmd(ctx, cmd)
+}
+
+// ApplyJSON represents the Terraform apply subcommand with the `-json` flag.
+func (tf *Terraform) ApplyJSON(ctx context.Context, w io.Writer, opts ...ApplyOption) error {
+	tf.SetStdout(w)
+
+	cmd, err := tf.applyJSONCmd(ctx, opts...)
+	if err != nil {
+		return err
+	}
+
+	return tf.runTerraformCmd(ctx, cmd)
+}
+
+func (tf *Terraform) applyJSONCmd(ctx context.Context, opts ...ApplyOption) (*exec.Cmd, error) {
+	cmd, err := tf.applyCmd(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	cmd.Args = append(cmd.Args[:3], cmd.Args[2:]...)
+	cmd.Args[2] = "-json"
+
+	return cmd, nil
 }
 
 func (tf *Terraform) applyCmd(ctx context.Context, opts ...ApplyOption) (*exec.Cmd, error) {
