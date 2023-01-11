@@ -19,7 +19,7 @@ func TestApplyCmd(t *testing.T) {
 	tf.SetEnv(map[string]string{})
 
 	t.Run("basic", func(t *testing.T) {
-		applyCmd, err := tf.applyCmd(context.Background(),
+		applyCmd, cfg, err := tf.applyCmd(context.Background(),
 			Backup("testbackup"),
 			LockTimeout("200s"),
 			State("teststate"),
@@ -36,6 +36,7 @@ func TestApplyCmd(t *testing.T) {
 			Var("var1=foo"),
 			Var("var2=bar"),
 			DirOrPlan("testfile"),
+			InterruptChannel(make(chan struct{})),
 		)
 		if err != nil {
 			t.Fatal(err)
@@ -63,5 +64,9 @@ func TestApplyCmd(t *testing.T) {
 			"-var", "var2=bar",
 			"testfile",
 		}, nil, applyCmd)
+
+		if cfg.interruptCh == nil {
+			t.Fatal("interrupt signal is unexpectedly nil")
+		}
 	})
 }

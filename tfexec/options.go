@@ -240,6 +240,21 @@ func GraphPlan(file string) *GraphPlanOption {
 	return &GraphPlanOption{file}
 }
 
+type InterruptChannelOption struct {
+	interrupt <-chan struct{}
+}
+
+// InterruptChannel accepts a channel that can trigger an interrupt signal to
+// be sent to the running Terraform process. This allows you to orchestrate a
+// graceful shutdown as a caller: close the interrupt channel to begin a
+// graceful shutdown, and if enough time has elapsed, cancel the context to
+// force a hard shutdown.
+//
+// The interrupt channel is received from once.
+func InterruptChannel(interrupt <-chan struct{}) *InterruptChannelOption {
+	return &InterruptChannelOption{interrupt}
+}
+
 type PlatformOption struct {
 	platform string
 }

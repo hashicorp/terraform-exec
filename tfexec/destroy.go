@@ -8,6 +8,8 @@ import (
 )
 
 type destroyConfig struct {
+	interruptCh <-chan struct{}
+
 	backup string
 	dir    string
 	lock   bool
@@ -44,6 +46,10 @@ func (opt *DirOption) configureDestroy(conf *destroyConfig) {
 
 func (opt *ParallelismOption) configureDestroy(conf *destroyConfig) {
 	conf.parallelism = opt.parallelism
+}
+
+func (opt *InterruptChannelOption) configureDestroy(conf *destroyConfig) {
+	conf.interruptCh = opt.interrupt
 }
 
 func (opt *BackupOption) configureDestroy(conf *destroyConfig) {
@@ -88,14 +94,17 @@ func (opt *ReattachOption) configureDestroy(conf *destroyConfig) {
 
 // Destroy represents the terraform destroy subcommand.
 func (tf *Terraform) Destroy(ctx context.Context, opts ...DestroyOption) error {
-	cmd, err := tf.destroyCmd(ctx, opts...)
+	cmd, cfg, err := tf.destroyCmd(ctx, opts...)
 	if err != nil {
 		return err
+	}
+	if cfg.interruptCh != nil {
+		ctx = context.WithValue(ctx, interruptContext, cfg.interruptCh)
 	}
 	return tf.runTerraformCmd(ctx, cmd)
 }
 
-func (tf *Terraform) destroyCmd(ctx context.Context, opts ...DestroyOption) (*exec.Cmd, error) {
+func (tf *Terraform) destroyCmd(ctx context.Context, opts ...DestroyOption) (*exec.Cmd, *destroyConfig, error) {
 	c := defaultDestroyOptions
 
 	for _, o := range opts {
@@ -147,10 +156,10 @@ func (tf *Terraform) destroyCmd(ctx context.Context, opts ...DestroyOption) (*ex
 	if c.reattachInfo != nil {
 		reattachStr, err := c.reattachInfo.marshalString()
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		mergeEnv[reattachEnvVar] = reattachStr
 	}
 
-	return tf.buildTerraformCmd(ctx, mergeEnv, args...), nil
+	return tf.buildTerraformCmd(ctx, mergeEnv, args...), &c, nil
 }
