@@ -112,12 +112,21 @@ func (tf *Terraform) Plan(ctx context.Context, opts ...PlanOption) (bool, error)
 // PlanJSON executes `terraform plan` with the specified options as well as the
 // `-json` flag and waits for it to complete.
 //
+// Using the `-json` flag will result in
+// [machine-readable](https://developer.hashicorp.com/terraform/internals/machine-readable-ui)
+// JSON being written to the supplied `io.Writer`.
+//
 // The returned boolean is false when the plan diff is empty (no changes) and
 // true when the plan diff is non-empty (changes present).
 //
 // The returned error is nil if `terraform plan` has been executed and exits
 // with either 0 or 2.
 func (tf *Terraform) PlanJSON(ctx context.Context, w io.Writer, opts ...PlanOption) (bool, error) {
+	err := tf.compatible(ctx, tf0_15_3, nil)
+	if err != nil {
+		return false, fmt.Errorf("terraform apply -json was added in 0.15.3: %w", err)
+	}
+
 	tf.SetStdout(w)
 
 	cmd, err := tf.planJSONCmd(ctx, opts...)

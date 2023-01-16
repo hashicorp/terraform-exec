@@ -76,6 +76,47 @@ func runTest(t *testing.T, fixtureName string, cb func(t *testing.T, tfVersion *
 	runTestVersions(t, versions, fixtureName, cb)
 }
 
+func runTestWithVersions(t *testing.T, fixtureName string, versions []string, cb func(t *testing.T, tfVersion *version.Version, tf *tfexec.Terraform)) {
+	t.Helper()
+
+	if override := os.Getenv("TFEXEC_E2ETEST_VERSIONS"); override != "" {
+		versions = strings.Split(override, ",")
+	}
+
+	// If the env var TFEXEC_E2ETEST_TERRAFORM_PATH is set to the path of a
+	// valid Terraform executable, only tests appropriate to that
+	// executable's version will be run.
+	if localBinPath := os.Getenv("TFEXEC_E2ETEST_TERRAFORM_PATH"); localBinPath != "" {
+		// By convention, every new Terraform struct is given a clean
+		// temp dir, even if we are only invoking tf.Version(). This
+		// prevents any possible confusion that could result from
+		// reusing an os.TempDir() (for example) that already contained
+		// Terraform files.
+		td, err := ioutil.TempDir("", "tf")
+		if err != nil {
+			t.Fatalf("error creating temporary test directory: %s", err)
+		}
+		t.Cleanup(func() {
+			os.RemoveAll(td)
+		})
+		ltf, err := tfexec.NewTerraform(td, localBinPath)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		ltf.SetAppendUserAgent("tfexec-e2etest")
+
+		lVersion, _, err := ltf.Version(context.Background(), false)
+		if err != nil {
+			t.Fatalf("unable to determine version of Terraform binary at %s: %s", localBinPath, err)
+		}
+
+		versions = []string{lVersion.String()}
+	}
+
+	runTestVersions(t, versions, fixtureName, cb)
+}
+
 func runTestVersions(t *testing.T, versions []string, fixtureName string, cb func(t *testing.T, tfVersion *version.Version, tf *tfexec.Terraform)) {
 	t.Helper()
 
