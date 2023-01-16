@@ -1,3 +1,9 @@
+# 0.18.0 (unreleased)
+
+ENHANCEMENTS:
+
+- tfexec: Add `(Terraform).ApplyJSON()`, `(Terraform).DestroyJSON()`, `(Terraform).PlanJSON()` and `(Terraform).RefreshJSON()` methods ([#354](https://github.com/hashicorp/terraform-exec/pull/354))
+
 # 0.17.3 (August 31, 2022)
 
 Please note that terraform-exec now requires Go 1.18.
