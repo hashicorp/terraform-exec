@@ -124,7 +124,7 @@ func (tf *Terraform) Plan(ctx context.Context, opts ...PlanOption) (bool, error)
 func (tf *Terraform) PlanJSON(ctx context.Context, w io.Writer, opts ...PlanOption) (bool, error) {
 	err := tf.compatible(ctx, tf0_15_3, nil)
 	if err != nil {
-		return false, fmt.Errorf("terraform apply -json was added in 0.15.3: %w", err)
+		return false, fmt.Errorf("terraform plan -json was added in 0.15.3: %w", err)
 	}
 
 	tf.SetStdout(w)

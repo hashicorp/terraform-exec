@@ -87,7 +87,7 @@ func (opt *ReattachOption) configureDestroy(conf *destroyConfig) {
 	conf.reattachInfo = opt.info
 }
 
-// Destroy represents the Terraform destroy subcommand.
+// Destroy represents the terraform destroy subcommand.
 func (tf *Terraform) Destroy(ctx context.Context, opts ...DestroyOption) error {
 	cmd, err := tf.destroyCmd(ctx, opts...)
 	if err != nil {
@@ -96,14 +96,14 @@ func (tf *Terraform) Destroy(ctx context.Context, opts ...DestroyOption) error {
 	return tf.runTerraformCmd(ctx, cmd)
 }
 
-// DestroyJSON represents the Terraform destroy subcommand with the `-json` flag.
+// DestroyJSON represents the terraform destroy subcommand with the `-json` flag.
 // Using the `-json` flag will result in
 // [machine-readable](https://developer.hashicorp.com/terraform/internals/machine-readable-ui)
 // JSON being written to the supplied `io.Writer`.
 func (tf *Terraform) DestroyJSON(ctx context.Context, w io.Writer, opts ...DestroyOption) error {
 	err := tf.compatible(ctx, tf0_15_3, nil)
 	if err != nil {
-		return fmt.Errorf("terraform apply -json was added in 0.15.3: %w", err)
+		return fmt.Errorf("terraform destroy -json was added in 0.15.3: %w", err)
 	}
 
 	tf.SetStdout(w)

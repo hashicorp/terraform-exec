@@ -40,7 +40,7 @@ func TestRefreshJSON_TF014AndEarlier(t *testing.T) {
 			t.Fatalf("error running Init in test directory: %s", err)
 		}
 
-		re := regexp.MustCompile("terraform apply -json was added in 0.15.3")
+		re := regexp.MustCompile("terraform refresh -json was added in 0.15.3")
 
 		err = tf.RefreshJSON(context.Background(), io.Discard)
 		if err != nil && !re.MatchString(err.Error()) {

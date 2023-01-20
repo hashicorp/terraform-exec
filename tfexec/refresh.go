@@ -71,7 +71,7 @@ func (opt *VarFileOption) configureRefresh(conf *refreshConfig) {
 	conf.varFiles = append(conf.varFiles, opt.path)
 }
 
-// Refresh represents the Terraform refresh subcommand.
+// Refresh represents the terraform refresh subcommand.
 func (tf *Terraform) Refresh(ctx context.Context, opts ...RefreshCmdOption) error {
 	cmd, err := tf.refreshCmd(ctx, opts...)
 	if err != nil {
@@ -80,14 +80,14 @@ func (tf *Terraform) Refresh(ctx context.Context, opts ...RefreshCmdOption) erro
 	return tf.runTerraformCmd(ctx, cmd)
 }
 
-// RefreshJSON represents the Terraform refresh subcommand with the `-json` flag.
+// RefreshJSON represents the terraform refresh subcommand with the `-json` flag.
 // Using the `-json` flag will result in
 // [machine-readable](https://developer.hashicorp.com/terraform/internals/machine-readable-ui)
 // JSON being written to the supplied `io.Writer`.
 func (tf *Terraform) RefreshJSON(ctx context.Context, w io.Writer, opts ...RefreshCmdOption) error {
 	err := tf.compatible(ctx, tf0_15_3, nil)
 	if err != nil {
-		return fmt.Errorf("terraform apply -json was added in 0.15.3: %w", err)
+		return fmt.Errorf("terraform refresh -json was added in 0.15.3: %w", err)
 	}
 
 	tf.SetStdout(w)

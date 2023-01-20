@@ -91,7 +91,7 @@ func (opt *ReattachOption) configureApply(conf *applyConfig) {
 	conf.reattachInfo = opt.info
 }
 
-// Apply represents the Terraform apply subcommand.
+// Apply represents the terraform apply subcommand.
 func (tf *Terraform) Apply(ctx context.Context, opts ...ApplyOption) error {
 	cmd, err := tf.applyCmd(ctx, opts...)
 	if err != nil {
@@ -100,7 +100,7 @@ func (tf *Terraform) Apply(ctx context.Context, opts ...ApplyOption) error {
 	return tf.runTerraformCmd(ctx, cmd)
 }
 
-// ApplyJSON represents the Terraform apply subcommand with the `-json` flag.
+// ApplyJSON represents the terraform apply subcommand with the `-json` flag.
 // Using the `-json` flag will result in
 // [machine-readable](https://developer.hashicorp.com/terraform/internals/machine-readable-ui)
 // JSON being written to the supplied `io.Writer`.
