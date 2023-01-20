@@ -77,11 +77,11 @@ func TestRefreshJSONCmd(t *testing.T) {
 
 		assertCmd(t, []string{
 			"refresh",
-			"-json",
 			"-no-color",
 			"-input=false",
 			"-lock-timeout=0s",
 			"-lock=true",
+			"-json",
 		}, nil, refreshCmd)
 	})
 
@@ -93,7 +93,6 @@ func TestRefreshJSONCmd(t *testing.T) {
 
 		assertCmd(t, []string{
 			"refresh",
-			"-json",
 			"-no-color",
 			"-input=false",
 			"-backup=testbackup",
@@ -106,6 +105,7 @@ func TestRefreshJSONCmd(t *testing.T) {
 			"-target=target2",
 			"-var", "var1=foo",
 			"-var", "var2=bar",
+			"-json",
 			"refreshdir",
 		}, nil, refreshCmd)
 	})

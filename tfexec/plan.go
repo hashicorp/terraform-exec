@@ -142,18 +142,6 @@ func (tf *Terraform) PlanJSON(ctx context.Context, w io.Writer, opts ...PlanOpti
 	return false, err
 }
 
-func (tf *Terraform) planJSONCmd(ctx context.Context, opts ...PlanOption) (*exec.Cmd, error) {
-	cmd, err := tf.planCmd(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	cmd.Args = append(cmd.Args[:3], cmd.Args[2:]...)
-	cmd.Args[2] = "-json"
-
-	return cmd, nil
-}
-
 func (tf *Terraform) planCmd(ctx context.Context, opts ...PlanOption) (*exec.Cmd, error) {
 	c := defaultPlanOptions
 
@@ -161,6 +149,32 @@ func (tf *Terraform) planCmd(ctx context.Context, opts ...PlanOption) (*exec.Cmd
 		o.configurePlan(&c)
 	}
 
+	args, err := tf.buildPlanArgs(ctx, c)
+	if err != nil {
+		return nil, err
+	}
+
+	return tf.buildPlanCmd(ctx, c, args)
+}
+
+func (tf *Terraform) planJSONCmd(ctx context.Context, opts ...PlanOption) (*exec.Cmd, error) {
+	c := defaultPlanOptions
+
+	for _, o := range opts {
+		o.configurePlan(&c)
+	}
+
+	args, err := tf.buildPlanArgs(ctx, c)
+	if err != nil {
+		return nil, err
+	}
+
+	args = append(args, "-json")
+
+	return tf.buildPlanCmd(ctx, c, args)
+}
+
+func (tf *Terraform) buildPlanArgs(ctx context.Context, c planConfig) ([]string, error) {
 	args := []string{"plan", "-no-color", "-input=false", "-detailed-exitcode"}
 
 	// string opts: only pass if set
@@ -208,6 +222,10 @@ func (tf *Terraform) planCmd(ctx context.Context, opts ...PlanOption) (*exec.Cmd
 		}
 	}
 
+	return args, nil
+}
+
+func (tf *Terraform) buildPlanCmd(ctx context.Context, c planConfig, args []string) (*exec.Cmd, error) {
 	// optional positional argument
 	if c.dir != "" {
 		args = append(args, c.dir)

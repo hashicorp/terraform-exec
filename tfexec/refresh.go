@@ -100,18 +100,6 @@ func (tf *Terraform) RefreshJSON(ctx context.Context, w io.Writer, opts ...Refre
 	return tf.runTerraformCmd(ctx, cmd)
 }
 
-func (tf *Terraform) refreshJSONCmd(ctx context.Context, opts ...RefreshCmdOption) (*exec.Cmd, error) {
-	cmd, err := tf.refreshCmd(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	cmd.Args = append(cmd.Args[:3], cmd.Args[2:]...)
-	cmd.Args[2] = "-json"
-
-	return cmd, nil
-}
-
 func (tf *Terraform) refreshCmd(ctx context.Context, opts ...RefreshCmdOption) (*exec.Cmd, error) {
 	c := defaultRefreshOptions
 
@@ -119,6 +107,26 @@ func (tf *Terraform) refreshCmd(ctx context.Context, opts ...RefreshCmdOption) (
 		o.configureRefresh(&c)
 	}
 
+	args := tf.buildRefreshArgs(c)
+
+	return tf.buildRefreshCmd(ctx, c, args)
+
+}
+
+func (tf *Terraform) refreshJSONCmd(ctx context.Context, opts ...RefreshCmdOption) (*exec.Cmd, error) {
+	c := defaultRefreshOptions
+
+	for _, o := range opts {
+		o.configureRefresh(&c)
+	}
+
+	args := tf.buildRefreshArgs(c)
+	args = append(args, "-json")
+
+	return tf.buildRefreshCmd(ctx, c, args)
+}
+
+func (tf *Terraform) buildRefreshArgs(c refreshConfig) []string {
 	args := []string{"refresh", "-no-color", "-input=false"}
 
 	// string opts: only pass if set
@@ -153,6 +161,10 @@ func (tf *Terraform) refreshCmd(ctx context.Context, opts ...RefreshCmdOption) (
 		}
 	}
 
+	return args
+}
+
+func (tf *Terraform) buildRefreshCmd(ctx context.Context, c refreshConfig, args []string) (*exec.Cmd, error) {
 	// optional positional argument
 	if c.dir != "" {
 		args = append(args, c.dir)

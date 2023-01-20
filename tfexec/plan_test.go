@@ -100,7 +100,6 @@ func TestPlanJSONCmd(t *testing.T) {
 
 		assertCmd(t, []string{
 			"plan",
-			"-json",
 			"-no-color",
 			"-input=false",
 			"-detailed-exitcode",
@@ -108,6 +107,7 @@ func TestPlanJSONCmd(t *testing.T) {
 			"-lock=true",
 			"-parallelism=10",
 			"-refresh=true",
+			"-json",
 		}, nil, planCmd)
 	})
 
@@ -134,7 +134,6 @@ func TestPlanJSONCmd(t *testing.T) {
 
 		assertCmd(t, []string{
 			"plan",
-			"-json",
 			"-no-color",
 			"-input=false",
 			"-detailed-exitcode",
@@ -152,6 +151,7 @@ func TestPlanJSONCmd(t *testing.T) {
 			"-target=beeblebrox",
 			"-var", "android=paranoid",
 			"-var", "brain_size=planet",
+			"-json",
 			"earth",
 		}, nil, planCmd)
 	})

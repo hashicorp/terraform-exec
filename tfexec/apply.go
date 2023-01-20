@@ -120,18 +120,6 @@ func (tf *Terraform) ApplyJSON(ctx context.Context, w io.Writer, opts ...ApplyOp
 	return tf.runTerraformCmd(ctx, cmd)
 }
 
-func (tf *Terraform) applyJSONCmd(ctx context.Context, opts ...ApplyOption) (*exec.Cmd, error) {
-	cmd, err := tf.applyCmd(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	cmd.Args = append(cmd.Args[:3], cmd.Args[2:]...)
-	cmd.Args[2] = "-json"
-
-	return cmd, nil
-}
-
 func (tf *Terraform) applyCmd(ctx context.Context, opts ...ApplyOption) (*exec.Cmd, error) {
 	c := defaultApplyOptions
 
@@ -139,6 +127,32 @@ func (tf *Terraform) applyCmd(ctx context.Context, opts ...ApplyOption) (*exec.C
 		o.configureApply(&c)
 	}
 
+	args, err := tf.buildApplyArgs(ctx, c)
+	if err != nil {
+		return nil, err
+	}
+
+	return tf.buildApplyCmd(ctx, c, args)
+}
+
+func (tf *Terraform) applyJSONCmd(ctx context.Context, opts ...ApplyOption) (*exec.Cmd, error) {
+	c := defaultApplyOptions
+
+	for _, o := range opts {
+		o.configureApply(&c)
+	}
+
+	args, err := tf.buildApplyArgs(ctx, c)
+	if err != nil {
+		return nil, err
+	}
+
+	args = append(args, "-json")
+
+	return tf.buildApplyCmd(ctx, c, args)
+}
+
+func (tf *Terraform) buildApplyArgs(ctx context.Context, c applyConfig) ([]string, error) {
 	args := []string{"apply", "-no-color", "-auto-approve", "-input=false"}
 
 	// string opts: only pass if set
@@ -184,6 +198,10 @@ func (tf *Terraform) applyCmd(ctx context.Context, opts ...ApplyOption) (*exec.C
 		}
 	}
 
+	return args, nil
+}
+
+func (tf *Terraform) buildApplyCmd(ctx context.Context, c applyConfig, args []string) (*exec.Cmd, error) {
 	// string argument: pass if set
 	if c.dirOrPlan != "" {
 		args = append(args, c.dirOrPlan)

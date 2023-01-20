@@ -83,7 +83,6 @@ func TestDestroyJSONCmd(t *testing.T) {
 
 		assertCmd(t, []string{
 			"destroy",
-			"-json",
 			"-no-color",
 			"-auto-approve",
 			"-input=false",
@@ -91,6 +90,7 @@ func TestDestroyJSONCmd(t *testing.T) {
 			"-lock=true",
 			"-parallelism=10",
 			"-refresh=true",
+			"-json",
 		}, nil, destroyCmd)
 	})
 
@@ -102,7 +102,6 @@ func TestDestroyJSONCmd(t *testing.T) {
 
 		assertCmd(t, []string{
 			"destroy",
-			"-json",
 			"-no-color",
 			"-auto-approve",
 			"-input=false",
@@ -118,6 +117,7 @@ func TestDestroyJSONCmd(t *testing.T) {
 			"-target=target2",
 			"-var", "var1=foo",
 			"-var", "var2=bar",
+			"-json",
 			"destroydir",
 		}, nil, destroyCmd)
 	})

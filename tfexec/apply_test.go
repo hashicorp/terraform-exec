@@ -102,7 +102,6 @@ func TestApplyJSONCmd(t *testing.T) {
 
 		assertCmd(t, []string{
 			"apply",
-			"-json",
 			"-no-color",
 			"-auto-approve",
 			"-input=false",
@@ -121,6 +120,7 @@ func TestApplyJSONCmd(t *testing.T) {
 			"-target=target2",
 			"-var", "var1=foo",
 			"-var", "var2=bar",
+			"-json",
 			"testfile",
 		}, nil, applyCmd)
 	})

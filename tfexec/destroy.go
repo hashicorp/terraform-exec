@@ -116,18 +116,6 @@ func (tf *Terraform) DestroyJSON(ctx context.Context, w io.Writer, opts ...Destr
 	return tf.runTerraformCmd(ctx, cmd)
 }
 
-func (tf *Terraform) destroyJSONCmd(ctx context.Context, opts ...DestroyOption) (*exec.Cmd, error) {
-	cmd, err := tf.destroyCmd(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	cmd.Args = append(cmd.Args[:3], cmd.Args[2:]...)
-	cmd.Args[2] = "-json"
-
-	return cmd, nil
-}
-
 func (tf *Terraform) destroyCmd(ctx context.Context, opts ...DestroyOption) (*exec.Cmd, error) {
 	c := defaultDestroyOptions
 
@@ -135,6 +123,25 @@ func (tf *Terraform) destroyCmd(ctx context.Context, opts ...DestroyOption) (*ex
 		o.configureDestroy(&c)
 	}
 
+	args := tf.buildDestroyArgs(c)
+
+	return tf.buildDestroyCmd(ctx, c, args)
+}
+
+func (tf *Terraform) destroyJSONCmd(ctx context.Context, opts ...DestroyOption) (*exec.Cmd, error) {
+	c := defaultDestroyOptions
+
+	for _, o := range opts {
+		o.configureDestroy(&c)
+	}
+
+	args := tf.buildDestroyArgs(c)
+	args = append(args, "-json")
+
+	return tf.buildDestroyCmd(ctx, c, args)
+}
+
+func (tf *Terraform) buildDestroyArgs(c destroyConfig) []string {
 	args := []string{"destroy", "-no-color", "-auto-approve", "-input=false"}
 
 	// string opts: only pass if set
@@ -171,6 +178,10 @@ func (tf *Terraform) destroyCmd(ctx context.Context, opts ...DestroyOption) (*ex
 		}
 	}
 
+	return args
+}
+
+func (tf *Terraform) buildDestroyCmd(ctx context.Context, c destroyConfig, args []string) (*exec.Cmd, error) {
 	// optional positional argument
 	if c.dir != "" {
 		args = append(args, c.dir)
