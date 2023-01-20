@@ -52,7 +52,7 @@ func (tf *Terraform) outputCmd(ctx context.Context, opts ...OutputOption) *exec.
 		o.configureOutput(&c)
 	}
 
-	args := []string{"output", "-no-color", "-json"}
+	args := []string{"output", "-json"}
 
 	// string opts: only pass if set
 	if c.state != "" {

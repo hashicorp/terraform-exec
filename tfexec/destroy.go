@@ -102,7 +102,7 @@ func (tf *Terraform) destroyCmd(ctx context.Context, opts ...DestroyOption) (*ex
 		o.configureDestroy(&c)
 	}
 
-	args := []string{"destroy", "-no-color", "-auto-approve", "-input=false"}
+	args := []string{"destroy", "-auto-approve", "-input=false"}
 
 	// string opts: only pass if set
 	if c.backup != "" {

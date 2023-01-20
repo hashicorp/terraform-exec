@@ -33,6 +33,7 @@ func TestInitCmd_v012(t *testing.T) {
 		assertCmd(t, []string{
 			"init",
 			"-no-color",
+			"-force-copy",
 			"-input=false",
 			"-lock-timeout=0s",
 			"-backend=true",
@@ -53,6 +54,7 @@ func TestInitCmd_v012(t *testing.T) {
 		assertCmd(t, []string{
 			"init",
 			"-no-color",
+			"-force-copy",
 			"-input=false",
 			"-from-module=testsource",
 			"-lock-timeout=999s",

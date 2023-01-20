@@ -23,7 +23,7 @@ func TestProvidersSchemaCmd(t *testing.T) {
 	assertCmd(t, []string{
 		"providers",
 		"schema",
-		"-json",
 		"-no-color",
+		"-json",
 	}, nil, schemaCmd)
 }

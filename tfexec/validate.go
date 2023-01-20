@@ -17,7 +17,7 @@ func (tf *Terraform) Validate(ctx context.Context) (*tfjson.ValidateOutput, erro
 		return nil, fmt.Errorf("terraform validate -json was added in 0.12.0: %w", err)
 	}
 
-	cmd := tf.buildTerraformCmd(ctx, nil, "validate", "-no-color", "-json")
+	cmd := tf.buildTerraformCmd(ctx, nil, "validate", "-json")
 
 	var outBuf = bytes.Buffer{}
 	cmd.Stdout = &outBuf

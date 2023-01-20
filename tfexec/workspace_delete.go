@@ -59,7 +59,7 @@ func (tf *Terraform) workspaceDeleteCmd(ctx context.Context, workspace string, o
 		o.configureWorkspaceDelete(&c)
 	}
 
-	args := []string{"workspace", "delete", "-no-color"}
+	args := []string{"workspace", "delete"}
 
 	if c.force {
 		args = append(args, "-force")

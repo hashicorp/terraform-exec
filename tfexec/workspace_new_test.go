@@ -32,9 +32,10 @@ func TestWorkspaceNewCmd(t *testing.T) {
 		}
 
 		assertCmd(t, []string{
-			"workspace", "new",
-			"-no-color",
+			"workspace",
+			"new",
 			"workspace-name",
+			"-no-color",
 		}, nil, workspaceNewCmd)
 	})
 
@@ -45,7 +46,8 @@ func TestWorkspaceNewCmd(t *testing.T) {
 		}
 
 		assertCmd(t, []string{
-			"workspace", "new",
+			"workspace",
+			"new",
 			"-no-color",
 			"-lock-timeout=200s",
 			"-lock=false",

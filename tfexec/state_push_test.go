@@ -24,6 +24,7 @@ func TestStatePushCmd(t *testing.T) {
 		assertCmd(t, []string{
 			"state",
 			"push",
+			"-no-color",
 			"-lock=false",
 			"-lock-timeout=0s",
 			"testpath",
@@ -39,6 +40,7 @@ func TestStatePushCmd(t *testing.T) {
 		assertCmd(t, []string{
 			"state",
 			"push",
+			"-no-color",
 			"-force",
 			"-lock=true",
 			"-lock-timeout=10s",

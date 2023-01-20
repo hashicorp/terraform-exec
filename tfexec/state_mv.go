@@ -70,7 +70,7 @@ func (tf *Terraform) stateMvCmd(ctx context.Context, source string, destination 
 		o.configureStateMv(&c)
 	}
 
-	args := []string{"state", "mv", "-no-color"}
+	args := []string{"state", "mv"}
 
 	// string opts: only pass if set
 	if c.backup != "" {

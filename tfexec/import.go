@@ -88,7 +88,7 @@ func (tf *Terraform) importCmd(ctx context.Context, address, id string, opts ...
 		o.configureImport(&c)
 	}
 
-	args := []string{"import", "-no-color", "-input=false"}
+	args := []string{"import", "-input=false"}
 
 	// string opts: only pass if set
 	if c.backup != "" {

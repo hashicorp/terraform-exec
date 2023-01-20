@@ -57,7 +57,7 @@ func (tf *Terraform) taintCmd(ctx context.Context, address string, opts ...Taint
 		o.configureTaint(&c)
 	}
 
-	args := []string{"taint", "-no-color"}
+	args := []string{"taint"}
 
 	if c.lockTimeout != "" {
 		args = append(args, "-lock-timeout="+c.lockTimeout)

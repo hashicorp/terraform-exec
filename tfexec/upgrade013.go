@@ -48,7 +48,7 @@ func (tf *Terraform) upgrade013Cmd(ctx context.Context, opts ...Upgrade013Option
 		o.configureUpgrade013(&c)
 	}
 
-	args := []string{"0.13upgrade", "-no-color", "-yes"}
+	args := []string{"0.13upgrade", "-yes"}
 
 	// optional positional argument
 	if c.dir != "" {

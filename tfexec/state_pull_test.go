@@ -21,6 +21,7 @@ func TestStatePull(t *testing.T) {
 		assertCmd(t, []string{
 			"state",
 			"pull",
+			"-no-color",
 		}, nil, statePullCmd)
 	})
 }

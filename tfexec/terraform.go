@@ -3,13 +3,12 @@ package tfexec
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/go-version"
 	"io"
 	"io/ioutil"
 	"log"
 	"os"
 	"sync"
-
-	"github.com/hashicorp/go-version"
 )
 
 type printfer interface {
@@ -47,6 +46,7 @@ type Terraform struct {
 	disablePluginTLS   bool
 	skipProviderVerify bool
 	env                map[string]string
+	colors             bool
 
 	stdout io.Writer
 	stderr io.Writer
@@ -92,6 +92,7 @@ func NewTerraform(workingDir string, execPath string) (*Terraform, error) {
 		workingDir: workingDir,
 		env:        nil, // explicit nil means copy os.Environ
 		logger:     log.New(ioutil.Discard, "", 0),
+		colors:     false,
 	}
 
 	return &tf, nil
@@ -211,6 +212,12 @@ func (tf *Terraform) SetSkipProviderVerify(skip bool) error {
 	}
 	tf.skipProviderVerify = skip
 	return nil
+}
+
+// SetColor enables ansi colors for
+// Terraform CLI execution.
+func (tf *Terraform) SetColor(c bool) {
+	tf.colors = c
 }
 
 // WorkingDir returns the working directory for Terraform.

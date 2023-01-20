@@ -85,7 +85,7 @@ func (tf *Terraform) refreshCmd(ctx context.Context, opts ...RefreshCmdOption) (
 		o.configureRefresh(&c)
 	}
 
-	args := []string{"refresh", "-no-color", "-input=false"}
+	args := []string{"refresh", "-input=false"}
 
 	// string opts: only pass if set
 	if c.backup != "" {

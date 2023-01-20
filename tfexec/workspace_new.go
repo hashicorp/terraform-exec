@@ -61,7 +61,7 @@ func (tf *Terraform) workspaceNewCmd(ctx context.Context, workspace string, opts
 		o.configureWorkspaceNew(&c)
 	}
 
-	args := []string{"workspace", "new", "-no-color"}
+	args := []string{"workspace", "new"}
 
 	if c.lockTimeout != "" && c.lockTimeout != defaultWorkspaceNewOptions.lockTimeout {
 		// only pass if not default, so we don't need to worry about the 0.11 version check
