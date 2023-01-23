@@ -103,7 +103,8 @@ func (tf *Terraform) Apply(ctx context.Context, opts ...ApplyOption) error {
 // ApplyJSON represents the terraform apply subcommand with the `-json` flag.
 // Using the `-json` flag will result in
 // [machine-readable](https://developer.hashicorp.com/terraform/internals/machine-readable-ui)
-// JSON being written to the supplied `io.Writer`.
+// JSON being written to the supplied `io.Writer`. ApplyJSON is likely to be
+// removed in a future major version in favour of Apply returning JSON by default.
 func (tf *Terraform) ApplyJSON(ctx context.Context, w io.Writer, opts ...ApplyOption) error {
 	err := tf.compatible(ctx, tf0_15_3, nil)
 	if err != nil {

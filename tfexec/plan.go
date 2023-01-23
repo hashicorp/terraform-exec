@@ -121,6 +121,9 @@ func (tf *Terraform) Plan(ctx context.Context, opts ...PlanOption) (bool, error)
 //
 // The returned error is nil if `terraform plan` has been executed and exits
 // with either 0 or 2.
+//
+// PlanJSON is likely to be removed in a future major version in favour of
+// Plan returning JSON by default.
 func (tf *Terraform) PlanJSON(ctx context.Context, w io.Writer, opts ...PlanOption) (bool, error) {
 	err := tf.compatible(ctx, tf0_15_3, nil)
 	if err != nil {

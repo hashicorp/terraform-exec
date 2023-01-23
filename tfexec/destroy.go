@@ -99,7 +99,8 @@ func (tf *Terraform) Destroy(ctx context.Context, opts ...DestroyOption) error {
 // DestroyJSON represents the terraform destroy subcommand with the `-json` flag.
 // Using the `-json` flag will result in
 // [machine-readable](https://developer.hashicorp.com/terraform/internals/machine-readable-ui)
-// JSON being written to the supplied `io.Writer`.
+// JSON being written to the supplied `io.Writer`. DestroyJSON is likely to be
+// removed in a future major version in favour of Destroy returning JSON by default.
 func (tf *Terraform) DestroyJSON(ctx context.Context, w io.Writer, opts ...DestroyOption) error {
 	err := tf.compatible(ctx, tf0_15_3, nil)
 	if err != nil {
