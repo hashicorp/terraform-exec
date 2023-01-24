@@ -42,6 +42,12 @@ func runTest(t *testing.T, fixtureName string, cb func(t *testing.T, tfVersion *
 		versions = strings.Split(override, ",")
 	}
 
+	runTestWithVersions(t, fixtureName, versions, cb)
+}
+
+func runTestWithVersions(t *testing.T, fixtureName string, versions []string, cb func(t *testing.T, tfVersion *version.Version, tf *tfexec.Terraform)) {
+	t.Helper()
+
 	// If the env var TFEXEC_E2ETEST_TERRAFORM_PATH is set to the path of a
 	// valid Terraform executable, only tests appropriate to that
 	// executable's version will be run.
