@@ -12,7 +12,7 @@ import (
 )
 
 func TestUpgrade012(t *testing.T) {
-	runTestVersions(t, []string{testutil.Latest012}, "pre_011_syntax", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+	runTestWithVersions(t, []string{testutil.Latest012}, "pre_011_syntax", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		err := tf.Init(context.Background())
 		if err != nil {
 			t.Fatalf("error running Init in test directory: %s", err)

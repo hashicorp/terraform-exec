@@ -116,7 +116,7 @@ func TestShow_noInitBasic(t *testing.T) {
 	// no providers to download, this is unintended behaviour, as
 	// init is not actually necessary. This is considered a known issue in
 	// pre-1.2.0 versions.
-	runTestVersions(t, []string{testutil.Latest012, testutil.Latest013, testutil.Latest014, testutil.Latest015, testutil.Latest_v1, testutil.Latest_v1_1}, "basic", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+	runTestWithVersions(t, []string{testutil.Latest012, testutil.Latest013, testutil.Latest014, testutil.Latest015, testutil.Latest_v1, testutil.Latest_v1_1}, "basic", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		var noInit *tfexec.ErrNoInit
 		_, err := tf.Show(context.Background())
 		if !errors.As(err, &noInit) {
@@ -154,7 +154,7 @@ func TestShow_noInitModule(t *testing.T) {
 	// no providers to download, this is unintended behaviour, as
 	// init is not actually necessary. This is considered a known issue in
 	// pre-1.2.0 versions.
-	runTestVersions(t, []string{testutil.Latest012, testutil.Latest013, testutil.Latest014, testutil.Latest015, testutil.Latest_v1, testutil.Latest_v1_1}, "registry_module", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+	runTestWithVersions(t, []string{testutil.Latest012, testutil.Latest013, testutil.Latest014, testutil.Latest015, testutil.Latest_v1, testutil.Latest_v1_1}, "registry_module", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		var noInit *tfexec.ErrNoInit
 		_, err := tf.Show(context.Background())
 		if !errors.As(err, &noInit) {
@@ -306,7 +306,7 @@ func TestShow_versionMismatch(t *testing.T) {
 // so we maintain one fixture per supported version.
 // See github.com/hashicorp/terraform/25920
 func TestShowStateFile012(t *testing.T) {
-	runTestVersions(t, []string{testutil.Latest012}, "non_default_statefile_012", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+	runTestWithVersions(t, []string{testutil.Latest012}, "non_default_statefile_012", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		expected := &tfjson.State{
 			FormatVersion: "0.1",
 			// TerraformVersion is ignored to facilitate latest version testing
@@ -344,7 +344,7 @@ func TestShowStateFile012(t *testing.T) {
 }
 
 func TestShowStateFile013(t *testing.T) {
-	runTestVersions(t, []string{testutil.Latest013, testutil.Latest014}, "non_default_statefile_013", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+	runTestWithVersions(t, []string{testutil.Latest013, testutil.Latest014}, "non_default_statefile_013", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		expected := &tfjson.State{
 			FormatVersion: "0.1",
 			// TerraformVersion is ignored to facilitate latest version testing
@@ -382,7 +382,7 @@ func TestShowStateFile013(t *testing.T) {
 }
 
 func TestShowStateFile014(t *testing.T) {
-	runTestVersions(t, []string{testutil.Latest014}, "non_default_statefile_014", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+	runTestWithVersions(t, []string{testutil.Latest014}, "non_default_statefile_014", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		expected := &tfjson.State{
 			FormatVersion: "0.1",
 			// TerraformVersion is ignored to facilitate latest version testing
@@ -422,7 +422,7 @@ func TestShowStateFile014(t *testing.T) {
 // Plan files cannot be transferred between different Terraform versions,
 // so we maintain one fixture per supported version
 func TestShowPlanFile012_linux(t *testing.T) {
-	runTestVersions(t, []string{testutil.Latest012}, "non_default_planfile_012", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+	runTestWithVersions(t, []string{testutil.Latest012}, "non_default_planfile_012", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		if runtime.GOOS != "linux" {
 			t.Skip("plan file created in 0.12 on Linux is not compatible with other systems")
 		}
@@ -488,7 +488,7 @@ func TestShowPlanFile012_linux(t *testing.T) {
 }
 
 func TestShowPlanFile013(t *testing.T) {
-	runTestVersions(t, []string{testutil.Latest013}, "non_default_planfile_013", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+	runTestWithVersions(t, []string{testutil.Latest013}, "non_default_planfile_013", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		providerName := "registry.terraform.io/hashicorp/null"
 
 		expected := &tfjson.Plan{
@@ -550,7 +550,7 @@ func TestShowPlanFile013(t *testing.T) {
 }
 
 func TestShowPlanFile014(t *testing.T) {
-	runTestVersions(t, []string{testutil.Latest014}, "non_default_planfile_014", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+	runTestWithVersions(t, []string{testutil.Latest014}, "non_default_planfile_014", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		providerName := "registry.terraform.io/hashicorp/null"
 
 		expected := &tfjson.Plan{
@@ -615,7 +615,7 @@ func TestShowPlanFile014(t *testing.T) {
 }
 
 func TestShowPlanFileRaw012_linux(t *testing.T) {
-	runTestVersions(t, []string{testutil.Latest012}, "non_default_planfile_012", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+	runTestWithVersions(t, []string{testutil.Latest012}, "non_default_planfile_012", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		if runtime.GOOS != "linux" {
 			t.Skip("plan file created in 0.12 on Linux is not compatible with other systems")
 		}
@@ -647,7 +647,7 @@ func TestShowPlanFileRaw012_linux(t *testing.T) {
 }
 
 func TestShowPlanFileRaw013(t *testing.T) {
-	runTestVersions(t, []string{testutil.Latest013}, "non_default_planfile_013", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+	runTestWithVersions(t, []string{testutil.Latest013}, "non_default_planfile_013", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		f, err := os.Open("testdata/non_default_planfile_013/human_readable_output.txt")
 		if err != nil {
 			t.Fatal(err)
@@ -675,7 +675,7 @@ func TestShowPlanFileRaw013(t *testing.T) {
 }
 
 func TestShowPlanFileRaw014(t *testing.T) {
-	runTestVersions(t, []string{testutil.Latest014}, "non_default_planfile_014", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+	runTestWithVersions(t, []string{testutil.Latest014}, "non_default_planfile_014", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		f, err := os.Open("testdata/non_default_planfile_013/human_readable_output.txt")
 		if err != nil {
 			t.Fatal(err)

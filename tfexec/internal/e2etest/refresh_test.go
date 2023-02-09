@@ -34,7 +34,7 @@ func TestRefresh(t *testing.T) {
 func TestRefreshJSON_TF014AndEarlier(t *testing.T) {
 	versions := []string{testutil.Latest011, testutil.Latest012, testutil.Latest013, testutil.Latest014}
 
-	runTestWithVersions(t, "basic", versions, func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+	runTestWithVersions(t, versions, "basic", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		err := tf.Init(context.Background())
 		if err != nil {
 			t.Fatalf("error running Init in test directory: %s", err)
@@ -52,7 +52,7 @@ func TestRefreshJSON_TF014AndEarlier(t *testing.T) {
 func TestRefreshJSON_TF015AndLater(t *testing.T) {
 	versions := []string{testutil.Latest015, testutil.Latest_v1, testutil.Latest_v1_1}
 
-	runTestWithVersions(t, "basic", versions, func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+	runTestWithVersions(t, versions, "basic", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		err := tf.Init(context.Background())
 		if err != nil {
 			t.Fatalf("error running Init in test directory: %s", err)
