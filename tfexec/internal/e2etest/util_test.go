@@ -88,7 +88,7 @@ func runTestVersions(t *testing.T, versions []string, fixtureName string, cb fun
 	alreadyRunVersions := map[string]bool{}
 	for _, tfv := range versions {
 		t.Run(fmt.Sprintf("%s-%s", fixtureName, tfv), func(t *testing.T) {
-			if runtime.GOOS == "darwin" && runtime.GOARCH == "arm64" {
+			if !strings.HasPrefix(tfv, "refs/") && runtime.GOOS == "darwin" && runtime.GOARCH == "arm64" {
 				v, err := version.NewVersion(tfv)
 				if err != nil {
 					t.Fatal(err)
