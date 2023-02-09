@@ -39,7 +39,10 @@ var (
 
 	tfVersionMismatchErrRegexp        = regexp.MustCompile(`Error: The currently running version of Terraform doesn't meet the|Error: Unsupported Terraform Core version`)
 	tfVersionMismatchConstraintRegexp = regexp.MustCompile(`required_version = "(.+)"|Required version: (.+)\b`)
-	configInvalidErrRegexp            = regexp.MustCompile(`There are some problems with the configuration, described below.`)
+	configInvalidErrRegexp            = regexp.MustCompile(
+		`There are some problems with the configuration, described below.|` +
+			`Error: Unsupported block type|Error: Unsupported argument`, // v1.4+
+	)
 
 	stateLockErrRegexp     = regexp.MustCompile(`Error acquiring the state lock`)
 	stateLockInfoRegexp    = regexp.MustCompile(`Lock Info:\n\s*ID:\s*([^\n]+)\n\s*Path:\s*([^\n]+)\n\s*Operation:\s*([^\n]+)\n\s*Who:\s*([^\n]+)\n\s*Version:\s*([^\n]+)\n\s*Created:\s*([^\n]+)\n`)
