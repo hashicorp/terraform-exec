@@ -43,7 +43,7 @@ We aim for full test coverage of all Terraform CLI commands implemented in `tfex
 The following environment variables can be set during testing:
 
  - `TFEXEC_E2ETEST_VERSIONS`: When set to a comma-separated list of version strings, this overrides the default list of Terraform versions for end-to-end tests, and runs those tests against only the versions supplied.
- - `TFEXEC_E2ETEST_TERRAFORM_PATH`: When set to the path of a valid local Terraform executable, only tests appropriate to that executable's version are run. No other versions are downloaded or run. Note that this means that tests using `runTestVersions()` will only run if the test version matches the local executable exactly.
+ - `TFEXEC_E2ETEST_TERRAFORM_PATH`: When set to the path of a valid local Terraform executable, only tests appropriate to that executable's version are run. No other versions are downloaded or run. Note that this means that tests using `runTestWithVersions()` will only run if the test version matches the local executable exactly.
 
 If both of these environment variables are set, `TFEXEC_E2ETEST_TERRAFORM_PATH` takes precedence, and any other versions specified in `TFEXEC_E2ETEST_VERSIONS` are ignored.
 
@@ -71,7 +71,7 @@ These and any other differences between versions should be specified in test ass
 If the command implemented differs in any way between Terraform versions (e.g. a flag is added or removed, or the subcommand does not exist in earlier versions), use `t.Skip()` directives and version checks to adapt test behaviour as appropriate. For example:
 https://github.com/hashicorp/terraform-exec/blob/d0cb3efafda90dd47bbfabdccde3cf7e45e0376d/tfexec/internal/e2etest/validate_test.go#L15-L23
 
-The `runTestVersions()` helper can be used to run tests against specific Terraform versions. This should be used only alongside a test using `runTest()` to cover the remaining past and future versions.
+The `runTestWithVersions()` helper can be used to run tests against specific Terraform versions. This should be used only alongside a test using `runTest()` to cover the remaining past and future versions.
 
 ## Versioning
 
