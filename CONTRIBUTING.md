@@ -79,7 +79,16 @@ The `github.com/hashicorp/terraform-exec` Go module in its entirety is versioned
 
 ## Releases
 
-Releases are made on a reasonably regular basis by the Terraform team, using our custom CI workflows. There is currently no set release schedule and no requirement for contributors to write CHANGELOG entries.
+Releases are made on a reasonably regular basis by the Terraform team, using our custom CI workflows. There is currently no set release schedule and no requirement for _contributors_ to write CHANGELOG entries.
+
+The following notes are only relevant to maintainers.
+
+1. Make sure [CHANGELOG.md](https://github.com/hashicorp/terraform-exec/blob/main/CHANGELOG.md) has all **changes** and the first line has the **version** you're intending to release (with ` (Unreleased)` suffix).
+1. Trigger the [`release` workflow](https://github.com/hashicorp/terraform-exec/actions/workflows/release.yml) from GitHub UI. This will run the [release script](https://github.com/hashicorp/terraform-exec/blob/main/scripts/release/release.sh). As part of that script:
+  - `Unreleased`, `[GH-XXX]` will be replaced.
+  - The [version](https://github.com/hashicorp/terraform-exec/blob/main/internal/version/version.go#L3) will be bumped to match the one parsed from `CHANGELOG.md`.
+  - Tag will be pushed
+1. [Create new release](https://github.com/hashicorp/terraform-exec/releases/new) via GitHub UI to point to the new tag and copy the appropriate part of the CHANGELOG.md there.
 
 ## Security vulnerabilities
 
