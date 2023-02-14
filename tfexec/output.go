@@ -48,6 +48,7 @@ func (tf *Terraform) Output(ctx context.Context, opts ...OutputOption) (map[stri
 
 // Output represents the terraform output subcommand.
 func (tf *Terraform) OutputRaw(ctx context.Context, FieldToOutput string) string {
+	fmt.Println("FieldToOutput:", FieldToOutput)
 	outputCmd := tf.outputCmdRaw(ctx)
 	outputs := tf.runTerraformCmdString(ctx, outputCmd)
 	fmt.Println("Outputraw:", outputs)

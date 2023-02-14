@@ -186,6 +186,7 @@ func (tf *Terraform) buildTerraformCmd(ctx context.Context, mergeEnv map[string]
 	cmd.Dir = tf.workingDir
 
 	tf.logger.Printf("[INFO] running Terraform command: %s", cmd.String())
+	fmt.Println("Running Terraform command:", cmd.String())
 
 	return cmd
 }
@@ -210,6 +211,7 @@ func (tf *Terraform) runTerraformCmdString(ctx context.Context, cmd *exec.Cmd) s
 
 	err := tf.runTerraformCmd(ctx, cmd)
 	if err != nil {
+		fmt.Println("runTerraformCmdString:", err)
 		return "Error Not Available"
 	}
 	result := outbuf.String()
