@@ -45,6 +45,19 @@ func (tf *Terraform) Output(ctx context.Context, opts ...OutputOption) (map[stri
 	return outputs, nil
 }
 
+// Output represents the terraform output subcommand.
+func (tf *Terraform) OutputRaw(ctx context.Context, FieldToOutput string) string {
+	outputCmd := tf.outputCmdRaw(ctx)
+	outputs := tf.runTerraformCmdString(ctx, outputCmd)
+	return outputs
+}
+
+func (tf *Terraform) outputCmdRaw(ctx context.Context) *exec.Cmd {
+
+	args := []string{"-no-color", "-raw"}
+	return tf.buildTerraformCmd(ctx, nil, args...)
+}
+
 func (tf *Terraform) outputCmd(ctx context.Context, opts ...OutputOption) *exec.Cmd {
 	c := defaultOutputOptions
 

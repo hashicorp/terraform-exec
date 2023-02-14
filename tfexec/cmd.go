@@ -204,6 +204,18 @@ func (tf *Terraform) runTerraformCmdJSON(ctx context.Context, cmd *exec.Cmd, v i
 	return dec.Decode(v)
 }
 
+func (tf *Terraform) runTerraformCmdString(ctx context.Context, cmd *exec.Cmd) string {
+	var outbuf = bytes.Buffer{}
+	cmd.Stdout = mergeWriters(cmd.Stdout, &outbuf)
+
+	err := tf.runTerraformCmd(ctx, cmd)
+	if err != nil {
+		return "Error Not Available"
+	}
+	result := outbuf.String()
+	return result
+}
+
 // mergeUserAgent does some minor deduplication to ensure we aren't
 // just using the same append string over and over.
 func mergeUserAgent(uas ...string) string {
