@@ -3,6 +3,7 @@ package tfexec
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"os/exec"
 )
 
@@ -49,12 +50,13 @@ func (tf *Terraform) Output(ctx context.Context, opts ...OutputOption) (map[stri
 func (tf *Terraform) OutputRaw(ctx context.Context, FieldToOutput string) string {
 	outputCmd := tf.outputCmdRaw(ctx)
 	outputs := tf.runTerraformCmdString(ctx, outputCmd)
+	fmt.Println("Outputraw:", outputs)
 	return outputs
 }
 
 func (tf *Terraform) outputCmdRaw(ctx context.Context) *exec.Cmd {
 
-	args := []string{"-no-color", "-raw"}
+	args := []string{"output", "-no-color", "-raw"}
 	return tf.buildTerraformCmd(ctx, nil, args...)
 }
 

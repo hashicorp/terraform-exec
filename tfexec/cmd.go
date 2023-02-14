@@ -213,6 +213,7 @@ func (tf *Terraform) runTerraformCmdString(ctx context.Context, cmd *exec.Cmd) s
 		return "Error Not Available"
 	}
 	result := outbuf.String()
+	fmt.Println("runTerraformCmdString result:", result)
 	return result
 }
 
