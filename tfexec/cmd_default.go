@@ -40,8 +40,11 @@ func (tf *Terraform) runTerraformCmd(ctx context.Context, cmd *exec.Cmd) error {
 	}
 
 	err = cmd.Start()
-	if err == nil && ctx.Err() != nil {
-		err = ctx.Err()
+	if ctx.Err() != nil {
+		return cmdErr{
+			err:    err,
+			ctxErr: ctx.Err(),
+		}
 	}
 	if err != nil {
 		return err
@@ -66,8 +69,11 @@ func (tf *Terraform) runTerraformCmd(ctx context.Context, cmd *exec.Cmd) error {
 	wg.Wait()
 
 	err = cmd.Wait()
-	if err == nil && ctx.Err() != nil {
-		err = ctx.Err()
+	if ctx.Err() != nil {
+		return cmdErr{
+			err:    err,
+			ctxErr: ctx.Err(),
+		}
 	}
 	if err != nil {
 		return err
