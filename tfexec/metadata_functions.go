@@ -23,7 +23,6 @@ func (tf *Terraform) MetadataFunctions(ctx context.Context) (*tfjson.MetadataFun
 		return nil, err
 	}
 
-
 	return &ret, nil
 }
 
