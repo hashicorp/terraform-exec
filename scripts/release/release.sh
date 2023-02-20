@@ -19,11 +19,15 @@ function init {
   sed --version > /dev/null || pleaseUseGNUsed
 
   DATE=$(date '+%B %d, %Y')
+  REPO_REMOTE_NAME="origin"
 
   if [ "$CI" = true ] ; then
     git config --global user.email "proj-terraform-exec@hashicorp.com"
     git config --global user.name "terraform-exec [bot]"
     git config --global gpg.program scripts/release/signore-wrapper.sh
+
+    REPO_REMOTE_NAME="authed_origin"
+    git remote add ${REPO_REMOTE_NAME} "https://${GIT_PUSH_USER}:${GIT_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
   fi
 
   TARGET_VERSION="$(getTargetVersion)"
@@ -72,8 +76,8 @@ function commitChanges {
       git tag -a -m "v${TARGET_VERSION}" -s "v${TARGET_VERSION}"
   fi
 
-  git push origin "${GITHUB_REF_NAME}"
-  git push origin "v${TARGET_VERSION}"
+  git push "${REPO_REMOTE_NAME}" "${GITHUB_REF_NAME}"
+  git push "${REPO_REMOTE_NAME}" "v${TARGET_VERSION}"
 }
 
 function commitMain {
