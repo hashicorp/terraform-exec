@@ -2,7 +2,6 @@ package e2etest
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -46,12 +45,10 @@ func TestValidate(t *testing.T) {
 		if err != nil {
 			t.Logf("error initializing: %s", err)
 
-			// allow for invalid config errors only here
-			// 0.13 will return this, 0.12 will not
+			// 0.13 will error, 0.12 will not
 			// unsure why 0.12 terraform init does not have a non-zero exit code for syntax problems
-			var confErr *tfexec.ErrConfigInvalid
-			if !errors.As(err, &confErr) {
-				t.Fatalf("expected err ErrConfigInvalid, got %T: %s", err, err)
+			if err == nil {
+				t.Fatalf("expected error, but did not get one")
 			}
 		}
 

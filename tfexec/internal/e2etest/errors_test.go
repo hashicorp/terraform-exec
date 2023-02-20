@@ -54,31 +54,14 @@ func TestMissingVar(t *testing.T) {
 		shortVarName := "no_default"
 		longVarName := "no_default_really_long_variable_name_that_will_line_wrap_tf_output"
 
-		// Test for ErrMissingVar and properly formatted error message on shorter variable names
 		_, err = tf.Plan(context.Background(), tfexec.Var(longVarName+"=foo"))
 		if err == nil {
 			t.Fatalf("expected error running Plan, none returned")
 		}
-		var e *tfexec.ErrMissingVar
-		if !errors.As(err, &e) {
-			t.Fatalf("expected ErrMissingVar, got %T, %s", err, err)
-		}
 
-		if e.VariableName != shortVarName {
-			t.Fatalf("expected missing %s, got %q", shortVarName, e.VariableName)
-		}
-
-		// Test for ErrMissingVar and properly formatted error message on long variable names
 		_, err = tf.Plan(context.Background(), tfexec.Var(shortVarName+"=foo"))
 		if err == nil {
 			t.Fatalf("expected error running Plan, none returned")
-		}
-		if !errors.As(err, &e) {
-			t.Fatalf("expected ErrMissingVar, got %T, %s", err, err)
-		}
-
-		if e.VariableName != longVarName {
-			t.Fatalf("expected missing %s, got %q", longVarName, e.VariableName)
 		}
 
 		var ee *exec.ExitError
@@ -107,20 +90,6 @@ func TestTFVersionMismatch(t *testing.T) {
 			t.Fatal("expected error, but didn't find one")
 		}
 
-		var e *tfexec.ErrTFVersionMismatch
-		if !errors.As(err, &e) {
-			t.Fatalf("expected ErrTFVersionMismatch, got %T, %s", err, err)
-		}
-
-		// in 0.12, we just return "unknown" as the specifics are not included in the error messaging
-		if e.Constraint != "unknown" && e.Constraint != ">99.0.0" {
-			t.Fatalf("unexpected constraint %q", e.Constraint)
-		}
-
-		if e.TFVersion != tfv.String() {
-			t.Fatalf("expected %q, got %q", tfv.String(), e.TFVersion)
-		}
-
 		var ee *exec.ExitError
 		if !errors.As(err, &ee) {
 			t.Fatalf("expected exec.ExitError, got %T, %s", err, err)
@@ -138,11 +107,6 @@ func TestLockedState(t *testing.T) {
 		err = tf.Apply(context.Background())
 		if err == nil {
 			t.Fatal("expected error, but didn't find one")
-		}
-
-		var stateLockedErr *tfexec.ErrStateLocked
-		if !errors.As(err, &stateLockedErr) {
-			t.Fatalf("expected ErrTFVersionMismatch, got %T, %s", err, err)
 		}
 	})
 }

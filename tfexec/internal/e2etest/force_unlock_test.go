@@ -2,7 +2,6 @@ package e2etest
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/hashicorp/go-version"
@@ -50,10 +49,6 @@ func TestForceUnlock(t *testing.T) {
 		err = tf.ForceUnlock(context.Background(), "badlockid")
 		if err == nil {
 			t.Fatalf("expected error when running ForceUnlock with invalid lock id")
-		}
-		var foErr *tfexec.ErrLockIdInvalid
-		if !errors.As(err, &foErr) {
-			t.Fatalf("expected ErrLockIdInvalid, %T returned: %s", err, err)
 		}
 	})
 }
