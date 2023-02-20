@@ -1,0 +1,37 @@
+name: Experiment
+
+permissions:
+  contents: write # for modifying version in-place & pushing tags
+  packages: read # for downloading signore docker image
+
+on:
+  pull_request:
+    branches:
+      - ci-swap-flag-order
+  push:
+    branches:
+      - ci-swap-flag-order
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b # https://github.com/actions/checkout/releases/tag/v3.2.0
+        with:
+          ssh-key: "${{ secrets.GIT_SSH_PRIVATE_KEY }}"
+      -
+        id: setup-signore-package
+        uses: hashicorp/setup-signore-package@v1
+      -
+        name: Run release script
+        env:
+          SIGNORE_CLIENT_ID: ${{ secrets.SIGNORE_CLIENT_ID }}
+          SIGNORE_CLIENT_SECRET: ${{ secrets.SIGNORE_CLIENT_SECRET }}
+          SIGNORE_SIGNER: ${{ secrets.SIGNORE_SIGNER }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.GIT_SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed22519
+          ./scripts/release/release.sh
+          rm -f ~/.ssh/id_ed22519
