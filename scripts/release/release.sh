@@ -27,15 +27,18 @@ function init {
   fi
 
   TARGET_VERSION="$(getTargetVersion)"
+
+  if [ "$TARGET_VERSION" = "" ] ; then
+    printf "Target version not found in changelog, exiting\n"
+    exit 1
+  fi
 }
 
 semverRegex='\([0-9]\+\.[0-9]\+\.[0-9]\+\)\(-\?\)\([0-9a-zA-Z.]\+\)\?'
 
 function getTargetVersion {
   # parse target version from CHANGELOG
-  sed -n 's/^# '"$semverRegex"' (Unreleased)$/\1\2\3/p' CHANGELOG.md || \
-     (printf "\nTarget version not found in changelog, exiting" && \
-       exit 1)
+  sed -n 's/^# '"$semverRegex"' (Unreleased)$/\1\2\3/p' CHANGELOG.md
 }
 
 function modifyChangelog {
