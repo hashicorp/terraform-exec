@@ -29,6 +29,7 @@ jobs:
           SIGNORE_CLIENT_SECRET: ${{ secrets.SIGNORE_CLIENT_SECRET }}
           SIGNORE_SIGNER: ${{ secrets.SIGNORE_SIGNER }}
         run: |
+          mkdir -p ~/.ssh
           echo "${{ secrets.GIT_SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed22519
           ./scripts/release/release.sh
           rm -f ~/.ssh/id_ed22519
