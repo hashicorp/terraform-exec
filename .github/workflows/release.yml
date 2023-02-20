@@ -20,11 +20,6 @@ jobs:
         with:
           ssh-key: "${{ secrets.GIT_SSH_PRIVATE_KEY }}"
       -
-        name: Set up Go
-        uses: actions/setup-go@6edd4406fa81c3da01a34fa6f6343087c207a568 # https://github.com/actions/setup-go/releases/tag/v3.5.0
-        with:
-          go-version: stable
-      -
         id: setup-signore-package
         uses: hashicorp/setup-signore-package@v1
       -
