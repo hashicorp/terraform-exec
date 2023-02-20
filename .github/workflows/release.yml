@@ -17,11 +17,8 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b # https://github.com/actions/checkout/releases/tag/v3.2.0
-      -
-        name: Set up Go
-        uses: actions/setup-go@6edd4406fa81c3da01a34fa6f6343087c207a568 # https://github.com/actions/setup-go/releases/tag/v3.5.0
         with:
-          go-version: stable
+          ssh-key: "${{ secrets.GIT_SSH_PRIVATE_KEY }}"
       -
         id: setup-signore-package
         uses: hashicorp/setup-signore-package@v1
@@ -31,4 +28,7 @@ jobs:
           SIGNORE_CLIENT_ID: ${{ secrets.SIGNORE_CLIENT_ID }}
           SIGNORE_CLIENT_SECRET: ${{ secrets.SIGNORE_CLIENT_SECRET }}
           SIGNORE_SIGNER: ${{ secrets.SIGNORE_SIGNER }}
-        run: ./scripts/release/release.sh
+        run: |
+          echo "${{ secrets.GIT_SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed22519
+          ./scripts/release/release.sh
+          rm -f ~/.ssh/id_ed22519
