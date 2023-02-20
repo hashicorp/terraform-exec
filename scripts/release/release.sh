@@ -65,7 +65,7 @@ function commitChanges {
   git add internal/version/version.go
 
   if [ "$CI" = true ] ; then
-      git commit --gpg-sign="${SIGNORE_SIGNER}" -m "v${TARGET_VERSION} [skip ci]"
+      git commit -m "v${TARGET_VERSION} [skip ci]" --gpg-sign="${SIGNORE_SIGNER}"
       git tag -a -m "v${TARGET_VERSION}" -s -u "${SIGNORE_SIGNER}" "v${TARGET_VERSION}"
   else
       git commit -m "v${TARGET_VERSION} [skip ci]"
