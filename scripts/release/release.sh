@@ -72,7 +72,7 @@ function commitChanges {
       git tag -a -m "v${TARGET_VERSION}" -s "v${TARGET_VERSION}"
   fi
 
-  git push origin "${CIRCLE_BRANCH}"
+  git push origin "${GITHUB_REF}"
   git push origin "v${TARGET_VERSION}"
 }
 
