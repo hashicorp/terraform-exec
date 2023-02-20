@@ -1,4 +1,4 @@
-# 0.18.0 (Unreleased)
+# 0.18.0 (February 20, 2023)
 
 BREAKING CHANGES:
 
