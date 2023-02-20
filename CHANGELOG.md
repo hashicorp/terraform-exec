@@ -1,8 +1,23 @@
 # 0.18.0 (unreleased)
 
+BREAKING CHANGES:
+
+ - The following error types have been removed. These errors were based on regex parsing of Terraform CLI's human-readable output into custom error cases. [GH-352]
+   - `ErrConfigInvalid`
+   - `ErrLockIdInvalid`
+   - `ErrMissingVar`
+   - `ErrNoConfig`
+   - `ErrNoInit`
+   - `ErrNoWorkspace`
+   - `ErrStateLocked`
+   - `ErrStatePlanRead`
+   - `ErrTFVersionMismatch`
+   - `ErrWorkspaceExists`
+
 ENHANCEMENTS:
 
 - tfexec: Add `(Terraform).ApplyJSON()`, `(Terraform).DestroyJSON()`, `(Terraform).PlanJSON()` and `(Terraform).RefreshJSON()` methods ([#354](https://github.com/hashicorp/terraform-exec/pull/354))
+- tfexec: Add `(Terraform).MetadataFunctions()` method [GH-358]
 
 # 0.17.3 (August 31, 2022)
 
