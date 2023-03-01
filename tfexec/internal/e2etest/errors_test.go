@@ -9,6 +9,7 @@ import (
 	"errors"
 	"os"
 	"os/exec"
+	"strings"
 	"testing"
 	"time"
 
@@ -107,6 +108,10 @@ func TestLockedState(t *testing.T) {
 		err = tf.Apply(context.Background())
 		if err == nil {
 			t.Fatal("expected error, but didn't find one")
+		}
+
+		if !strings.Contains(err.Error(), "state lock") {
+			t.Fatal("expected err.Error() to contain 'state lock', but it did not")
 		}
 	})
 }
