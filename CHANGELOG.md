@@ -1,8 +1,8 @@
-# 0.18.1 (Unreleased)
+# 0.18.1 (March 01, 2023)
 
 BUG FIXES:
 
- - Fix bug in which errors returned from commands such as `(Terraform).Apply()` were missing stderr output from Terraform. [GH-372]
+ - Fix bug in which errors returned from commands such as `(Terraform).Apply()` were missing stderr output from Terraform. ([#372](https://github.com/hashicorp/terraform-exec/issues/372))
 
 # 0.18.0 (February 20, 2023)
 
