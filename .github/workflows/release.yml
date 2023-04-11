@@ -16,7 +16,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b # https://github.com/actions/checkout/releases/tag/v3.2.0
+        uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3 # https://github.com/actions/checkout/releases/tag/v3.5.0
         with:
           ssh-key: "${{ secrets.GIT_SSH_PRIVATE_KEY }}"
       -
