@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // This file contains tests that only compile/work in Go 1.13 and forward
 //go:build go1.13
 // +build go1.13
