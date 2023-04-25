@@ -168,8 +168,7 @@ func (tf *Terraform) buildEnv(mergeEnv map[string]string) []string {
 	// constant automation override env vars
 	env[automationEnvVar] = "1"
 
-	// force usage of workspace methods for switching
-	env[workspaceEnvVar] = ""
+	env[workspaceEnvVar] = tf.workspace
 
 	if tf.disablePluginTLS {
 		env[disablePluginTLSEnvVar] = "1"
