@@ -46,7 +46,6 @@ func defaultEnv() []string {
 		"TF_LOG_CORE=",
 		"TF_LOG_PATH=",
 		"TF_LOG_PROVIDER=",
-		"TF_WORKSPACE=",
 	}
 }
 
