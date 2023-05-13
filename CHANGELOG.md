@@ -1,3 +1,9 @@
+# 0.18.2 (Unreleased)
+
+BUG FIXES:
+
+ - Fix bug in which the `TF_WORKSPACE` env var was set to an empty string, instead of being unset as intended. [GH-388]
+
 # 0.18.1 (March 01, 2023)
 
 BUG FIXES:
