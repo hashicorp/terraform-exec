@@ -365,6 +365,15 @@ func Target(resource string) *TargetOption {
 	return &TargetOption{resource}
 }
 
+type TestsDirectoryOption struct {
+	testsDirectory string
+}
+
+// TestsDirectory represents the -tests-directory option (path to tests files)
+func TestsDirectory(testsDirectory string) *TestsDirectoryOption {
+	return &TestsDirectoryOption{testsDirectory}
+}
+
 type GraphTypeOption struct {
 	graphType string
 }
