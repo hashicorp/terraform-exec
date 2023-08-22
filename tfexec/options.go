@@ -327,6 +327,14 @@ func Refresh(refresh bool) *RefreshOption {
 	return &RefreshOption{refresh}
 }
 
+type RefreshOnlyOption struct {
+	refreshOnly bool
+}
+
+func RefreshOnly(refreshOnly bool) *RefreshOnlyOption {
+	return &RefreshOnlyOption{refreshOnly}
+}
+
 type ReplaceOption struct {
 	address string
 }
