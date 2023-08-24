@@ -76,6 +76,7 @@ func (tf *Terraform) workspaceDeleteCmd(ctx context.Context, workspace string, o
 		args = append(args, "-lock="+strconv.FormatBool(c.lock))
 	}
 
+	args = append(args, "--")
 	args = append(args, workspace)
 
 	cmd := tf.buildTerraformCmd(ctx, nil, args...)
