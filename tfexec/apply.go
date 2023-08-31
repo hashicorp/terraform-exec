@@ -13,6 +13,7 @@ import (
 
 type applyConfig struct {
 	backup    string
+	destroy   bool
 	dirOrPlan string
 	lock      bool
 
@@ -32,6 +33,7 @@ type applyConfig struct {
 }
 
 var defaultApplyOptions = applyConfig{
+	destroy:     false,
 	lock:        true,
 	parallelism: 10,
 	refresh:     true,
@@ -92,6 +94,10 @@ func (opt *DirOrPlanOption) configureApply(conf *applyConfig) {
 
 func (opt *ReattachOption) configureApply(conf *applyConfig) {
 	conf.reattachInfo = opt.info
+}
+
+func (opt *DestroyFlagOption) configureApply(conf *applyConfig) {
+	conf.destroy = opt.destroy
 }
 
 // Apply represents the terraform apply subcommand.
@@ -191,6 +197,14 @@ func (tf *Terraform) buildApplyArgs(ctx context.Context, c applyConfig) ([]strin
 			args = append(args, "-replace="+addr)
 		}
 	}
+	if c.destroy {
+		err := tf.compatible(ctx, tf0_15_2, nil)
+		if err != nil {
+			return nil, fmt.Errorf("-destroy option was introduced in Terraform 0.15.2: %w", err)
+		}
+		args = append(args, "-destroy")
+	}
+
 	if c.targets != nil {
 		for _, ta := range c.targets {
 			args = append(args, "-target="+ta)
