@@ -69,6 +69,26 @@ func TestApplyCmd(t *testing.T) {
 			"testfile",
 		}, nil, applyCmd)
 	})
+
+	t.Run("refresh-only operation", func(t *testing.T) {
+		applyCmd, err := tf.applyCmd(context.Background(),
+			RefreshOnly(true),
+		)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assertCmd(t, []string{
+			"apply",
+			"-no-color",
+			"-auto-approve",
+			"-input=false",
+			"-lock=true",
+			"-parallelism=10",
+			"-refresh=true",
+			"-refresh-only",
+		}, nil, applyCmd)
+	})
 }
 
 func TestApplyJSONCmd(t *testing.T) {

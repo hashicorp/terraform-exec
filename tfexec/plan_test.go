@@ -82,6 +82,25 @@ func TestPlanCmd(t *testing.T) {
 			"earth",
 		}, nil, planCmd)
 	})
+
+	t.Run("run a refresh-only plan", func(t *testing.T) {
+		planCmd, err := tf.planCmd(context.Background(), RefreshOnly(true))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assertCmd(t, []string{
+			"plan",
+			"-no-color",
+			"-input=false",
+			"-detailed-exitcode",
+			"-lock-timeout=0s",
+			"-lock=true",
+			"-parallelism=10",
+			"-refresh=true",
+			"-refresh-only",
+		}, nil, planCmd)
+	})
 }
 
 func TestPlanJSONCmd(t *testing.T) {

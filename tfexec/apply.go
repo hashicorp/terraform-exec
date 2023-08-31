@@ -22,6 +22,7 @@ type applyConfig struct {
 	parallelism  int
 	reattachInfo ReattachInfo
 	refresh      bool
+	refreshOnly  bool
 	replaceAddrs []string
 	state        string
 	stateOut     string
@@ -78,6 +79,10 @@ func (opt *LockOption) configureApply(conf *applyConfig) {
 
 func (opt *RefreshOption) configureApply(conf *applyConfig) {
 	conf.refresh = opt.refresh
+}
+
+func (opt *RefreshOnlyOption) configureApply(conf *applyConfig) {
+	conf.refreshOnly = opt.refreshOnly
 }
 
 func (opt *ReplaceOption) configureApply(conf *applyConfig) {
@@ -186,6 +191,17 @@ func (tf *Terraform) buildApplyArgs(ctx context.Context, c applyConfig) ([]strin
 	args = append(args, "-lock="+strconv.FormatBool(c.lock))
 	args = append(args, "-parallelism="+fmt.Sprint(c.parallelism))
 	args = append(args, "-refresh="+strconv.FormatBool(c.refresh))
+
+	if c.refreshOnly {
+		err := tf.compatible(ctx, tf0_15_4, nil)
+		if err != nil {
+			return nil, fmt.Errorf("refresh-only option was introduced in Terraform 0.15.4: %w", err)
+		}
+		if !c.refresh {
+			return nil, fmt.Errorf("you cannot use refresh=false in refresh-only planning mode")
+		}
+		args = append(args, "-refresh-only")
+	}
 
 	// string slice opts: split into separate args
 	if c.replaceAddrs != nil {
