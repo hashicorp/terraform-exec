@@ -9,10 +9,6 @@ BUG FIXES:
 
  - Fix bug in which the `TF_WORKSPACE` env var was set to an empty string, instead of being unset as intended. [GH-388]
 
-ENHANCEMENTS:
-
-- tfexec: Add `-refresh-only` to `(Terraform).Apply()` and `(Terraform).Plan()` methods ([#402](https://github.com/hashicorp/terraform-exec/pull/402))
-
 # 0.18.1 (March 01, 2023)
 
 BUG FIXES:
