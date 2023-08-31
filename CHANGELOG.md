@@ -1,4 +1,9 @@
-# 0.18.2 (Unreleased)
+# 0.19.0 (Unreleased)
+
+ENHANCEMENTS:
+ - Add support for `terraform test` command [GH-398]
+ - Add support for `-refresh-only` flag for `Plan` and `Apply` methods. [GH-402]
+ - Add support for `-destroy` flag for `Apply` [GH-292]
 
 BUG FIXES:
 
