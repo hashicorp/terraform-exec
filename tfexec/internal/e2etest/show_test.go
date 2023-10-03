@@ -32,7 +32,7 @@ func TestShow(t *testing.T) {
 			t.Skip("state file provider FQNs not compatible with this Terraform version")
 		}
 
-		providerName := "registry.terraform.io/hashicorp/null"
+		providerName := "registry.opentofu.org/hashicorp/null"
 		if tfv.LessThan(providerAddressMinVersion) {
 			providerName = "null"
 		}
@@ -354,7 +354,7 @@ func TestShowStateFile013(t *testing.T) {
 						Mode:         tfjson.ManagedResourceMode,
 						Type:         "null_resource",
 						Name:         "foo",
-						ProviderName: "registry.terraform.io/hashicorp/null",
+						ProviderName: "registry.opentofu.org/hashicorp/null",
 					}},
 				},
 			},
@@ -392,7 +392,7 @@ func TestShowStateFile014(t *testing.T) {
 						Mode:         tfjson.ManagedResourceMode,
 						Type:         "null_resource",
 						Name:         "foo",
-						ProviderName: "registry.terraform.io/hashicorp/null",
+						ProviderName: "registry.opentofu.org/hashicorp/null",
 					}},
 				},
 			},
@@ -484,7 +484,7 @@ func TestShowPlanFile012_linux(t *testing.T) {
 
 func TestShowPlanFile013(t *testing.T) {
 	runTestWithVersions(t, []string{testutil.Latest013}, "non_default_planfile_013", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
-		providerName := "registry.terraform.io/hashicorp/null"
+		providerName := "registry.opentofu.org/hashicorp/null"
 
 		expected := &tfjson.Plan{
 			// TerraformVersion is ignored to facilitate latsest version testing
@@ -546,7 +546,7 @@ func TestShowPlanFile013(t *testing.T) {
 
 func TestShowPlanFile014(t *testing.T) {
 	runTestWithVersions(t, []string{testutil.Latest014}, "non_default_planfile_014", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
-		providerName := "registry.terraform.io/hashicorp/null"
+		providerName := "registry.opentofu.org/hashicorp/null"
 
 		expected := &tfjson.Plan{
 			// TerraformVersion is ignored to facilitate latsest version testing
@@ -702,7 +702,7 @@ func TestShowBigInt(t *testing.T) {
 			t.Skip("terraform show was added in Terraform 0.12, so test is not valid")
 		}
 
-		providerName := "registry.terraform.io/hashicorp/random"
+		providerName := "registry.opentofu.org/hashicorp/random"
 		if tfv.LessThan(providerAddressMinVersion) {
 			providerName = "random"
 		}

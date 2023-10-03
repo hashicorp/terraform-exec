@@ -88,7 +88,7 @@ func TestProvidersSchema(t *testing.T) {
 									"random": {
 										AttributeType: cty.String,
 										Computed:      true,
-										Description:   "A random value. This is primarily for testing and has little practical use; prefer the [hashicorp/random provider](https://registry.terraform.io/providers/hashicorp/random) for more practical random number use-cases.",
+										Description:   "A random value. This is primarily for testing and has little practical use; prefer the [hashicorp/random provider](https://registry.opentofu.org/providers/hashicorp/random) for more practical random number use-cases.",
 									},
 								},
 							},
@@ -100,7 +100,7 @@ func TestProvidersSchema(t *testing.T) {
 				providerAddr := "null"
 
 				if tfv.Core().GreaterThanOrEqual(v0_13_0) {
-					providerAddr = "registry.terraform.io/hashicorp/null"
+					providerAddr = "registry.opentofu.org/hashicorp/null"
 
 					nullSchema = &tfjson.ProviderSchema{
 						ConfigSchema: &tfjson.Schema{
@@ -177,7 +177,7 @@ same can now be achieved using [locals](https://www.terraform.io/docs/language/v
 											AttributeType:   cty.String,
 											Computed:        true,
 											DescriptionKind: tfjson.SchemaDescriptionKindMarkdown,
-											Description:     "A random value. This is primarily for testing and has little practical use; prefer the [hashicorp/random provider](https://registry.terraform.io/providers/hashicorp/random) for more practical random number use-cases.",
+											Description:     "A random value. This is primarily for testing and has little practical use; prefer the [hashicorp/random provider](https://registry.opentofu.org/providers/hashicorp/random) for more practical random number use-cases.",
 										},
 									},
 								},
