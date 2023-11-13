@@ -17,7 +17,7 @@ jobs:
     timeout-minutes: 3
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # https://github.com/actions/checkout/releases/tag/v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Install copywrite
         uses: hashicorp/setup-copywrite@v1.1.2
       - name: Validate Header Compliance
@@ -32,13 +32,13 @@ jobs:
       -
         name: Resolve old stable version
         id: oldstable
-        uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # https://github.com/actions/setup-go/releases/tag/v4.1.0
+        uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4.1.0
         with:
           go-version: oldstable
       -
         name: Resolve stable version
         id: stable
-        uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # https://github.com/actions/setup-go/releases/tag/v4.1.0
+        uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4.1.0
         with:
           go-version: stable
     outputs:
@@ -59,10 +59,10 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # https://github.com/actions/checkout/releases/tag/v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       -
         name: Set up Go
-        uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # https://github.com/actions/setup-go/releases/tag/v4.1.0
+        uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4.1.0
         with:
           go-version: ${{ matrix.go_version }}
       -
@@ -94,10 +94,10 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # https://github.com/actions/checkout/releases/tag/v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       -
         name: Set up Go
-        uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # https://github.com/actions/setup-go/releases/tag/v4.1.0
+        uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4.1.0
         with:
           go-version: ${{ matrix.go_version }}
       -
@@ -145,10 +145,10 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # https://github.com/actions/checkout/releases/tag/v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       -
         name: Set up Go
-        uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # https://github.com/actions/setup-go/releases/tag/v4.1.0
+        uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4.1.0
         with:
           go-version: ${{ matrix.go_version }}
       -
