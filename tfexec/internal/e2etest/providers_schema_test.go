@@ -22,6 +22,7 @@ var (
 	v0_15_0 = version.Must(version.NewVersion("0.15.0"))
 	v1_0    = version.Must(version.NewVersion("1.0.0"))
 	v1_1    = version.Must(version.NewVersion("1.1.0"))
+	v1_7    = version.Must(version.NewVersion("1.7.0"))
 )
 
 func TestProvidersSchema(t *testing.T) {
