@@ -14,12 +14,17 @@ import (
 
 type showConfig struct {
 	reattachInfo ReattachInfo
+	jsonConfig   *JSONConfig
 }
 
 var defaultShowOptions = showConfig{}
 
 type ShowOption interface {
 	configureShow(*showConfig)
+}
+
+func (opt *JSONOption) configureShow(conf *showConfig) {
+	conf.jsonConfig = &opt.config
 }
 
 func (opt *ReattachOption) configureShow(conf *showConfig) {
@@ -53,6 +58,11 @@ func (tf *Terraform) Show(ctx context.Context, opts ...ShowOption) (*tfjson.Stat
 
 	var ret tfjson.State
 	ret.UseJSONNumber(true)
+
+	if c.jsonConfig != nil {
+		ret.UseJSONNumber(c.jsonConfig.UseJSONNumber)
+	}
+
 	err = tf.runTerraformCmdJSON(ctx, showCmd, &ret)
 	if err != nil {
 		return nil, err
@@ -96,6 +106,11 @@ func (tf *Terraform) ShowStateFile(ctx context.Context, statePath string, opts .
 
 	var ret tfjson.State
 	ret.UseJSONNumber(true)
+
+	if c.jsonConfig != nil {
+		ret.UseJSONNumber(c.jsonConfig.UseJSONNumber)
+	}
+
 	err = tf.runTerraformCmdJSON(ctx, showCmd, &ret)
 	if err != nil {
 		return nil, err
@@ -138,6 +153,11 @@ func (tf *Terraform) ShowPlanFile(ctx context.Context, planPath string, opts ...
 	showCmd := tf.showCmd(ctx, true, mergeEnv, planPath)
 
 	var ret tfjson.Plan
+
+	if c.jsonConfig != nil {
+		ret.UseJSONNumber(c.jsonConfig.UseJSONNumber)
+	}
+
 	err = tf.runTerraformCmdJSON(ctx, showCmd, &ret)
 	if err != nil {
 		return nil, err

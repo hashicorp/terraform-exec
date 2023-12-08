@@ -21,7 +21,7 @@ func diffState(expected *tfjson.State, actual *tfjson.State) string {
 // diffPlan returns a human-readable report of the differences between two
 // plan values. It returns an empty string if the two values are equal.
 func diffPlan(expected *tfjson.Plan, actual *tfjson.Plan) string {
-	return cmp.Diff(expected, actual, cmpopts.IgnoreFields(tfjson.Plan{}, "TerraformVersion"))
+	return cmp.Diff(expected, actual, cmpopts.IgnoreFields(tfjson.Plan{}, "TerraformVersion", "useJSONNumber"))
 }
 
 // diffSchema returns a human-readable report of the differences between two

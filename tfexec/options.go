@@ -243,6 +243,19 @@ func GraphPlan(file string) *GraphPlanOption {
 	return &GraphPlanOption{file}
 }
 
+// JSONConfig holds information which determines how JSON is decoded.
+type JSONConfig struct {
+	UseJSONNumber bool
+}
+
+type JSONOption struct {
+	config JSONConfig
+}
+
+func JSON(config JSONConfig) *JSONOption {
+	return &JSONOption{config}
+}
+
 type PlatformOption struct {
 	platform string
 }
