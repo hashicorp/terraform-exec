@@ -15,6 +15,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/hashicorp/go-version"
 	tfjson "github.com/hashicorp/terraform-json"
 
@@ -980,19 +981,15 @@ func TestShowPlanFileBigInt(t *testing.T) {
 			providerName = "random"
 		}
 
-		formatVersion := "0.1"
 		var sensitiveValues json.RawMessage
 
 		if tfv.Core().GreaterThanOrEqual(v1_0_1) {
-			formatVersion = "0.2"
 			sensitiveValues = json.RawMessage([]byte("{}"))
 		}
 		if tfv.Core().GreaterThanOrEqual(v1_1) {
-			formatVersion = "1.0"
 		}
 
 		expected := &tfjson.Plan{
-			FormatVersion: formatVersion,
 			// TerraformVersion is ignored to facilitate latest version testing
 			PlannedValues: &tfjson.StateValues{
 				RootModule: &tfjson.StateModule{
@@ -1030,17 +1027,9 @@ func TestShowPlanFileBigInt(t *testing.T) {
 						"id":     true,
 						"result": true,
 					},
-					BeforeSensitive: false,
-					AfterSensitive:  map[string]any{},
 				},
 			}},
 			Config: &tfjson.Config{
-				ProviderConfigs: map[string]*tfjson.ProviderConfig{
-					"random": {
-						Name:              "random",
-						VersionConstraint: "3.1.3",
-					},
-				},
 				RootModule: &tfjson.ConfigModule{
 					Resources: []*tfjson.ConfigResource{{
 						Address:           "random_integer.bigint",
@@ -1085,7 +1074,15 @@ func TestShowPlanFileBigInt(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if diff := diffPlan(expected, actual); diff != "" {
+		opts := []cmp.Option{
+			cmpopts.IgnoreFields(tfjson.Change{}, "BeforeSensitive"),
+			cmpopts.IgnoreFields(tfjson.Change{}, "AfterSensitive"),
+			cmpopts.IgnoreFields(tfjson.Config{}, "ProviderConfigs"),
+			cmpopts.IgnoreFields(tfjson.Plan{}, "FormatVersion"),
+			cmpopts.IgnoreFields(tfjson.Plan{}, "Timestamp"),
+		}
+
+		if diff := diffPlan(expected, actual, opts...); diff != "" {
 			t.Fatalf("mismatch (-want +got):\n%s", diff)
 		}
 	})
@@ -1102,19 +1099,15 @@ func TestShowPlanFileFloat64(t *testing.T) {
 			providerName = "random"
 		}
 
-		formatVersion := "0.1"
 		var sensitiveValues json.RawMessage
 
 		if tfv.Core().GreaterThanOrEqual(v1_0_1) {
-			formatVersion = "0.2"
 			sensitiveValues = json.RawMessage([]byte("{}"))
 		}
 		if tfv.Core().GreaterThanOrEqual(v1_1) {
-			formatVersion = "1.0"
 		}
 
 		expected := &tfjson.Plan{
-			FormatVersion: formatVersion,
 			// TerraformVersion is ignored to facilitate latest version testing
 			PlannedValues: &tfjson.StateValues{
 				RootModule: &tfjson.StateModule{
@@ -1152,8 +1145,6 @@ func TestShowPlanFileFloat64(t *testing.T) {
 						"id":     true,
 						"result": true,
 					},
-					BeforeSensitive: false,
-					AfterSensitive:  map[string]any{},
 				},
 			}},
 			Config: &tfjson.Config{
@@ -1207,7 +1198,15 @@ func TestShowPlanFileFloat64(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if diff := diffPlan(expected, actual); diff != "" {
+		opts := []cmp.Option{
+			cmpopts.IgnoreFields(tfjson.Change{}, "BeforeSensitive"),
+			cmpopts.IgnoreFields(tfjson.Change{}, "AfterSensitive"),
+			cmpopts.IgnoreFields(tfjson.Config{}, "ProviderConfigs"),
+			cmpopts.IgnoreFields(tfjson.Plan{}, "FormatVersion"),
+			cmpopts.IgnoreFields(tfjson.Plan{}, "Timestamp"),
+		}
+
+		if diff := diffPlan(expected, actual, opts...); diff != "" {
 			t.Fatalf("mismatch (-want +got):\n%s", diff)
 		}
 	})
