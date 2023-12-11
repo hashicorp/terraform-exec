@@ -96,8 +96,9 @@ func expectedGraphOutput(tfv *version.Version) string {
 `
 	}
 
-	// 1.1.0+
-	return `digraph {
+	if v.GreaterThanOrEqual(v1_1) && v.LessThan(v1_7) {
+		// 1.1.0 - 1.7.0
+		return `digraph {
 	compound = "true"
 	newrank = "true"
 	subgraph "root" {
@@ -109,5 +110,14 @@ func expectedGraphOutput(tfv *version.Version) string {
 	}
 }
 
+`
+	}
+
+	// 1.7.0+
+	return `digraph G {
+  rankdir = "RL";
+  node [shape = rect, fontname = "sans-serif"];
+  "null_resource.foo" [label="null_resource.foo"];
+}
 `
 }

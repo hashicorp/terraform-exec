@@ -13,6 +13,7 @@ import (
 
 type applyConfig struct {
 	backup    string
+	destroy   bool
 	dirOrPlan string
 	lock      bool
 
@@ -21,6 +22,7 @@ type applyConfig struct {
 	parallelism  int
 	reattachInfo ReattachInfo
 	refresh      bool
+	refreshOnly  bool
 	replaceAddrs []string
 	state        string
 	stateOut     string
@@ -32,6 +34,7 @@ type applyConfig struct {
 }
 
 var defaultApplyOptions = applyConfig{
+	destroy:     false,
 	lock:        true,
 	parallelism: 10,
 	refresh:     true,
@@ -78,6 +81,10 @@ func (opt *RefreshOption) configureApply(conf *applyConfig) {
 	conf.refresh = opt.refresh
 }
 
+func (opt *RefreshOnlyOption) configureApply(conf *applyConfig) {
+	conf.refreshOnly = opt.refreshOnly
+}
+
 func (opt *ReplaceOption) configureApply(conf *applyConfig) {
 	conf.replaceAddrs = append(conf.replaceAddrs, opt.address)
 }
@@ -92,6 +99,10 @@ func (opt *DirOrPlanOption) configureApply(conf *applyConfig) {
 
 func (opt *ReattachOption) configureApply(conf *applyConfig) {
 	conf.reattachInfo = opt.info
+}
+
+func (opt *DestroyFlagOption) configureApply(conf *applyConfig) {
+	conf.destroy = opt.destroy
 }
 
 // Apply represents the terraform apply subcommand.
@@ -181,6 +192,17 @@ func (tf *Terraform) buildApplyArgs(ctx context.Context, c applyConfig) ([]strin
 	args = append(args, "-parallelism="+fmt.Sprint(c.parallelism))
 	args = append(args, "-refresh="+strconv.FormatBool(c.refresh))
 
+	if c.refreshOnly {
+		err := tf.compatible(ctx, tf0_15_4, nil)
+		if err != nil {
+			return nil, fmt.Errorf("refresh-only option was introduced in Terraform 0.15.4: %w", err)
+		}
+		if !c.refresh {
+			return nil, fmt.Errorf("you cannot use refresh=false in refresh-only planning mode")
+		}
+		args = append(args, "-refresh-only")
+	}
+
 	// string slice opts: split into separate args
 	if c.replaceAddrs != nil {
 		err := tf.compatible(ctx, tf0_15_2, nil)
@@ -191,6 +213,14 @@ func (tf *Terraform) buildApplyArgs(ctx context.Context, c applyConfig) ([]strin
 			args = append(args, "-replace="+addr)
 		}
 	}
+	if c.destroy {
+		err := tf.compatible(ctx, tf0_15_2, nil)
+		if err != nil {
+			return nil, fmt.Errorf("-destroy option was introduced in Terraform 0.15.2: %w", err)
+		}
+		args = append(args, "-destroy")
+	}
+
 	if c.targets != nil {
 		for _, ta := range c.targets {
 			args = append(args, "-target="+ta)

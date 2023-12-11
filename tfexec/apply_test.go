@@ -38,6 +38,7 @@ func TestApplyCmd(t *testing.T) {
 			Target("target2"),
 			Var("var1=foo"),
 			Var("var2=bar"),
+			Destroy(true),
 			DirOrPlan("testfile"),
 		)
 		if err != nil {
@@ -60,11 +61,32 @@ func TestApplyCmd(t *testing.T) {
 			"-refresh=false",
 			"-replace=aws_instance.test",
 			"-replace=google_pubsub_topic.test",
+			"-destroy",
 			"-target=target1",
 			"-target=target2",
 			"-var", "var1=foo",
 			"-var", "var2=bar",
 			"testfile",
+		}, nil, applyCmd)
+	})
+
+	t.Run("refresh-only operation", func(t *testing.T) {
+		applyCmd, err := tf.applyCmd(context.Background(),
+			RefreshOnly(true),
+		)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assertCmd(t, []string{
+			"apply",
+			"-no-color",
+			"-auto-approve",
+			"-input=false",
+			"-lock=true",
+			"-parallelism=10",
+			"-refresh=true",
+			"-refresh-only",
 		}, nil, applyCmd)
 	})
 }
