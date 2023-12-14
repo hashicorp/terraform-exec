@@ -243,17 +243,13 @@ func GraphPlan(file string) *GraphPlanOption {
 	return &GraphPlanOption{file}
 }
 
-// UseJSONNumber determines how numerical values are handled when JSON is decoded.
 type UseJSONNumber struct {
-	UseJSONNumber bool
+	useJSONNumber bool
 }
 
-type UseJSONNumberOption struct {
-	useJSONNumber UseJSONNumber
-}
-
-func JSONNumber(config UseJSONNumber) *UseJSONNumberOption {
-	return &UseJSONNumberOption{config}
+// JSONNumber determines how numerical values are handled during JSON decoding.
+func JSONNumber(useJSONNumber bool) *UseJSONNumber {
+	return &UseJSONNumber{useJSONNumber}
 }
 
 type PlatformOption struct {
