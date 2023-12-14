@@ -14,7 +14,7 @@ import (
 
 type showConfig struct {
 	reattachInfo ReattachInfo
-	jsonConfig   *JSONConfig
+	jsonConfig   *UseJSONNumber
 }
 
 var defaultShowOptions = showConfig{}
@@ -23,8 +23,8 @@ type ShowOption interface {
 	configureShow(*showConfig)
 }
 
-func (opt *JSONOption) configureShow(conf *showConfig) {
-	conf.jsonConfig = &opt.config
+func (opt *UseJSONNumberOption) configureShow(conf *showConfig) {
+	conf.jsonConfig = &opt.useJSONNumber
 }
 
 func (opt *ReattachOption) configureShow(conf *showConfig) {

@@ -823,7 +823,7 @@ func TestShowFloat64(t *testing.T) {
 			t.Fatalf("error running Apply in test directory: %s", err)
 		}
 
-		actual, err := tf.Show(context.Background(), tfexec.JSON(tfexec.JSONConfig{UseJSONNumber: false}))
+		actual, err := tf.Show(context.Background(), tfexec.JSONNumber(tfexec.UseJSONNumber{UseJSONNumber: false}))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -959,7 +959,7 @@ func TestShowStateFileFloat64(t *testing.T) {
 			t.Fatalf("error running Apply in test directory: %s", err)
 		}
 
-		actual, err := tf.ShowStateFile(context.Background(), filepath.Join(tf.WorkingDir(), "terraform.tfstate"), tfexec.JSON(tfexec.JSONConfig{UseJSONNumber: false}))
+		actual, err := tf.ShowStateFile(context.Background(), filepath.Join(tf.WorkingDir(), "terraform.tfstate"), tfexec.JSONNumber(tfexec.UseJSONNumber{UseJSONNumber: false}))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1069,7 +1069,7 @@ func TestShowPlanFileBigInt(t *testing.T) {
 			t.Fatalf("error running Plan in test directory: %s", err)
 		}
 
-		actual, err := tf.ShowPlanFile(context.Background(), filepath.Join(tf.WorkingDir(), "tfplan"), tfexec.JSON(tfexec.JSONConfig{UseJSONNumber: true}))
+		actual, err := tf.ShowPlanFile(context.Background(), filepath.Join(tf.WorkingDir(), "tfplan"), tfexec.JSONNumber(tfexec.UseJSONNumber{UseJSONNumber: true}))
 		if err != nil {
 			t.Fatal(err)
 		}

@@ -243,17 +243,17 @@ func GraphPlan(file string) *GraphPlanOption {
 	return &GraphPlanOption{file}
 }
 
-// JSONConfig holds information which determines how JSON is decoded.
-type JSONConfig struct {
+// UseJSONNumber determines how numerical values are handled when JSON is decoded.
+type UseJSONNumber struct {
 	UseJSONNumber bool
 }
 
-type JSONOption struct {
-	config JSONConfig
+type UseJSONNumberOption struct {
+	useJSONNumber UseJSONNumber
 }
 
-func JSON(config JSONConfig) *JSONOption {
-	return &JSONOption{config}
+func JSONNumber(config UseJSONNumber) *UseJSONNumberOption {
+	return &UseJSONNumberOption{config}
 }
 
 type PlatformOption struct {
