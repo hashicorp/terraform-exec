@@ -248,8 +248,8 @@ type UseJSONNumberOption struct {
 }
 
 // JSONNumber determines how numerical values are handled during JSON decoding.
-func JSONNumber(useJSONNumber bool) *UseJSONNumber {
-	return &UseJSONNumber{useJSONNumber}
+func JSONNumber(useJSONNumber bool) *UseJSONNumberOption {
+	return &UseJSONNumberOption{useJSONNumber}
 }
 
 type PlatformOption struct {
