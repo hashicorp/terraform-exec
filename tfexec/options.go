@@ -243,7 +243,7 @@ func GraphPlan(file string) *GraphPlanOption {
 	return &GraphPlanOption{file}
 }
 
-type UseJSONNumber struct {
+type UseJSONNumberOption struct {
 	useJSONNumber bool
 }
 
