@@ -1,3 +1,8 @@
+# 0.20.0 (December 20, 2023)
+
+ENHANCEMENTS:
+ - Add `JSONNumber` option to `Show` to enable `json.Number` representation of numerical values in returned `tfjson.Plan` and `tfjson.State` values ([#427](https://github.com/hashicorp/terraform-exec/pull/427))
+
 # 0.19.0 (August 31, 2023)
 
 ENHANCEMENTS:
