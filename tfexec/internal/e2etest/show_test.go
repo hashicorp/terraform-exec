@@ -9,11 +9,13 @@ import (
 	"errors"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/hashicorp/go-version"
 	tfjson "github.com/hashicorp/terraform-json"
 
@@ -759,6 +761,452 @@ func TestShowBigInt(t *testing.T) {
 		}
 
 		if diff := diffState(expected, actual); diff != "" {
+			t.Fatalf("mismatch (-want +got):\n%s", diff)
+		}
+	})
+}
+
+func TestShowFloat64(t *testing.T) {
+	runTest(t, "bigint", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		if tfv.LessThan(showMinVersion) {
+			t.Skip("terraform show was added in Terraform 0.12, so test is not valid")
+		}
+
+		providerName := "registry.terraform.io/hashicorp/random"
+		if tfv.LessThan(providerAddressMinVersion) {
+			providerName = "random"
+		}
+
+		formatVersion := "0.1"
+		var sensitiveValues json.RawMessage
+
+		if tfv.Core().GreaterThanOrEqual(v1_0_1) {
+			formatVersion = "0.2"
+			sensitiveValues = json.RawMessage([]byte("{}"))
+		}
+		if tfv.Core().GreaterThanOrEqual(v1_1) {
+			formatVersion = "1.0"
+		}
+
+		expected := &tfjson.State{
+			FormatVersion: formatVersion,
+			// TerraformVersion is ignored to facilitate latest version testing
+			Values: &tfjson.StateValues{
+				RootModule: &tfjson.StateModule{
+					Resources: []*tfjson.StateResource{{
+						Address: "random_integer.bigint",
+						AttributeValues: map[string]interface{}{
+							"id":      "7227701560655103598",
+							"max":     float64(7227701560655103598),
+							"min":     float64(7227701560655103597),
+							"result":  float64(7227701560655103598),
+							"seed":    "12345",
+							"keepers": nil,
+						},
+						SensitiveValues: sensitiveValues,
+						Mode:            tfjson.ManagedResourceMode,
+						Type:            "random_integer",
+						Name:            "bigint",
+						ProviderName:    providerName,
+					}},
+				},
+			},
+		}
+
+		err := tf.Init(context.Background())
+		if err != nil {
+			t.Fatalf("error running Init in test directory: %s", err)
+		}
+
+		err = tf.Apply(context.Background())
+		if err != nil {
+			t.Fatalf("error running Apply in test directory: %s", err)
+		}
+
+		actual, err := tf.Show(context.Background(), tfexec.JSONNumber(false))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if diff := diffState(expected, actual); diff != "" {
+			t.Fatalf("mismatch (-want +got):\n%s", diff)
+		}
+	})
+}
+
+func TestShowStateFileBigInt(t *testing.T) {
+	runTest(t, "bigint", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		if tfv.LessThan(showMinVersion) {
+			t.Skip("terraform show was added in Terraform 0.12, so test is not valid")
+		}
+
+		providerName := "registry.terraform.io/hashicorp/random"
+		if tfv.LessThan(providerAddressMinVersion) {
+			providerName = "random"
+		}
+
+		formatVersion := "0.1"
+		var sensitiveValues json.RawMessage
+
+		if tfv.Core().GreaterThanOrEqual(v1_0_1) {
+			formatVersion = "0.2"
+			sensitiveValues = json.RawMessage([]byte("{}"))
+		}
+		if tfv.Core().GreaterThanOrEqual(v1_1) {
+			formatVersion = "1.0"
+		}
+
+		expected := &tfjson.State{
+			FormatVersion: formatVersion,
+			// TerraformVersion is ignored to facilitate latest version testing
+			Values: &tfjson.StateValues{
+				RootModule: &tfjson.StateModule{
+					Resources: []*tfjson.StateResource{{
+						Address: "random_integer.bigint",
+						AttributeValues: map[string]interface{}{
+							"id":      "7227701560655103598",
+							"max":     json.Number("7227701560655103598"),
+							"min":     json.Number("7227701560655103597"),
+							"result":  json.Number("7227701560655103598"),
+							"seed":    "12345",
+							"keepers": nil,
+						},
+						SensitiveValues: sensitiveValues,
+						Mode:            tfjson.ManagedResourceMode,
+						Type:            "random_integer",
+						Name:            "bigint",
+						ProviderName:    providerName,
+					}},
+				},
+			},
+		}
+
+		err := tf.Init(context.Background())
+		if err != nil {
+			t.Fatalf("error running Init in test directory: %s", err)
+		}
+
+		err = tf.Apply(context.Background())
+		if err != nil {
+			t.Fatalf("error running Apply in test directory: %s", err)
+		}
+
+		actual, err := tf.ShowStateFile(context.Background(), filepath.Join(tf.WorkingDir(), "terraform.tfstate"))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if diff := diffState(expected, actual); diff != "" {
+			t.Fatalf("mismatch (-want +got):\n%s", diff)
+		}
+	})
+}
+
+func TestShowStateFileFloat64(t *testing.T) {
+	runTest(t, "bigint", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		if tfv.LessThan(showMinVersion) {
+			t.Skip("terraform show was added in Terraform 0.12, so test is not valid")
+		}
+
+		providerName := "registry.terraform.io/hashicorp/random"
+		if tfv.LessThan(providerAddressMinVersion) {
+			providerName = "random"
+		}
+
+		formatVersion := "0.1"
+		var sensitiveValues json.RawMessage
+
+		if tfv.Core().GreaterThanOrEqual(v1_0_1) {
+			formatVersion = "0.2"
+			sensitiveValues = json.RawMessage([]byte("{}"))
+		}
+		if tfv.Core().GreaterThanOrEqual(v1_1) {
+			formatVersion = "1.0"
+		}
+
+		expected := &tfjson.State{
+			FormatVersion: formatVersion,
+			// TerraformVersion is ignored to facilitate latest version testing
+			Values: &tfjson.StateValues{
+				RootModule: &tfjson.StateModule{
+					Resources: []*tfjson.StateResource{{
+						Address: "random_integer.bigint",
+						AttributeValues: map[string]interface{}{
+							"id":      "7227701560655103598",
+							"max":     float64(7227701560655103598),
+							"min":     float64(7227701560655103598),
+							"result":  float64(7227701560655103598),
+							"seed":    "12345",
+							"keepers": nil,
+						},
+						SensitiveValues: sensitiveValues,
+						Mode:            tfjson.ManagedResourceMode,
+						Type:            "random_integer",
+						Name:            "bigint",
+						ProviderName:    providerName,
+					}},
+				},
+			},
+		}
+
+		err := tf.Init(context.Background())
+		if err != nil {
+			t.Fatalf("error running Init in test directory: %s", err)
+		}
+
+		err = tf.Apply(context.Background())
+		if err != nil {
+			t.Fatalf("error running Apply in test directory: %s", err)
+		}
+
+		actual, err := tf.ShowStateFile(context.Background(), filepath.Join(tf.WorkingDir(), "terraform.tfstate"), tfexec.JSONNumber(false))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if diff := diffState(expected, actual); diff != "" {
+			t.Fatalf("mismatch (-want +got):\n%s", diff)
+		}
+	})
+}
+
+func TestShowPlanFileBigInt(t *testing.T) {
+	runTest(t, "bigint", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		if tfv.LessThan(showMinVersion) {
+			t.Skip("terraform show was added in Terraform 0.12, so test is not valid")
+		}
+
+		providerName := "registry.terraform.io/hashicorp/random"
+		if tfv.LessThan(providerAddressMinVersion) {
+			providerName = "random"
+		}
+
+		var sensitiveValues json.RawMessage
+
+		if tfv.Core().GreaterThanOrEqual(v1_0_1) {
+			sensitiveValues = json.RawMessage([]byte("{}"))
+		}
+		if tfv.Core().GreaterThanOrEqual(v1_1) {
+		}
+
+		expected := &tfjson.Plan{
+			// TerraformVersion is ignored to facilitate latest version testing
+			PlannedValues: &tfjson.StateValues{
+				RootModule: &tfjson.StateModule{
+					Resources: []*tfjson.StateResource{{
+						Address: "random_integer.bigint",
+						AttributeValues: map[string]interface{}{
+							"keepers": nil,
+							"max":     json.Number("7227701560655103598"),
+							"min":     json.Number("7227701560655103597"),
+							"seed":    "12345",
+						},
+						SensitiveValues: sensitiveValues,
+						Mode:            tfjson.ManagedResourceMode,
+						Type:            "random_integer",
+						Name:            "bigint",
+						ProviderName:    providerName,
+					}},
+				},
+			},
+			ResourceChanges: []*tfjson.ResourceChange{{
+				Address:      "random_integer.bigint",
+				Mode:         tfjson.ManagedResourceMode,
+				Type:         "random_integer",
+				Name:         "bigint",
+				ProviderName: providerName,
+				Change: &tfjson.Change{
+					Actions: tfjson.Actions{tfjson.ActionCreate},
+					After: map[string]interface{}{
+						"keepers": nil,
+						"max":     json.Number("7227701560655103598"),
+						"min":     json.Number("7227701560655103597"),
+						"seed":    "12345",
+					},
+					AfterUnknown: map[string]interface{}{
+						"id":     true,
+						"result": true,
+					},
+				},
+			}},
+			Config: &tfjson.Config{
+				RootModule: &tfjson.ConfigModule{
+					Resources: []*tfjson.ConfigResource{{
+						Address:           "random_integer.bigint",
+						Mode:              tfjson.ManagedResourceMode,
+						Type:              "random_integer",
+						Name:              "bigint",
+						ProviderConfigKey: "random",
+						Expressions: map[string]*tfjson.Expression{
+							"max": {
+								ExpressionData: &tfjson.ExpressionData{
+									ConstantValue: float64(7227701560655104000),
+								},
+							},
+							"min": {
+								ExpressionData: &tfjson.ExpressionData{
+									ConstantValue: float64(7227701560655104000),
+								},
+							},
+							"seed": {
+								ExpressionData: &tfjson.ExpressionData{
+									ConstantValue: float64(12345),
+								},
+							},
+						},
+					}},
+				},
+			},
+		}
+
+		err := tf.Init(context.Background())
+		if err != nil {
+			t.Fatalf("error running Init in test directory: %s", err)
+		}
+
+		_, err = tf.Plan(context.Background(), tfexec.Out(filepath.Join(tf.WorkingDir(), "tfplan")))
+		if err != nil {
+			t.Fatalf("error running Plan in test directory: %s", err)
+		}
+
+		actual, err := tf.ShowPlanFile(context.Background(), filepath.Join(tf.WorkingDir(), "tfplan"), tfexec.JSONNumber(true))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		opts := []cmp.Option{
+			cmpopts.IgnoreFields(tfjson.Change{}, "BeforeSensitive"),
+			cmpopts.IgnoreFields(tfjson.Change{}, "AfterSensitive"),
+			cmpopts.IgnoreFields(tfjson.Config{}, "ProviderConfigs"),
+			cmpopts.IgnoreFields(tfjson.Plan{}, "FormatVersion"),
+			cmpopts.IgnoreFields(tfjson.Plan{}, "Timestamp"),
+		}
+
+		if diff := diffPlan(expected, actual, opts...); diff != "" {
+			t.Fatalf("mismatch (-want +got):\n%s", diff)
+		}
+	})
+}
+
+func TestShowPlanFileFloat64(t *testing.T) {
+	runTest(t, "bigint", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		if tfv.LessThan(showMinVersion) {
+			t.Skip("terraform show was added in Terraform 0.12, so test is not valid")
+		}
+
+		providerName := "registry.terraform.io/hashicorp/random"
+		if tfv.LessThan(providerAddressMinVersion) {
+			providerName = "random"
+		}
+
+		var sensitiveValues json.RawMessage
+
+		if tfv.Core().GreaterThanOrEqual(v1_0_1) {
+			sensitiveValues = json.RawMessage([]byte("{}"))
+		}
+		if tfv.Core().GreaterThanOrEqual(v1_1) {
+		}
+
+		expected := &tfjson.Plan{
+			// TerraformVersion is ignored to facilitate latest version testing
+			PlannedValues: &tfjson.StateValues{
+				RootModule: &tfjson.StateModule{
+					Resources: []*tfjson.StateResource{{
+						Address: "random_integer.bigint",
+						AttributeValues: map[string]interface{}{
+							"keepers": nil,
+							"max":     float64(7227701560655103598),
+							"min":     float64(7227701560655103597),
+							"seed":    "12345",
+						},
+						SensitiveValues: sensitiveValues,
+						Mode:            tfjson.ManagedResourceMode,
+						Type:            "random_integer",
+						Name:            "bigint",
+						ProviderName:    providerName,
+					}},
+				},
+			},
+			ResourceChanges: []*tfjson.ResourceChange{{
+				Address:      "random_integer.bigint",
+				Mode:         tfjson.ManagedResourceMode,
+				Type:         "random_integer",
+				Name:         "bigint",
+				ProviderName: providerName,
+				Change: &tfjson.Change{
+					Actions: tfjson.Actions{tfjson.ActionCreate},
+					After: map[string]interface{}{
+						"keepers": nil,
+						"max":     float64(7227701560655103598),
+						"min":     float64(7227701560655103597),
+						"seed":    "12345",
+					},
+					AfterUnknown: map[string]interface{}{
+						"id":     true,
+						"result": true,
+					},
+				},
+			}},
+			Config: &tfjson.Config{
+				ProviderConfigs: map[string]*tfjson.ProviderConfig{
+					"random": {
+						Name:              "random",
+						VersionConstraint: "3.1.3",
+					},
+				},
+				RootModule: &tfjson.ConfigModule{
+					Resources: []*tfjson.ConfigResource{{
+						Address:           "random_integer.bigint",
+						Mode:              tfjson.ManagedResourceMode,
+						Type:              "random_integer",
+						Name:              "bigint",
+						ProviderConfigKey: "random",
+						Expressions: map[string]*tfjson.Expression{
+							"max": {
+								ExpressionData: &tfjson.ExpressionData{
+									ConstantValue: float64(7227701560655104000),
+								},
+							},
+							"min": {
+								ExpressionData: &tfjson.ExpressionData{
+									ConstantValue: float64(7227701560655104000),
+								},
+							},
+							"seed": {
+								ExpressionData: &tfjson.ExpressionData{
+									ConstantValue: float64(12345),
+								},
+							},
+						},
+					}},
+				},
+			},
+		}
+
+		err := tf.Init(context.Background())
+		if err != nil {
+			t.Fatalf("error running Init in test directory: %s", err)
+		}
+
+		_, err = tf.Plan(context.Background(), tfexec.Out(filepath.Join(tf.WorkingDir(), "tfplan")))
+		if err != nil {
+			t.Fatalf("error running Plan in test directory: %s", err)
+		}
+
+		actual, err := tf.ShowPlanFile(context.Background(), filepath.Join(tf.WorkingDir(), "tfplan"))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		opts := []cmp.Option{
+			cmpopts.IgnoreFields(tfjson.Change{}, "BeforeSensitive"),
+			cmpopts.IgnoreFields(tfjson.Change{}, "AfterSensitive"),
+			cmpopts.IgnoreFields(tfjson.Config{}, "ProviderConfigs"),
+			cmpopts.IgnoreFields(tfjson.Plan{}, "FormatVersion"),
+			cmpopts.IgnoreFields(tfjson.Plan{}, "Timestamp"),
+		}
+
+		if diff := diffPlan(expected, actual, opts...); diff != "" {
 			t.Fatalf("mismatch (-want +got):\n%s", diff)
 		}
 	})
