@@ -139,6 +139,15 @@ func DryRun(dryRun bool) *DryRunOption {
 	return &DryRunOption{dryRun}
 }
 
+type EnvVarOption struct {
+	key, value string
+}
+
+// EnvVar represents a kv env var
+func EnvVar(key, value string) *EnvVarOption {
+	return &EnvVarOption{key, value}
+}
+
 type FSMirrorOption struct {
 	fsMirror string
 }

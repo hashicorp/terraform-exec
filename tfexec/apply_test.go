@@ -29,6 +29,8 @@ func TestApplyCmd(t *testing.T) {
 			StateOut("teststateout"),
 			VarFile("foo.tfvars"),
 			VarFile("bar.tfvars"),
+			EnvVar("blah", "diblah"),
+			EnvVar("other_env_var", "other_value"),
 			Lock(false),
 			Parallelism(99),
 			Refresh(false),
@@ -147,6 +149,6 @@ func TestApplyJSONCmd(t *testing.T) {
 			"-var", "var2=bar",
 			"-json",
 			"testfile",
-		}, nil, applyCmd)
+		}, map[string]string{"blah": "diblah", "other_env_var": "other_value"}, applyCmd)
 	})
 }

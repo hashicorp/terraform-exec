@@ -22,12 +22,14 @@ type importConfig struct {
 	stateOut           string
 	vars               []string
 	varFiles           []string
+	envVars            map[string]string
 }
 
 var defaultImportOptions = importConfig{
 	allowMissingConfig: false,
 	lock:               true,
 	lockTimeout:        "0s",
+	envVars:            map[string]string{},
 }
 
 // ImportOption represents options used in the Import method.
@@ -73,6 +75,10 @@ func (opt *VarOption) configureImport(conf *importConfig) {
 
 func (opt *VarFileOption) configureImport(conf *importConfig) {
 	conf.varFiles = append(conf.varFiles, opt.path)
+}
+
+func (opt *EnvVarOption) configureImport(conf *importConfig) {
+	conf.envVars[opt.key] = opt.value
 }
 
 // Import represents the terraform import subcommand.
@@ -132,6 +138,11 @@ func (tf *Terraform) importCmd(ctx context.Context, address, id string, opts ...
 	args = append(args, address, id)
 
 	mergeEnv := map[string]string{}
+
+	for kvar, kvalue := range c.envVars {
+		mergeEnv[kvar] = kvalue
+	}
+
 	if c.reattachInfo != nil {
 		reattachStr, err := c.reattachInfo.marshalString()
 		if err != nil {
