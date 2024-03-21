@@ -15,6 +15,7 @@ type planConfig struct {
 	destroy      bool
 	dir          string
 	lock         bool
+	json         bool
 	lockTimeout  string
 	out          string
 	parallelism  int
@@ -83,6 +84,10 @@ func (opt *ParallelismOption) configurePlan(conf *planConfig) {
 
 func (opt *OutOption) configurePlan(conf *planConfig) {
 	conf.out = opt.path
+}
+
+func (opt *JSONOption) configurePlan(conf *planConfig) {
+	conf.json = opt.json
 }
 
 func (opt *LockTimeoutOption) configurePlan(conf *planConfig) {
@@ -191,6 +196,9 @@ func (tf *Terraform) buildPlanArgs(ctx context.Context, c planConfig) ([]string,
 	// string opts: only pass if set
 	if c.lockTimeout != "" {
 		args = append(args, "-lock-timeout="+c.lockTimeout)
+	}
+	if c.json {
+		args = append(args, "-json")
 	}
 	if c.out != "" {
 		args = append(args, "-out="+c.out)
