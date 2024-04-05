@@ -55,7 +55,9 @@ func TestPlanCmd(t *testing.T) {
 			Var("android=paranoid"),
 			Var("brain_size=planet"),
 			VarFile("trillian"),
-			Dir("earth"))
+			Dir("earth"),
+			EnvVar("blah", "diblah"),
+			EnvVar("other_env_var", "other_value"))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -80,7 +82,7 @@ func TestPlanCmd(t *testing.T) {
 			"-var", "android=paranoid",
 			"-var", "brain_size=planet",
 			"earth",
-		}, nil, planCmd)
+		}, map[string]string{"blah": "diblah", "other_env_var": "other_value"}, planCmd)
 	})
 
 	t.Run("run a refresh-only plan", func(t *testing.T) {

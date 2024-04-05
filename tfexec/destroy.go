@@ -28,6 +28,9 @@ type destroyConfig struct {
 	// Vars: each var must be supplied as a single string, e.g. 'foo=bar'
 	vars     []string
 	varFiles []string
+
+	// EnvVars
+	envVars map[string]string
 }
 
 var defaultDestroyOptions = destroyConfig{
@@ -35,6 +38,7 @@ var defaultDestroyOptions = destroyConfig{
 	lockTimeout: "0s",
 	parallelism: 10,
 	refresh:     true,
+	envVars:     map[string]string{},
 }
 
 // DestroyOption represents options used in the Destroy method.
@@ -72,6 +76,10 @@ func (opt *StateOutOption) configureDestroy(conf *destroyConfig) {
 
 func (opt *VarFileOption) configureDestroy(conf *destroyConfig) {
 	conf.varFiles = append(conf.varFiles, opt.path)
+}
+
+func (opt *EnvVarOption) configureDestroy(conf *destroyConfig) {
+	conf.envVars[opt.key] = opt.value
 }
 
 func (opt *LockOption) configureDestroy(conf *destroyConfig) {
@@ -192,6 +200,11 @@ func (tf *Terraform) buildDestroyCmd(ctx context.Context, c destroyConfig, args 
 	}
 
 	mergeEnv := map[string]string{}
+
+	for kvar, kvalue := range c.envVars {
+		mergeEnv[kvar] = kvalue
+	}
+
 	if c.reattachInfo != nil {
 		reattachStr, err := c.reattachInfo.marshalString()
 		if err != nil {

@@ -31,6 +31,9 @@ type applyConfig struct {
 	// Vars: each var must be supplied as a single string, e.g. 'foo=bar'
 	vars     []string
 	varFiles []string
+
+	// EnvVars support
+	envVars map[string]string
 }
 
 var defaultApplyOptions = applyConfig{
@@ -38,6 +41,7 @@ var defaultApplyOptions = applyConfig{
 	lock:        true,
 	parallelism: 10,
 	refresh:     true,
+	envVars:     map[string]string{},
 }
 
 // ApplyOption represents options used in the Apply method.
@@ -71,6 +75,10 @@ func (opt *StateOutOption) configureApply(conf *applyConfig) {
 
 func (opt *VarFileOption) configureApply(conf *applyConfig) {
 	conf.varFiles = append(conf.varFiles, opt.path)
+}
+
+func (opt *EnvVarOption) configureApply(conf *applyConfig) {
+	conf.envVars[opt.key] = opt.value
 }
 
 func (opt *LockOption) configureApply(conf *applyConfig) {
@@ -242,6 +250,11 @@ func (tf *Terraform) buildApplyCmd(ctx context.Context, c applyConfig, args []st
 	}
 
 	mergeEnv := map[string]string{}
+
+	for kvar, kvalue := range c.envVars {
+		mergeEnv[kvar] = kvalue
+	}
+
 	if c.reattachInfo != nil {
 		reattachStr, err := c.reattachInfo.marshalString()
 		if err != nil {
