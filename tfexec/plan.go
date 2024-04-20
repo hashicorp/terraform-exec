@@ -12,20 +12,21 @@ import (
 )
 
 type planConfig struct {
-	destroy      bool
-	dir          string
-	lock         bool
-	lockTimeout  string
-	out          string
-	parallelism  int
-	reattachInfo ReattachInfo
-	refresh      bool
-	refreshOnly  bool
-	replaceAddrs []string
-	state        string
-	targets      []string
-	vars         []string
-	varFiles     []string
+	destroy           bool
+	dir               string
+	generateConfigOut string
+	lock              bool
+	lockTimeout       string
+	out               string
+	parallelism       int
+	reattachInfo      ReattachInfo
+	refresh           bool
+	refreshOnly       bool
+	replaceAddrs      []string
+	state             string
+	targets           []string
+	vars              []string
+	varFiles          []string
 }
 
 var defaultPlanOptions = planConfig{
@@ -95,6 +96,10 @@ func (opt *LockOption) configurePlan(conf *planConfig) {
 
 func (opt *DestroyFlagOption) configurePlan(conf *planConfig) {
 	conf.destroy = opt.destroy
+}
+
+func (opt *GenerateConfigOutOption) configurePlan(conf *planConfig) {
+	conf.generateConfigOut = opt.generateConfigOut
 }
 
 // Plan executes `terraform plan` with the specified options and waits for it
@@ -189,6 +194,13 @@ func (tf *Terraform) buildPlanArgs(ctx context.Context, c planConfig) ([]string,
 	args := []string{"plan", "-no-color", "-input=false", "-detailed-exitcode"}
 
 	// string opts: only pass if set
+	if c.generateConfigOut != "" {
+		err := tf.compatible(ctx, tf1_5_0, nil)
+		if err != nil {
+			return nil, fmt.Errorf("generate-config-out option was introduced in Terraform 1.5.0: %w", err)
+		}
+		args = append(args, "-generate-config-out="+c.generateConfigOut)
+	}
 	if c.lockTimeout != "" {
 		args = append(args, "-lock-timeout="+c.lockTimeout)
 	}
