@@ -32,6 +32,7 @@ var (
 	tf0_15_4 = version.Must(version.NewVersion("0.15.4"))
 	tf1_1_0  = version.Must(version.NewVersion("1.1.0"))
 	tf1_4_0  = version.Must(version.NewVersion("1.4.0"))
+	tf1_5_0  = version.Must(version.NewVersion("1.5.0"))
 	tf1_6_0  = version.Must(version.NewVersion("1.6.0"))
 	tf1_9_0  = version.Must(version.NewVersion("1.9.0"))
 	tf1_13_0 = version.Must(version.NewVersion("1.13.0"))
