@@ -16,6 +16,7 @@ type applyConfig struct {
 	destroy   bool
 	dirOrPlan string
 	lock      bool
+	json      bool
 
 	// LockTimeout must be a string with time unit, e.g. '10s'
 	lockTimeout  string
@@ -71,6 +72,10 @@ func (opt *StateOutOption) configureApply(conf *applyConfig) {
 
 func (opt *VarFileOption) configureApply(conf *applyConfig) {
 	conf.varFiles = append(conf.varFiles, opt.path)
+}
+
+func (opt *JSONOption) configureApply(conf *applyConfig) {
+	conf.json = opt.json
 }
 
 func (opt *LockOption) configureApply(conf *applyConfig) {
@@ -173,6 +178,9 @@ func (tf *Terraform) buildApplyArgs(ctx context.Context, c applyConfig) ([]strin
 	// string opts: only pass if set
 	if c.backup != "" {
 		args = append(args, "-backup="+c.backup)
+	}
+	if c.json {
+		args = append(args, "-json")
 	}
 	if c.lockTimeout != "" {
 		args = append(args, "-lock-timeout="+c.lockTimeout)
