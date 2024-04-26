@@ -7,6 +7,16 @@ import (
 	"encoding/json"
 )
 
+// TODO: add doc
+type AllowDeferralOption struct {
+	allowDeferral bool
+}
+
+// TODO: add doc
+func AllowDeferral(allowDeferral bool) *AllowDeferralOption {
+	return &AllowDeferralOption{allowDeferral}
+}
+
 // AllowMissingConfigOption represents the -allow-missing-config flag.
 type AllowMissingConfigOption struct {
 	allowMissingConfig bool

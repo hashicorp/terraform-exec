@@ -12,10 +12,11 @@ import (
 )
 
 type applyConfig struct {
-	backup    string
-	destroy   bool
-	dirOrPlan string
-	lock      bool
+	allowDeferral bool
+	backup        string
+	destroy       bool
+	dirOrPlan     string
+	lock          bool
 
 	// LockTimeout must be a string with time unit, e.g. '10s'
 	lockTimeout  string
@@ -103,6 +104,10 @@ func (opt *ReattachOption) configureApply(conf *applyConfig) {
 
 func (opt *DestroyFlagOption) configureApply(conf *applyConfig) {
 	conf.destroy = opt.destroy
+}
+
+func (opt *AllowDeferralOption) configureApply(conf *applyConfig) {
+	conf.allowDeferral = opt.allowDeferral
 }
 
 // Apply represents the terraform apply subcommand.
@@ -230,6 +235,11 @@ func (tf *Terraform) buildApplyArgs(ctx context.Context, c applyConfig) ([]strin
 		for _, v := range c.vars {
 			args = append(args, "-var", v)
 		}
+	}
+
+	if c.allowDeferral {
+		// TODO: add tf.compatibile check here for alpha/pre-release
+		args = append(args, "-allow-deferral")
 	}
 
 	return args, nil

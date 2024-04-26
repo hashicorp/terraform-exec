@@ -12,20 +12,21 @@ import (
 )
 
 type planConfig struct {
-	destroy      bool
-	dir          string
-	lock         bool
-	lockTimeout  string
-	out          string
-	parallelism  int
-	reattachInfo ReattachInfo
-	refresh      bool
-	refreshOnly  bool
-	replaceAddrs []string
-	state        string
-	targets      []string
-	vars         []string
-	varFiles     []string
+	allowDeferral bool
+	destroy       bool
+	dir           string
+	lock          bool
+	lockTimeout   string
+	out           string
+	parallelism   int
+	reattachInfo  ReattachInfo
+	refresh       bool
+	refreshOnly   bool
+	replaceAddrs  []string
+	state         string
+	targets       []string
+	vars          []string
+	varFiles      []string
 }
 
 var defaultPlanOptions = planConfig{
@@ -95,6 +96,10 @@ func (opt *LockOption) configurePlan(conf *planConfig) {
 
 func (opt *DestroyFlagOption) configurePlan(conf *planConfig) {
 	conf.destroy = opt.destroy
+}
+
+func (opt *AllowDeferralOption) configurePlan(conf *planConfig) {
+	conf.allowDeferral = opt.allowDeferral
 }
 
 // Plan executes `terraform plan` with the specified options and waits for it
@@ -242,6 +247,10 @@ func (tf *Terraform) buildPlanArgs(ctx context.Context, c planConfig) ([]string,
 		for _, v := range c.vars {
 			args = append(args, "-var", v)
 		}
+	}
+	if c.allowDeferral {
+		// TODO: add tf.compatibile check here for alpha/pre-release
+		args = append(args, "-allow-deferral")
 	}
 
 	return args, nil

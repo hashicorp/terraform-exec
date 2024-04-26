@@ -89,6 +89,27 @@ func TestApplyCmd(t *testing.T) {
 			"-refresh-only",
 		}, nil, applyCmd)
 	})
+
+	// TODO: Move to a new test for just alpha builds?
+	t.Run("allow deferrals during apply", func(t *testing.T) {
+		applyCmd, err := tf.applyCmd(context.Background(),
+			AllowDeferral(true),
+		)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assertCmd(t, []string{
+			"apply",
+			"-no-color",
+			"-auto-approve",
+			"-input=false",
+			"-lock=true",
+			"-parallelism=10",
+			"-refresh=true",
+			"-allow-deferral",
+		}, nil, applyCmd)
+	})
 }
 
 func TestApplyJSONCmd(t *testing.T) {

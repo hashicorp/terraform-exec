@@ -1,3 +1,9 @@
+# 0.21.0 (Unreleased)
+
+ENHANCEMENTS:
+<!-- TODO: Update changelog -->
+- tfexec: Add `-allow-deferral` to `(Terraform).Apply()` and `(Terraform).Plan()` methods ([#TBD](https://github.com/hashicorp/terraform-exec/pull/TBD))
+
 # 0.20.0 (December 20, 2023)
 
 ENHANCEMENTS:
