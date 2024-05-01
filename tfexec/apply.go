@@ -238,7 +238,18 @@ func (tf *Terraform) buildApplyArgs(ctx context.Context, c applyConfig) ([]strin
 	}
 
 	if c.allowDeferral {
-		// TODO: add tf.compatibile check here for alpha/pre-release
+		// Ensure the version is later than 1.9.0
+		err := tf.compatible(ctx, tf1_9_0, nil)
+		if err != nil {
+			return nil, fmt.Errorf("allow-deferral is an experimental option introduced in Terraform 1.9.0: %w", err)
+		}
+
+		// Ensure the version has experiments enabled (alpha or dev builds)
+		err = tf.experimentsEnabled(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("allow-deferral is only available in experimental Terraform builds: %w", err)
+		}
+
 		args = append(args, "-allow-deferral")
 	}
 

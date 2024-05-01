@@ -101,26 +101,6 @@ func TestPlanCmd(t *testing.T) {
 			"-refresh-only",
 		}, nil, planCmd)
 	})
-
-	// TODO: Move to a new test for just alpha builds?
-	t.Run("allow deferrals during plan", func(t *testing.T) {
-		planCmd, err := tf.planCmd(context.Background(), AllowDeferral(true))
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		assertCmd(t, []string{
-			"plan",
-			"-no-color",
-			"-input=false",
-			"-detailed-exitcode",
-			"-lock-timeout=0s",
-			"-lock=true",
-			"-parallelism=10",
-			"-refresh=true",
-			"-allow-deferral",
-		}, nil, planCmd)
-	})
 }
 
 func TestPlanJSONCmd(t *testing.T) {
@@ -195,6 +175,37 @@ func TestPlanJSONCmd(t *testing.T) {
 			"-var", "brain_size=planet",
 			"-json",
 			"earth",
+		}, nil, planCmd)
+	})
+}
+
+func TestPlanCmd_AllowDeferral(t *testing.T) {
+	td := t.TempDir()
+
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Alpha_v1_9))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// empty env, to avoid environ mismatch in testing
+	tf.SetEnv(map[string]string{})
+
+	t.Run("allow deferrals during plan", func(t *testing.T) {
+		planCmd, err := tf.planCmd(context.Background(), AllowDeferral(true))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assertCmd(t, []string{
+			"plan",
+			"-no-color",
+			"-input=false",
+			"-detailed-exitcode",
+			"-lock-timeout=0s",
+			"-lock=true",
+			"-parallelism=10",
+			"-refresh=true",
+			"-allow-deferral",
 		}, nil, planCmd)
 	})
 }
