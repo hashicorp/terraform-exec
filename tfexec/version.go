@@ -181,9 +181,8 @@ func (tf *Terraform) compatible(ctx context.Context, minInclusive *version.Versi
 	return nil
 }
 
-// experimentsEnabled asserts the cached terraform version has experiments enabled in the executable, and returns a well known error if not.
-//
-// Experiments are enabled in alpha and (potentially) dev builds of Terraform.
+// experimentsEnabled asserts the cached terraform version has experiments enabled in the executable,
+// and returns a well known error if not. Experiments are enabled in alpha and (potentially) dev builds of Terraform.
 func (tf *Terraform) experimentsEnabled(ctx context.Context) error {
 	tfv, _, err := tf.Version(ctx, false)
 	if err != nil {
