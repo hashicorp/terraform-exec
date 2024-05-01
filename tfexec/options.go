@@ -7,12 +7,14 @@ import (
 	"encoding/json"
 )
 
-// TODO: add doc
+// AllowDeferralOption represents the -allow-deferral flag. This flag is only enabled in
+// experimental builds of Terraform. (alpha or built via source with experiments enabled)
 type AllowDeferralOption struct {
 	allowDeferral bool
 }
 
-// TODO: add doc
+// AllowDeferral represents the -allow-deferral flag. This flag is only enabled in
+// experimental builds of Terraform. (alpha or built via source with experiments enabled)
 func AllowDeferral(allowDeferral bool) *AllowDeferralOption {
 	return &AllowDeferralOption{allowDeferral}
 }
