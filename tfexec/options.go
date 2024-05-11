@@ -5,6 +5,7 @@ package tfexec
 
 import (
 	"encoding/json"
+	"time"
 )
 
 // AllowMissingConfigOption represents the -allow-missing-config flag.
@@ -437,4 +438,12 @@ type VerifyPluginsOption struct {
 
 func VerifyPlugins(verifyPlugins bool) *VerifyPluginsOption {
 	return &VerifyPluginsOption{verifyPlugins}
+}
+
+type GracefulShutdownPeriodOption struct {
+	period time.Duration
+}
+
+func GracefulShutdownPeriod(period time.Duration) *GracefulShutdownPeriodOption {
+	return &GracefulShutdownPeriodOption{period}
 }

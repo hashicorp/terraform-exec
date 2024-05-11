@@ -4,10 +4,14 @@
 package tfexec
 
 import (
+	"bytes"
+	"context"
 	"fmt"
+	"log"
 	"os/exec"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-exec/internal/version"
 )
@@ -98,5 +102,31 @@ func assertCmd(t *testing.T, expectedArgs []string, expectedEnv map[string]strin
 		if ev != av {
 			t.Fatalf("env mismatch, expected %q, got %q\n\nfull expected:\n%v\n\nfull actual:\n%v", ev, av, envSlice(expectedEnv), envSlice(actualEnv))
 		}
+	}
+}
+
+func Test_runTerraformCmd_default(t *testing.T) {
+	// Checks runTerraformCmd for race condition when using
+	// go test -race -run Test_runTerraformCmd_default ./tfexec
+	var buf bytes.Buffer
+
+	tf := &Terraform{
+		logger:   log.New(&buf, "", 0),
+		execPath: "echo",
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+
+	cmd := tf.buildTerraformCmd(ctx, nil, "hello tf-exec!")
+	err := tf.runTerraformCmd(ctx, cmd)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Cancel stops the leaked go routine which logs an error
+	cancel()
+	time.Sleep(time.Second)
+	if strings.Contains(buf.String(), "error from kill") {
+		t.Fatal("canceling context should not lead to logging an error")
 	}
 }

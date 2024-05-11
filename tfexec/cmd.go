@@ -15,6 +15,8 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/hashicorp/terraform-exec/internal/version"
 )
@@ -193,6 +195,32 @@ func (tf *Terraform) buildTerraformCmd(ctx context.Context, mergeEnv map[string]
 	return cmd
 }
 
+func (tf *Terraform) buildTerraformCmdWithGracefulShutdown(ctx context.Context, gracefulShutdownPeriod time.Duration, mergeEnv map[string]string, args ...string) *exec.Cmd {
+	cmd := exec.CommandContext(ctx, tf.execPath, args...)
+
+	cmd.Env = tf.buildEnv(mergeEnv)
+	cmd.Dir = tf.workingDir
+
+	if gracefulShutdownPeriod > 0 {
+		tf.logger.Printf("[INFO] configuring gracefully cancellation for command: %s", cmd.String())
+		cmd.WaitDelay = gracefulShutdownPeriod
+		cmd.Cancel = func() error {
+			tf.logger.Printf("[INFO] gracefully cancelling Terraform command: %s", cmd.String())
+			// os.Interrupt doesn't work on Windows so it will result into an immediate kill.
+			err := cmd.Process.Signal(os.Interrupt)
+			if err != nil && !errors.Is(err, os.ErrProcessDone) {
+				tf.logger.Printf("[ERROR] gracefully cancelling failed due to %s, forcefully cancelling Terraform command: %s", err.Error(), cmd.String())
+				err = cmd.Process.Kill()
+			}
+			return err
+		}
+	}
+
+	tf.logger.Printf("[INFO] running Terraform command: %s", cmd.String())
+
+	return cmd
+}
+
 func (tf *Terraform) runTerraformCmdJSON(ctx context.Context, cmd *exec.Cmd, v interface{}) error {
 	var outbuf = bytes.Buffer{}
 	cmd.Stdout = mergeWriters(cmd.Stdout, &outbuf)
@@ -274,4 +302,97 @@ func writeOutput(ctx context.Context, r io.ReadCloser, w io.Writer) error {
 			return err
 		}
 	}
+}
+
+func (tf *Terraform) runTerraformCmd(ctx context.Context, cmd *exec.Cmd) error {
+	var errBuf strings.Builder
+
+	cmd.SysProcAttr = defaultSysProcAttr
+
+	// check for early cancellation
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	default:
+	}
+
+	// Read stdout / stderr logs from pipe instead of setting cmd.Stdout and
+	// cmd.Stderr because it can cause hanging when killing the command
+	// https://github.com/golang/go/issues/23019
+	stdoutWriter := mergeWriters(cmd.Stdout, tf.stdout)
+	stderrWriter := mergeWriters(tf.stderr, &errBuf)
+
+	cmd.Stderr = nil
+	cmd.Stdout = nil
+
+	stdoutPipe, err := cmd.StdoutPipe()
+	if err != nil {
+		return err
+	}
+
+	stderrPipe, err := cmd.StderrPipe()
+	if err != nil {
+		return err
+	}
+
+	err = cmd.Start()
+	if ctx.Err() != nil {
+		return cmdErr{
+			err:    err,
+			ctxErr: ctx.Err(),
+		}
+	}
+	if err != nil {
+		return err
+	}
+
+	var errStdout, errStderr error
+	var wg sync.WaitGroup
+	go func() {
+		defer wg.Done()
+		errStdoutCtx := ctx
+		// When cancellation delay is enabled, avoid piping cancellation to prevent
+		// cancellation from being interrupted due to broken pipe.
+		if cmd.WaitDelay > 0 {
+			errStdoutCtx = context.WithoutCancel(ctx)
+		}
+		errStdout = writeOutput(errStdoutCtx, stdoutPipe, stdoutWriter)
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		errStderrCtx := ctx
+		// When cancellation delay is enabled, avoid piping cancellation to prevent
+		// cancellation from being interrupted due to broken pipe.
+		if cmd.WaitDelay > 0 {
+			errStderrCtx = context.WithoutCancel(ctx)
+		}
+		errStderr = writeOutput(errStderrCtx, stderrPipe, stderrWriter)
+	}()
+
+	// Reads from pipes must be completed before calling cmd.Wait(). Otherwise
+	// can cause a race condition
+	wg.Wait()
+
+	err = cmd.Wait()
+	if ctx.Err() != nil {
+		return cmdErr{
+			err:    err,
+			ctxErr: ctx.Err(),
+		}
+	}
+	if err != nil {
+		return fmt.Errorf("%w\n%s", err, errBuf.String())
+	}
+
+	// Return error if there was an issue reading the std out/err
+	if errStdout != nil && ctx.Err() != nil {
+		return fmt.Errorf("%w\n%s", errStdout, errBuf.String())
+	}
+	if errStderr != nil && ctx.Err() != nil {
+		return fmt.Errorf("%w\n%s", errStderr, errBuf.String())
+	}
+
+	return nil
 }

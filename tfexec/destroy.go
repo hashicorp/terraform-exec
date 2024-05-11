@@ -9,6 +9,7 @@ import (
 	"io"
 	"os/exec"
 	"strconv"
+	"time"
 )
 
 type destroyConfig struct {
@@ -28,6 +29,8 @@ type destroyConfig struct {
 	// Vars: each var must be supplied as a single string, e.g. 'foo=bar'
 	vars     []string
 	varFiles []string
+
+	gracefulShutdownPeriod time.Duration
 }
 
 var defaultDestroyOptions = destroyConfig{
@@ -88,6 +91,10 @@ func (opt *VarOption) configureDestroy(conf *destroyConfig) {
 
 func (opt *ReattachOption) configureDestroy(conf *destroyConfig) {
 	conf.reattachInfo = opt.info
+}
+
+func (opt *GracefulShutdownPeriodOption) configureDestroy(conf *destroyConfig) {
+	conf.gracefulShutdownPeriod = opt.period
 }
 
 // Destroy represents the terraform destroy subcommand.
@@ -200,5 +207,5 @@ func (tf *Terraform) buildDestroyCmd(ctx context.Context, c destroyConfig, args 
 		mergeEnv[reattachEnvVar] = reattachStr
 	}
 
-	return tf.buildTerraformCmd(ctx, mergeEnv, args...), nil
+	return tf.buildTerraformCmdWithGracefulShutdown(ctx, c.gracefulShutdownPeriod, mergeEnv, args...), nil
 }
