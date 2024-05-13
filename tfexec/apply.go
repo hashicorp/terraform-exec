@@ -32,6 +32,8 @@ type applyConfig struct {
 	// Vars: each var must be supplied as a single string, e.g. 'foo=bar'
 	vars     []string
 	varFiles []string
+
+	gracefulShutdownConfig GracefulShutdownConfig
 }
 
 var defaultApplyOptions = applyConfig{
@@ -110,11 +112,30 @@ func (opt *AllowDeferralOption) configureApply(conf *applyConfig) {
 	conf.allowDeferral = opt.allowDeferral
 }
 
+func (opt *GracefulShutdownOption) configureApply(conf *applyConfig) {
+	conf.gracefulShutdownConfig = opt.config
+}
+
+func newApplyConfig(opts ...ApplyOption) applyConfig {
+	c := defaultApplyOptions
+
+	for _, o := range opts {
+		o.configureApply(&c)
+	}
+	return c
+}
+
 // Apply represents the terraform apply subcommand.
 func (tf *Terraform) Apply(ctx context.Context, opts ...ApplyOption) error {
-	cmd, err := tf.applyCmd(ctx, opts...)
+	c := newApplyConfig(opts...)
+
+	cmd, err := tf.applyCmd(ctx, c)
 	if err != nil {
 		return err
+	}
+
+	if c.gracefulShutdownConfig.Enable {
+		return tf.runTerraformCmdWithGracefulShutdown(ctx, cmd)
 	}
 	return tf.runTerraformCmd(ctx, cmd)
 }
@@ -132,21 +153,20 @@ func (tf *Terraform) ApplyJSON(ctx context.Context, w io.Writer, opts ...ApplyOp
 
 	tf.SetStdout(w)
 
-	cmd, err := tf.applyJSONCmd(ctx, opts...)
+	c := newApplyConfig(opts...)
+
+	cmd, err := tf.applyJSONCmd(ctx, c)
 	if err != nil {
 		return err
 	}
 
+	if c.gracefulShutdownConfig.Enable {
+		return tf.runTerraformCmdWithGracefulShutdown(ctx, cmd)
+	}
 	return tf.runTerraformCmd(ctx, cmd)
 }
 
-func (tf *Terraform) applyCmd(ctx context.Context, opts ...ApplyOption) (*exec.Cmd, error) {
-	c := defaultApplyOptions
-
-	for _, o := range opts {
-		o.configureApply(&c)
-	}
-
+func (tf *Terraform) applyCmd(ctx context.Context, c applyConfig) (*exec.Cmd, error) {
 	args, err := tf.buildApplyArgs(ctx, c)
 	if err != nil {
 		return nil, err
@@ -155,13 +175,7 @@ func (tf *Terraform) applyCmd(ctx context.Context, opts ...ApplyOption) (*exec.C
 	return tf.buildApplyCmd(ctx, c, args)
 }
 
-func (tf *Terraform) applyJSONCmd(ctx context.Context, opts ...ApplyOption) (*exec.Cmd, error) {
-	c := defaultApplyOptions
-
-	for _, o := range opts {
-		o.configureApply(&c)
-	}
-
+func (tf *Terraform) applyJSONCmd(ctx context.Context, c applyConfig) (*exec.Cmd, error) {
 	args, err := tf.buildApplyArgs(ctx, c)
 	if err != nil {
 		return nil, err
@@ -271,5 +285,8 @@ func (tf *Terraform) buildApplyCmd(ctx context.Context, c applyConfig, args []st
 		mergeEnv[reattachEnvVar] = reattachStr
 	}
 
+	if c.gracefulShutdownConfig.Enable {
+		return tf.buildTerraformCmdWithGracefulShutdown(ctx, c.gracefulShutdownConfig.Period, mergeEnv, args...), nil
+	}
 	return tf.buildTerraformCmd(ctx, mergeEnv, args...), nil
 }
