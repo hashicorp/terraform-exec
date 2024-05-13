@@ -31,6 +31,8 @@ type applyConfig struct {
 	// Vars: each var must be supplied as a single string, e.g. 'foo=bar'
 	vars     []string
 	varFiles []string
+
+	gracefulShutdownConfig GracefulShutdownConfig
 }
 
 var defaultApplyOptions = applyConfig{
@@ -103,6 +105,10 @@ func (opt *ReattachOption) configureApply(conf *applyConfig) {
 
 func (opt *DestroyFlagOption) configureApply(conf *applyConfig) {
 	conf.destroy = opt.destroy
+}
+
+func (opt *GracefulShutdownOption) configureApply(conf *applyConfig) {
+	conf.gracefulShutdownConfig = opt.config
 }
 
 // Apply represents the terraform apply subcommand.
@@ -250,5 +256,8 @@ func (tf *Terraform) buildApplyCmd(ctx context.Context, c applyConfig, args []st
 		mergeEnv[reattachEnvVar] = reattachStr
 	}
 
+	if c.gracefulShutdownConfig.Enable {
+		return tf.buildTerraformCmdWithGracefulShutdown(ctx, c.gracefulShutdownConfig.Period, mergeEnv, args...), nil
+	}
 	return tf.buildTerraformCmd(ctx, mergeEnv, args...), nil
 }

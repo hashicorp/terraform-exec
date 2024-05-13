@@ -28,6 +28,8 @@ type destroyConfig struct {
 	// Vars: each var must be supplied as a single string, e.g. 'foo=bar'
 	vars     []string
 	varFiles []string
+
+	gracefulShutdownConfig GracefulShutdownConfig
 }
 
 var defaultDestroyOptions = destroyConfig{
@@ -88,6 +90,10 @@ func (opt *VarOption) configureDestroy(conf *destroyConfig) {
 
 func (opt *ReattachOption) configureDestroy(conf *destroyConfig) {
 	conf.reattachInfo = opt.info
+}
+
+func (opt *GracefulShutdownOption) configureDestroy(conf *destroyConfig) {
+	conf.gracefulShutdownConfig = opt.config
 }
 
 // Destroy represents the terraform destroy subcommand.
@@ -200,5 +206,8 @@ func (tf *Terraform) buildDestroyCmd(ctx context.Context, c destroyConfig, args 
 		mergeEnv[reattachEnvVar] = reattachStr
 	}
 
+	if c.gracefulShutdownConfig.Enable {
+		return tf.buildTerraformCmdWithGracefulShutdown(ctx, c.gracefulShutdownConfig.Period, mergeEnv, args...), nil
+	}
 	return tf.buildTerraformCmd(ctx, mergeEnv, args...), nil
 }
