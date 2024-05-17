@@ -164,6 +164,9 @@ func (tf *Terraform) initCmd(ctx context.Context, opts ...InitOption) (*exec.Cmd
 	// -migrate-state added in 0.15.4 before it was automatic and returned errors
 	err = tf.compatible(ctx, tf0_15_4, nil)
 	if err == nil {
+		if c.migrate && c.reconfigure {
+			return nil, fmt.Errorf("the -migrate-state and -reconfigure options are mutually-exclusive")
+		}
 		if c.migrate {
 			args = append(args, "-migrate-state")
 		}
