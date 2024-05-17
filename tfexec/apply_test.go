@@ -150,3 +150,35 @@ func TestApplyJSONCmd(t *testing.T) {
 		}, nil, applyCmd)
 	})
 }
+
+func TestApplyCmd_AllowDeferral(t *testing.T) {
+	td := t.TempDir()
+
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Alpha_v1_9))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// empty env, to avoid environ mismatch in testing
+	tf.SetEnv(map[string]string{})
+
+	t.Run("allow deferrals during apply", func(t *testing.T) {
+		applyCmd, err := tf.applyCmd(context.Background(),
+			AllowDeferral(true),
+		)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assertCmd(t, []string{
+			"apply",
+			"-no-color",
+			"-auto-approve",
+			"-input=false",
+			"-lock=true",
+			"-parallelism=10",
+			"-refresh=true",
+			"-allow-deferral",
+		}, nil, applyCmd)
+	})
+}
