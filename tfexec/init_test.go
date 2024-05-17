@@ -74,6 +74,34 @@ func TestInitCmd_v012(t *testing.T) {
 			"initdir",
 		}, nil, initCmd)
 	})
+
+	t.Run("override all defaults migrate", func(t *testing.T) {
+		initCmd, err := tf.initCmd(context.Background(), Backend(false), BackendConfig("confpath1"), BackendConfig("confpath2"), ForceCopy(true), FromModule("testsource"), Get(false), GetPlugins(false), Lock(false), LockTimeout("999s"), PluginDir("testdir1"), PluginDir("testdir2"), MigrateState(true), Upgrade(true), VerifyPlugins(false), Dir("initdir"))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assertCmd(t, []string{
+			"init",
+			"-no-color",
+			"-input=false",
+			"-from-module=testsource",
+			"-lock-timeout=999s",
+			"-backend=false",
+			"-get=false",
+			"-upgrade=true",
+			"-lock=false",
+			"-get-plugins=false",
+			"-verify-plugins=false",
+			"-force-copy",
+			"-reconfigure",
+			"-backend-config=confpath1",
+			"-backend-config=confpath2",
+			"-plugin-dir=testdir1",
+			"-plugin-dir=testdir2",
+			"initdir",
+		}, nil, initCmd)
+	})
 }
 
 func TestInitCmd_v1(t *testing.T) {
