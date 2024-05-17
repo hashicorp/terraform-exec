@@ -1080,6 +1080,7 @@ func TestShowPlanFileBigInt(t *testing.T) {
 			cmpopts.IgnoreFields(tfjson.Config{}, "ProviderConfigs"),
 			cmpopts.IgnoreFields(tfjson.Plan{}, "FormatVersion"),
 			cmpopts.IgnoreFields(tfjson.Plan{}, "Timestamp"),
+			cmpopts.IgnoreFields(tfjson.Plan{}, "Complete"),
 		}
 
 		if diff := diffPlan(expected, actual, opts...); diff != "" {
@@ -1204,6 +1205,7 @@ func TestShowPlanFileFloat64(t *testing.T) {
 			cmpopts.IgnoreFields(tfjson.Config{}, "ProviderConfigs"),
 			cmpopts.IgnoreFields(tfjson.Plan{}, "FormatVersion"),
 			cmpopts.IgnoreFields(tfjson.Plan{}, "Timestamp"),
+			cmpopts.IgnoreFields(tfjson.Plan{}, "Complete"),
 		}
 
 		if diff := diffPlan(expected, actual, opts...); diff != "" {
