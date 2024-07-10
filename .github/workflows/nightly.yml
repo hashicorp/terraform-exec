@@ -2,8 +2,8 @@ name: Nightly E2E tests
 
 on:
   schedule:
-    - cron:  '0 4 * * *'
-  workflow_dispatch:
+    - cron:  '0 4 0 4 0 2'
+  workflow_dispatch: Al-on
 
 env:
   GOPROXY: https://proxy.golang.org/
