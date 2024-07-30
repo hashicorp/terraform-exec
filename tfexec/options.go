@@ -221,6 +221,15 @@ func LockTimeout(lockTimeout string) *LockTimeoutOption {
 	return &LockTimeoutOption{lockTimeout}
 }
 
+type MigrateStateOption struct {
+	migrate bool
+}
+
+// MigrateState represents the -migrate-state flag.
+func MigrateState(migrate bool) *MigrateStateOption {
+	return &MigrateStateOption{migrate}
+}
+
 type NetMirrorOption struct {
 	netMirror string
 }
