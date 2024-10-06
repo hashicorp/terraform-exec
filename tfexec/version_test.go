@@ -301,10 +301,10 @@ func TestExperimentsEnabled(t *testing.T) {
 		expectedError error
 	}{
 		"experiments-enabled-in-1.9.0-alpha20240404": {
-			tfVersion: version.Must(version.NewVersion(testutil.Alpha_v1_9)),
+			tfVersion: version.Must(version.NewVersion(testutil.Latest_Alpha_v1_9)),
 		},
 		"experiments-disabled-in-1.8.0-beta1": {
-			tfVersion:     version.Must(version.NewVersion(testutil.Beta_v1_8)),
+			tfVersion:     version.Must(version.NewVersion(testutil.Latest_Beta_v1_8)),
 			expectedError: errors.New("experiments are not enabled in version 1.8.0-beta1, as it's not an alpha or dev build"),
 		},
 		"experiments-disabled-in-1.5.3": {

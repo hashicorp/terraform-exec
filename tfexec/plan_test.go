@@ -182,7 +182,7 @@ func TestPlanJSONCmd(t *testing.T) {
 func TestPlanCmd_AllowDeferral(t *testing.T) {
 	td := t.TempDir()
 
-	tf, err := NewTerraform(td, tfVersion(t, testutil.Alpha_v1_9))
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest_Alpha_v1_9))
 	if err != nil {
 		t.Fatal(err)
 	}
