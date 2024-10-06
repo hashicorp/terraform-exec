@@ -300,16 +300,16 @@ func TestExperimentsEnabled(t *testing.T) {
 		tfVersion     *version.Version
 		expectedError error
 	}{
-		"experiments-enabled-in-1.9.0-alpha20240404": {
+		fmt.Sprintf("experiments-enabled-in-%s", testutil.Latest_Alpha_v1_9): {
 			tfVersion: version.Must(version.NewVersion(testutil.Latest_Alpha_v1_9)),
 		},
-		"experiments-disabled-in-1.8.0-beta1": {
+		fmt.Sprintf("experiments-disabled-in-%s", testutil.Latest_Beta_v1_8): {
 			tfVersion:     version.Must(version.NewVersion(testutil.Latest_Beta_v1_8)),
-			expectedError: errors.New("experiments are not enabled in version 1.8.0-beta1, as it's not an alpha or dev build"),
+			expectedError: fmt.Errorf("experiments are not enabled in version %s, as it's not an alpha or dev build", testutil.Latest_Beta_v1_8),
 		},
-		"experiments-disabled-in-1.5.3": {
+		fmt.Sprintf("experiments-disabled-in-%s", testutil.Latest_v1_5): {
 			tfVersion:     version.Must(version.NewVersion(testutil.Latest_v1_5)),
-			expectedError: errors.New("experiments are not enabled in version 1.5.3, as it's not an alpha or dev build"),
+			expectedError: fmt.Errorf("experiments are not enabled in version %s, as it's not an alpha or dev build", testutil.Latest_v1_5),
 		},
 	}
 	for name, testCase := range testCases {
