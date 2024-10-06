@@ -126,7 +126,7 @@ func (tf *Terraform) Init(ctx context.Context, opts ...InitOption) error {
 func (tf *Terraform) initCmd(ctx context.Context, opts ...InitOption) (*exec.Cmd, error) {
 	c := defaultInitOptions
 
-	err := tf.configureInitOptions(ctx, &c, opts...
+	err := tf.configureInitOptions(ctx, &c, opts...)
 	if err != nil {
 		return nil, err
 	}
