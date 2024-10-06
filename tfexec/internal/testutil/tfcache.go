@@ -23,7 +23,9 @@ const (
 	Latest_v1   = "1.0.11"
 	Latest_v1_1 = "1.1.9"
 	Latest_v1_5 = "1.5.3"
-	Latest_v1_6 = "1.6.0-alpha20230719"
+	Latest_v1_6 = "1.6.6"
+	Latest_v1_7 = "1.7.5"
+	Latest_v1_8 = "1.8.5"
 
 	Beta_v1_8  = "1.8.0-beta1"
 	Alpha_v1_9 = "1.9.0-alpha20240404"
