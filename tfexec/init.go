@@ -157,6 +157,11 @@ func (tf *Terraform) initCmd(ctx context.Context, opts ...InitOption) (*exec.Cmd
 		return nil, err
 	}
 
+	// Optional positional argument; must be last as flags precede positional arguments.
+	if c.dir != "" {
+		args = append(args, c.dir)
+	}
+
 	return tf.buildInitCmd(ctx, c, args)
 }
 
@@ -174,6 +179,11 @@ func (tf *Terraform) initJSONCmd(ctx context.Context, opts ...InitOption) (*exec
 	}
 
 	args = append(args, "-json")
+
+	// Optional positional argument; must be last as flags precede positional arguments.
+	if c.dir != "" {
+		args = append(args, c.dir)
+	}
 
 	return tf.buildInitCmd(ctx, c, args)
 }
@@ -226,11 +236,6 @@ func (tf *Terraform) buildInitArgs(ctx context.Context, c initConfig) ([]string,
 		for _, pd := range c.pluginDir {
 			args = append(args, "-plugin-dir="+pd)
 		}
-	}
-
-	// optional positional argument
-	if c.dir != "" {
-		args = append(args, c.dir)
 	}
 
 	return args, nil
