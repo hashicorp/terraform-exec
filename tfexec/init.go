@@ -6,6 +6,7 @@ package tfexec
 import (
 	"context"
 	"fmt"
+	"io"
 	"os/exec"
 )
 
@@ -123,6 +124,26 @@ func (tf *Terraform) Init(ctx context.Context, opts ...InitOption) error {
 	return tf.runTerraformCmd(ctx, cmd)
 }
 
+// InitJSON represents the terraform init subcommand with the `-json` flag.
+// Using the `-json` flag will result in
+// [machine-readable](https://developer.hashicorp.com/terraform/internals/machine-readable-ui)
+// JSON being written to the supplied `io.Writer`.
+func (tf *Terraform) InitJSON(ctx context.Context, w io.Writer, opts ...InitOption) error {
+	err := tf.compatible(ctx, tf1_9_0, nil)
+	if err != nil {
+		return fmt.Errorf("terraform init -json was added in 1.9.0: %w", err)
+	}
+
+	tf.SetStdout(w)
+
+	cmd, err := tf.initJSONCmd(ctx, opts...)
+	if err != nil {
+		return err
+	}
+
+	return tf.runTerraformCmd(ctx, cmd)
+}
+
 func (tf *Terraform) initCmd(ctx context.Context, opts ...InitOption) (*exec.Cmd, error) {
 	c := defaultInitOptions
 
@@ -135,6 +156,24 @@ func (tf *Terraform) initCmd(ctx context.Context, opts ...InitOption) (*exec.Cmd
 	if err != nil {
 		return nil, err
 	}
+
+	return tf.buildInitCmd(ctx, c, args)
+}
+
+func (tf *Terraform) initJSONCmd(ctx context.Context, opts ...InitOption) (*exec.Cmd, error) {
+	c := defaultInitOptions
+
+	err := tf.configureInitOptions(ctx, &c, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	args, err := tf.buildInitArgs(ctx, c)
+	if err != nil {
+		return nil, err
+	}
+
+	args = append(args, "-json")
 
 	return tf.buildInitCmd(ctx, c, args)
 }
