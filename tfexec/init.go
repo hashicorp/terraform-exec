@@ -99,6 +99,21 @@ func (opt *VerifyPluginsOption) configureInit(conf *initConfig) {
 	conf.verifyPlugins = opt.verifyPlugins
 }
 
+func (tf *Terraform) configureInitOptions(ctx context.Context, c *initConfig, opts ...InitOption) error {
+	for _, o := range opts {
+		switch o.(type) {
+		case *LockOption, *LockTimeoutOption, *VerifyPluginsOption, *GetPluginsOption:
+			err := tf.compatible(ctx, nil, tf0_15_0)
+			if err != nil {
+				return fmt.Errorf("-lock, -lock-timeout, -verify-plugins, and -get-plugins options are no longer available as of Terraform 0.15: %w", err)
+			}
+		}
+
+		o.configureInit(c)
+	}
+	return nil
+}
+
 // Init represents the terraform init subcommand.
 func (tf *Terraform) Init(ctx context.Context, opts ...InitOption) error {
 	cmd, err := tf.initCmd(ctx, opts...)
@@ -111,18 +126,20 @@ func (tf *Terraform) Init(ctx context.Context, opts ...InitOption) error {
 func (tf *Terraform) initCmd(ctx context.Context, opts ...InitOption) (*exec.Cmd, error) {
 	c := defaultInitOptions
 
-	for _, o := range opts {
-		switch o.(type) {
-		case *LockOption, *LockTimeoutOption, *VerifyPluginsOption, *GetPluginsOption:
-			err := tf.compatible(ctx, nil, tf0_15_0)
-			if err != nil {
-				return nil, fmt.Errorf("-lock, -lock-timeout, -verify-plugins, and -get-plugins options are no longer available as of Terraform 0.15: %w", err)
-			}
-		}
-
-		o.configureInit(&c)
+	err := tf.configureInitOptions(ctx, &c, opts...
+	if err != nil {
+		return nil, err
 	}
 
+	args, err := tf.buildInitArgs(ctx, c)
+	if err != nil {
+		return nil, err
+	}
+
+	return tf.buildInitCmd(ctx, c, args)
+}
+
+func (tf *Terraform) buildInitArgs(ctx context.Context, c initConfig) ([]string, error) {
 	args := []string{"init", "-no-color", "-input=false"}
 
 	// string opts: only pass if set
@@ -177,6 +194,10 @@ func (tf *Terraform) initCmd(ctx context.Context, opts ...InitOption) (*exec.Cmd
 		args = append(args, c.dir)
 	}
 
+	return args, nil
+}
+
+func (tf *Terraform) buildInitCmd(ctx context.Context, c initConfig, args []string) (*exec.Cmd, error) {
 	mergeEnv := map[string]string{}
 	if c.reattachInfo != nil {
 		reattachStr, err := c.reattachInfo.marshalString()
