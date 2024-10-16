@@ -15,6 +15,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"syscall"
 
 	"github.com/hashicorp/terraform-exec/internal/version"
 )
@@ -187,6 +188,12 @@ func (tf *Terraform) buildTerraformCmd(ctx context.Context, mergeEnv map[string]
 
 	cmd.Env = tf.buildEnv(mergeEnv)
 	cmd.Dir = tf.workingDir
+	// Create a new process group for the command
+	if tf.useSepProcessGroup {
+		cmd.SysProcAttr = &syscall.SysProcAttr{
+			Setpgid: true,
+		}
+	}
 
 	tf.logger.Printf("[INFO] running Terraform command: %s", cmd.String())
 
