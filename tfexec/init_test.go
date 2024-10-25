@@ -127,3 +127,57 @@ func TestInitCmd_v1(t *testing.T) {
 		}, nil, initCmd)
 	})
 }
+
+func TestInitJSONCmd(t *testing.T) {
+	td := t.TempDir()
+
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest_v1_9))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// empty env, to avoid environ mismatch in testing
+	tf.SetEnv(map[string]string{})
+
+	t.Run("defaults", func(t *testing.T) {
+		// defaults
+		initCmd, err := tf.initJSONCmd(context.Background())
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assertCmd(t, []string{
+			"init",
+			"-no-color",
+			"-input=false",
+			"-backend=true",
+			"-get=true",
+			"-upgrade=false",
+			"-json",
+		}, nil, initCmd)
+	})
+
+	t.Run("override all defaults", func(t *testing.T) {
+		initCmd, err := tf.initJSONCmd(context.Background(), Backend(false), BackendConfig("confpath1"), BackendConfig("confpath2"), FromModule("testsource"), Get(false), PluginDir("testdir1"), PluginDir("testdir2"), Reconfigure(true), Upgrade(true), Dir("initdir"))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assertCmd(t, []string{
+			"init",
+			"-no-color",
+			"-input=false",
+			"-from-module=testsource",
+			"-backend=false",
+			"-get=false",
+			"-upgrade=true",
+			"-reconfigure",
+			"-backend-config=confpath1",
+			"-backend-config=confpath2",
+			"-plugin-dir=testdir1",
+			"-plugin-dir=testdir2",
+			"-json",
+			"initdir",
+		}, nil, initCmd)
+	})
+}
