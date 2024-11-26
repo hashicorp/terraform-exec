@@ -111,7 +111,7 @@ jobs:
         run: go build ./...
       -
         name: Run unit tests
-        run: go test -race $(go list ./... | grep -v /tfexec/internal/e2etest)
+        run: go test -cover -race $(go list ./... | grep -v /tfexec/internal/e2etest)
 
   e2e-tests:
     name: e2e-tests (${{ matrix.os }}, go ${{ matrix.go_version }}, terraform ${{ matrix.terraform_version }})
