@@ -49,6 +49,7 @@ type Terraform struct {
 	appendUserAgent    string
 	disablePluginTLS   bool
 	skipProviderVerify bool
+	useSepProcessGroup bool
 	env                map[string]string
 
 	stdout io.Writer
@@ -134,6 +135,13 @@ func (tf *Terraform) SetStdout(w io.Writer) {
 // flow. Any parsing necessary should be added as functionality to this package.
 func (tf *Terraform) SetStderr(w io.Writer) {
 	tf.stderr = w
+}
+
+// SetUseSeparateProcessGroup specifies whether to use a separate process group
+// when running Terraform Cmd.
+func (tf *Terraform) SetUseSeparateProcessGroup(use bool) error {
+	tf.useSepProcessGroup = use
+	return nil
 }
 
 // SetLog sets the TF_LOG environment variable for Terraform CLI execution.
