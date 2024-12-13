@@ -10,9 +10,37 @@ import (
 	tfjson "github.com/hashicorp/terraform-json"
 )
 
+type providersSchemaConfig struct {
+	reattachInfo ReattachInfo
+}
+
+var defaultProvidersSchemaOptions = providersSchemaConfig{}
+
+type ProvidersSchemaOption interface {
+	configureProvidersSchema(*providersSchemaConfig)
+}
+
+func (opt *ReattachOption) configureProvidersSchema(conf *providersSchemaConfig) {
+	conf.reattachInfo = opt.info
+}
+
 // ProvidersSchema represents the terraform providers schema -json subcommand.
-func (tf *Terraform) ProvidersSchema(ctx context.Context) (*tfjson.ProviderSchemas, error) {
-	schemaCmd := tf.providersSchemaCmd(ctx)
+func (tf *Terraform) ProvidersSchema(ctx context.Context, opts ...ProvidersSchemaOption) (*tfjson.ProviderSchemas, error) {
+	c := defaultProvidersSchemaOptions
+	for _, o := range opts {
+		o.configureProvidersSchema(&c)
+	}
+
+	mergeEnv := map[string]string{}
+	if c.reattachInfo != nil {
+		reattachStr, err := c.reattachInfo.marshalString()
+		if err != nil {
+			return nil, err
+		}
+		mergeEnv[reattachEnvVar] = reattachStr
+	}
+
+	schemaCmd := tf.providersSchemaCmd(ctx, mergeEnv)
 
 	var ret tfjson.ProviderSchemas
 	err := tf.runTerraformCmdJSON(ctx, schemaCmd, &ret)
@@ -28,9 +56,9 @@ func (tf *Terraform) ProvidersSchema(ctx context.Context) (*tfjson.ProviderSchem
 	return &ret, nil
 }
 
-func (tf *Terraform) providersSchemaCmd(ctx context.Context, args ...string) *exec.Cmd {
+func (tf *Terraform) providersSchemaCmd(ctx context.Context, mergeEnv map[string]string, args ...string) *exec.Cmd {
 	allArgs := []string{"providers", "schema", "-json", "-no-color"}
 	allArgs = append(allArgs, args...)
 
-	return tf.buildTerraformCmd(ctx, nil, allArgs...)
+	return tf.buildTerraformCmd(ctx, mergeEnv, allArgs...)
 }
