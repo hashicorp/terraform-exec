@@ -13,7 +13,7 @@ import (
 func TestPlanCmd(t *testing.T) {
 	td := t.TempDir()
 
-	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest_v1))
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest_v1_5))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -101,12 +101,31 @@ func TestPlanCmd(t *testing.T) {
 			"-refresh-only",
 		}, nil, planCmd)
 	})
+
+	t.Run("run a generate-config-out plan", func(t *testing.T) {
+		planCmd, err := tf.planCmd(context.Background(), GenerateConfigOut("generated.tf"))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assertCmd(t, []string{
+			"plan",
+			"-no-color",
+			"-input=false",
+			"-detailed-exitcode",
+			"-generate-config-out=generated.tf",
+			"-lock-timeout=0s",
+			"-lock=true",
+			"-parallelism=10",
+			"-refresh=true",
+		}, nil, planCmd)
+	})
 }
 
 func TestPlanJSONCmd(t *testing.T) {
 	td := t.TempDir()
 
-	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest_v1))
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest_v1_5))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -175,6 +194,26 @@ func TestPlanJSONCmd(t *testing.T) {
 			"-var", "brain_size=planet",
 			"-json",
 			"earth",
+		}, nil, planCmd)
+	})
+
+	t.Run("generate-config-out", func(t *testing.T) {
+		planCmd, err := tf.planJSONCmd(context.Background(), GenerateConfigOut("generated.tf"))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assertCmd(t, []string{
+			"plan",
+			"-no-color",
+			"-input=false",
+			"-detailed-exitcode",
+			"-generate-config-out=generated.tf",
+			"-lock-timeout=0s",
+			"-lock=true",
+			"-parallelism=10",
+			"-refresh=true",
+			"-json",
 		}, nil, planCmd)
 	})
 }

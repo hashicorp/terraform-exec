@@ -15,6 +15,10 @@ import (
 	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
 )
 
+var (
+	generateConfigOutMinVersion = version.Must(version.NewVersion("1.5.0"))
+)
+
 func TestPlan(t *testing.T) {
 	runTest(t, "basic", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		err := tf.Init(context.Background())
@@ -86,6 +90,27 @@ func TestPlanJSON_TF015AndLater(t *testing.T) {
 		hasChanges, err := tf.PlanJSON(context.Background(), io.Discard)
 		if err != nil {
 			t.Fatalf("error running Apply: %s", err)
+		}
+		if !hasChanges {
+			t.Fatalf("expected: true, got: %t", hasChanges)
+		}
+	})
+}
+
+func TestPlanGenerateConfigOut(t *testing.T) {
+	runTest(t, "generate_config_out", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		if tfv.LessThan(generateConfigOutMinVersion) {
+			t.Skip("terraform plan -generate-config-out was added in Terraform 1.5.0, so test is not valid")
+		}
+
+		err := tf.Init(context.Background())
+		if err != nil {
+			t.Fatalf("error running Init in test directory: %s", err)
+		}
+
+		hasChanges, err := tf.Plan(context.Background(), tfexec.GenerateConfigOut("generated.tf"))
+		if err != nil {
+			t.Fatalf("error running Plan: %s", err)
 		}
 		if !hasChanges {
 			t.Fatalf("expected: true, got: %t", hasChanges)
