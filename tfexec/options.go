@@ -184,6 +184,15 @@ func FromModule(source string) *FromModuleOption {
 	return &FromModuleOption{source}
 }
 
+type GenerateConfigOutOption struct {
+	generateConfigOut string
+}
+
+// GenerateConfigOut represents the -generate-config-out flag.
+func GenerateConfigOut(generateConfigOut string) *GenerateConfigOutOption {
+	return &GenerateConfigOutOption{generateConfigOut}
+}
+
 type GetOption struct {
 	get bool
 }
