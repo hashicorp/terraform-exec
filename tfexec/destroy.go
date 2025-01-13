@@ -28,6 +28,8 @@ type destroyConfig struct {
 	// Vars: each var must be supplied as a single string, e.g. 'foo=bar'
 	vars     []string
 	varFiles []string
+
+	gracefulShutdownConfig GracefulShutdownConfig
 }
 
 var defaultDestroyOptions = destroyConfig{
@@ -90,11 +92,30 @@ func (opt *ReattachOption) configureDestroy(conf *destroyConfig) {
 	conf.reattachInfo = opt.info
 }
 
+func (opt *GracefulShutdownOption) configureDestroy(conf *destroyConfig) {
+	conf.gracefulShutdownConfig = opt.config
+}
+
+func newDestroyConfig(opts ...DestroyOption) destroyConfig {
+	c := defaultDestroyOptions
+
+	for _, o := range opts {
+		o.configureDestroy(&c)
+	}
+	return c
+}
+
 // Destroy represents the terraform destroy subcommand.
 func (tf *Terraform) Destroy(ctx context.Context, opts ...DestroyOption) error {
-	cmd, err := tf.destroyCmd(ctx, opts...)
+	c := newDestroyConfig(opts...)
+
+	cmd, err := tf.destroyCmd(ctx, c)
 	if err != nil {
 		return err
+	}
+
+	if c.gracefulShutdownConfig.Enable {
+		return tf.runTerraformCmdWithGracefulShutdown(ctx, cmd)
 	}
 	return tf.runTerraformCmd(ctx, cmd)
 }
@@ -112,33 +133,26 @@ func (tf *Terraform) DestroyJSON(ctx context.Context, w io.Writer, opts ...Destr
 
 	tf.SetStdout(w)
 
-	cmd, err := tf.destroyJSONCmd(ctx, opts...)
+	c := newDestroyConfig(opts...)
+
+	cmd, err := tf.destroyJSONCmd(ctx, c)
 	if err != nil {
 		return err
 	}
 
+	if c.gracefulShutdownConfig.Enable {
+		return tf.runTerraformCmdWithGracefulShutdown(ctx, cmd)
+	}
 	return tf.runTerraformCmd(ctx, cmd)
 }
 
-func (tf *Terraform) destroyCmd(ctx context.Context, opts ...DestroyOption) (*exec.Cmd, error) {
-	c := defaultDestroyOptions
-
-	for _, o := range opts {
-		o.configureDestroy(&c)
-	}
-
+func (tf *Terraform) destroyCmd(ctx context.Context, c destroyConfig) (*exec.Cmd, error) {
 	args := tf.buildDestroyArgs(c)
 
 	return tf.buildDestroyCmd(ctx, c, args)
 }
 
-func (tf *Terraform) destroyJSONCmd(ctx context.Context, opts ...DestroyOption) (*exec.Cmd, error) {
-	c := defaultDestroyOptions
-
-	for _, o := range opts {
-		o.configureDestroy(&c)
-	}
-
+func (tf *Terraform) destroyJSONCmd(ctx context.Context, c destroyConfig) (*exec.Cmd, error) {
 	args := tf.buildDestroyArgs(c)
 	args = append(args, "-json")
 
@@ -200,5 +214,8 @@ func (tf *Terraform) buildDestroyCmd(ctx context.Context, c destroyConfig, args 
 		mergeEnv[reattachEnvVar] = reattachStr
 	}
 
+	if c.gracefulShutdownConfig.Enable {
+		return tf.buildTerraformCmdWithGracefulShutdown(ctx, c.gracefulShutdownConfig.Period, mergeEnv, args...), nil
+	}
 	return tf.buildTerraformCmd(ctx, mergeEnv, args...), nil
 }

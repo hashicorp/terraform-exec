@@ -22,7 +22,7 @@ func TestApplyCmd(t *testing.T) {
 	tf.SetEnv(map[string]string{})
 
 	t.Run("basic", func(t *testing.T) {
-		applyCmd, err := tf.applyCmd(context.Background(),
+		applyCmd, err := tf.applyCmd(context.Background(), newApplyConfig(
 			Backup("testbackup"),
 			LockTimeout("200s"),
 			State("teststate"),
@@ -40,7 +40,7 @@ func TestApplyCmd(t *testing.T) {
 			Var("var2=bar"),
 			Destroy(true),
 			DirOrPlan("testfile"),
-		)
+		))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -72,7 +72,9 @@ func TestApplyCmd(t *testing.T) {
 
 	t.Run("refresh-only operation", func(t *testing.T) {
 		applyCmd, err := tf.applyCmd(context.Background(),
-			RefreshOnly(true),
+			newApplyConfig(
+				RefreshOnly(true),
+			),
 		)
 		if err != nil {
 			t.Fatal(err)
@@ -104,22 +106,24 @@ func TestApplyJSONCmd(t *testing.T) {
 
 	t.Run("basic", func(t *testing.T) {
 		applyCmd, err := tf.applyJSONCmd(context.Background(),
-			Backup("testbackup"),
-			LockTimeout("200s"),
-			State("teststate"),
-			StateOut("teststateout"),
-			VarFile("foo.tfvars"),
-			VarFile("bar.tfvars"),
-			Lock(false),
-			Parallelism(99),
-			Refresh(false),
-			Replace("aws_instance.test"),
-			Replace("google_pubsub_topic.test"),
-			Target("target1"),
-			Target("target2"),
-			Var("var1=foo"),
-			Var("var2=bar"),
-			DirOrPlan("testfile"),
+			newApplyConfig(
+				Backup("testbackup"),
+				LockTimeout("200s"),
+				State("teststate"),
+				StateOut("teststateout"),
+				VarFile("foo.tfvars"),
+				VarFile("bar.tfvars"),
+				Lock(false),
+				Parallelism(99),
+				Refresh(false),
+				Replace("aws_instance.test"),
+				Replace("google_pubsub_topic.test"),
+				Target("target1"),
+				Target("target2"),
+				Var("var1=foo"),
+				Var("var2=bar"),
+				DirOrPlan("testfile"),
+			),
 		)
 		if err != nil {
 			t.Fatal(err)
@@ -164,7 +168,9 @@ func TestApplyCmd_AllowDeferral(t *testing.T) {
 
 	t.Run("allow deferrals during apply", func(t *testing.T) {
 		applyCmd, err := tf.applyCmd(context.Background(),
-			AllowDeferral(true),
+			newApplyConfig(
+				AllowDeferral(true),
+			),
 		)
 		if err != nil {
 			t.Fatal(err)
