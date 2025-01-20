@@ -303,7 +303,7 @@ func TestExperimentsEnabled(t *testing.T) {
 		fmt.Sprintf("experiments-enabled-in-%s", testutil.Latest_Alpha_v1_9): {
 			tfVersion: version.Must(version.NewVersion(testutil.Latest_Alpha_v1_9)),
 		},
-		fmt.Sprintf("experiments-disabled-in-%s", testutil.Latest_Beta_v1_8): {
+		"experiments-disabled-in-betas": {
 			tfVersion:     version.Must(version.NewVersion(testutil.Latest_Beta_v1_8)),
 			expectedError: fmt.Errorf("experiments are not enabled in version %s, as it's not an alpha or dev build", testutil.Latest_Beta_v1_8),
 		},
