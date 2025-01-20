@@ -2,14 +2,9 @@
 
 ENHANCEMENTS:
 * tfexec: Add support for `terraform init --json` via `InitJSON` ([#478](https://github.com/hashicorp/terraform-exec/pull/478))
-* docs: reference the plugin framework ([#480](https://github.com/hashicorp/terraform-exec/pull/480))
 
 INTERNAL:
 * go: Require Go 1.22 (previously 1.18) ([#499](https://github.com/hashicorp/terraform-exec/pull/499))
-* github: Create CODEOWNERS file ([#457](https://github.com/hashicorp/terraform-exec/pull/457))
-* Add a catalog-info.yaml file for Backstage ([#477](https://github.com/hashicorp/terraform-exec/pull/477))
-* ci: Report code coverage ([#487](https://github.com/hashicorp/terraform-exec/pull/487))
-* ci/e2etests: Add latest major Terraform versions ([#498](https://github.com/hashicorp/terraform-exec/pull/498))
 
 # 0.21.0 (May 17, 2024)
 
