@@ -300,7 +300,7 @@ func TestExperimentsEnabled(t *testing.T) {
 		tfVersion     *version.Version
 		expectedError error
 	}{
-		fmt.Sprintf("experiments-enabled-in-%s", testutil.Latest_Alpha_v1_9): {
+		"experiments-enabled-in-alphas": {
 			tfVersion: version.Must(version.NewVersion(testutil.Latest_Alpha_v1_9)),
 		},
 		"experiments-disabled-in-betas": {
