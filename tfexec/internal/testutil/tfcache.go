@@ -15,18 +15,21 @@ import (
 )
 
 const (
-	Latest011   = "0.11.15"
-	Latest012   = "0.12.31"
-	Latest013   = "0.13.7"
-	Latest014   = "0.14.11"
-	Latest015   = "0.15.5"
-	Latest_v1   = "1.0.11"
-	Latest_v1_1 = "1.1.9"
-	Latest_v1_5 = "1.5.3"
-	Latest_v1_6 = "1.6.0-alpha20230719"
-
-	Beta_v1_8  = "1.8.0-beta1"
-	Alpha_v1_9 = "1.9.0-alpha20240404"
+	Latest011          = "0.11.15"
+	Latest012          = "0.12.31"
+	Latest013          = "0.13.7"
+	Latest014          = "0.14.11"
+	Latest015          = "0.15.5"
+	Latest_v1          = "1.0.11"
+	Latest_v1_1        = "1.1.9"
+	Latest_v1_5        = "1.5.3"
+	Latest_v1_6        = "1.6.6"
+	Latest_v1_7        = "1.7.5"
+	Latest_v1_8        = "1.8.5"
+	Latest_Beta_v1_8   = "1.8.0-beta1"
+	Latest_v1_9        = "1.9.7"
+	Latest_Alpha_v1_9  = "1.9.0-alpha20240516"
+	Latest_Alpha_v1_10 = "1.10.0-alpha20240926"
 )
 
 const appendUserAgent = "tfexec-testutil"
