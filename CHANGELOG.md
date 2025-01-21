@@ -1,4 +1,4 @@
-# 0.22.0 (Unreleased)
+# 0.22.0 (January 21, 2025)
 
 ENHANCEMENTS:
 * tfexec: Add support for `terraform init --json` via `InitJSON` ([#478](https://github.com/hashicorp/terraform-exec/pull/478))
