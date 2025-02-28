@@ -103,10 +103,10 @@ func (opt *VerifyPluginsOption) configureInit(conf *initConfig) {
 func (tf *Terraform) configureInitOptions(ctx context.Context, c *initConfig, opts ...InitOption) error {
 	for _, o := range opts {
 		switch o.(type) {
-		case *LockOption, *LockTimeoutOption, *VerifyPluginsOption, *GetPluginsOption:
+		case *VerifyPluginsOption, *GetPluginsOption:
 			err := tf.compatible(ctx, nil, tf0_15_0)
 			if err != nil {
-				return fmt.Errorf("-lock, -lock-timeout, -verify-plugins, and -get-plugins options are no longer available as of Terraform 0.15: %w", err)
+				return fmt.Errorf("-verify-plugins and -get-plugins options are no longer available as of Terraform 0.15: %w", err)
 			}
 		}
 
