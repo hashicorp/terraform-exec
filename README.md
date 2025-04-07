@@ -16,6 +16,12 @@ This library is built in Go, and uses the [support policy](https://golang.org/do
 
 Currently, that means Go **1.22** or later must be used.
 
+## Terraform compatibility
+
+We generally follow [Terraform's own compatibility promises](https://developer.hashicorp.com/terraform/language/v1-compatibility-promises). i.e. **we recommend Terraform v1.x to be used alongside this library**.
+
+Given the nature of this library being used in automation, we maintain compatibility **on best effort basis** with latest minor versions from `0.12` and later. This does not imply coverage of all features or CLI surface, just that it shouldn't break in unexpected ways.
+
 ## Usage
 
 The `Terraform` struct must be initialised with `NewTerraform(workingDir, execPath)`. 
