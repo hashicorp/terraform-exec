@@ -132,7 +132,6 @@ jobs:
           - ${{ needs.resolve-versions.outputs.oldstable }}
           - ${{ needs.resolve-versions.outputs.stable }}
         terraform_version:
-          - "0.11.15"
           - "0.12.31"
           - "0.13.7"
           - "0.14.11"
