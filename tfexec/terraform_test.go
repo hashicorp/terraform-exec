@@ -8,9 +8,11 @@ import (
 	"errors"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
 )
@@ -18,6 +20,11 @@ import (
 var tfCache *testutil.TFCache
 
 func TestMain(m *testing.M) {
+	if rawDuration := os.Getenv("MOCK_SLEEP_DURATION"); rawDuration != "" {
+		sleepMock(rawDuration)
+		return
+	}
+
 	os.Exit(func() int {
 		var err error
 		installDir, err := ioutil.TempDir("", "tfinstall")
@@ -811,6 +818,78 @@ func TestCheckpointDisablePropagation_v1(t *testing.T) {
 			"FOOBAR":             "2",
 		}, initCmd)
 	})
+}
+
+func TestGracefulCancellation_interruption(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("graceful cancellation not supported on windows")
+	}
+	mockExecPath, err := os.Executable()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	td := t.TempDir()
+
+	tf, err := NewTerraform(td, mockExecPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ctx := context.Background()
+	ctx, cancelFunc := context.WithTimeout(ctx, 100*time.Millisecond)
+	t.Cleanup(cancelFunc)
+
+	_, _, err = tf.version(ctx)
+	if err != nil {
+		var exitErr *exec.ExitError
+		isExitErr := errors.As(err, &exitErr)
+		if isExitErr && exitErr.ProcessState.String() == "signal: interrupt" {
+			return
+		}
+		if isExitErr {
+			t.Fatalf("expected interrupt signal, received %q", exitErr)
+		}
+		t.Fatalf("unexpected command error: %s", err)
+	}
+}
+
+func TestGracefulCancellation_withDelay(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("graceful cancellation not supported on windows")
+	}
+	mockExecPath, err := os.Executable()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	td := t.TempDir()
+	tf, err := NewTerraform(td, mockExecPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tf.SetEnv(map[string]string{
+		"MOCK_SLEEP_DURATION": "5s",
+	})
+	tf.SetLogger(testutil.TestLogger())
+	tf.SetWaitDelay(100 * time.Millisecond)
+
+	ctx := context.Background()
+	ctx, cancelFunc := context.WithTimeout(ctx, 100*time.Millisecond)
+	t.Cleanup(cancelFunc)
+
+	_, _, err = tf.version(ctx)
+	if err != nil {
+		var exitErr *exec.ExitError
+		isExitErr := errors.As(err, &exitErr)
+		if isExitErr && exitErr.ProcessState.String() == "signal: killed" {
+			return
+		}
+		if isExitErr {
+			t.Fatalf("expected kill signal, received %q", exitErr)
+		}
+		t.Fatalf("unexpected command error: %s", err)
+	}
 }
 
 // test that a suitable error is returned if NewTerraform is called without a valid
