@@ -1,4 +1,4 @@
-# 0.23.0 (Unreleased)
+# 0.23.0 (April 10, 2025)
 
 ENHANCEMENTS:
 * Context cancellation on Unix systems will now send Terraform process SIGINT instead of killing it (which is otherwise default `os/exec` behaviour) ([#512](https://github.com/hashicorp/terraform-exec/pull/512))
