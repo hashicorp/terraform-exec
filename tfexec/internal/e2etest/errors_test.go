@@ -168,6 +168,10 @@ func TestContext_sleepTimeoutExpired(t *testing.T) {
 			t.Skip("the ability to interrupt an apply was added in protocol 5.0 in Terraform 0.12, so test is not valid")
 		}
 
+		// sleep will not react to SIGINT
+		// This ensures that process is killed within the expected time limit.
+		tf.SetWaitDelay(500 * time.Millisecond)
+
 		err := tf.Init(context.Background())
 		if err != nil {
 			t.Fatalf("err during init: %s", err)
