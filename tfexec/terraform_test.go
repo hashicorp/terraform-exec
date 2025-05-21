@@ -6,6 +6,7 @@ package tfexec
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -852,6 +853,127 @@ func TestGracefulCancellation_interruption(t *testing.T) {
 		}
 		t.Fatalf("unexpected command error: %s", err)
 	}
+	t.Fatalf("expected interrupt signal, but no error was received")
+}
+
+func setupTestProvider(workingDir string) error {
+	// Change directory to one folder up (testprovider) and build the test provider
+	cwd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	testProviderDir := filepath.Join(cwd, "..", "testprovider")
+	err = os.Chdir(testProviderDir)
+	if err != nil {
+		return err
+	}
+
+	cmd := exec.Command("go", "build", "-o", "terraform-provider-test")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err = cmd.Run()
+	if err != nil {
+		return err
+	}
+
+	cmd = exec.Command("cp", "terraform-provider-test", filepath.Join(workingDir, "terraform-provider-test"))
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err = cmd.Run()
+	if err != nil {
+		return err
+	}
+
+	terraformRc := `
+provider_installation {
+
+  dev_overrides {
+      "terraform-exec/registry/test" = "./"
+  }
+
+  direct {}
+}
+`
+
+	tfRcPath := filepath.Join(workingDir, "test.tfrc")
+
+	err = os.WriteFile(tfRcPath, []byte(terraformRc), 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func TestGracefulCancellation_interruption_on_apply(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("graceful cancellation not supported on windows")
+	}
+
+	td := t.TempDir()
+	err := setupTestProvider(td)
+	if err != nil {
+		t.Fatalf("failed to setup test provider: %s", err)
+	}
+
+	mockExecPath := tfCache.Version(t, testutil.Latest_v1)
+	terraformConfig := `
+terraform {
+  required_providers {
+    test = {
+      source  = "terraform-exec/registry/test"
+    }
+  }
+}
+resource "test_create_indefinitely" "this" {
+}
+`
+
+	tfFilePath := filepath.Join(td, "main.tf")
+	err = os.WriteFile(tfFilePath, []byte(terraformConfig), 0644)
+	if err != nil {
+		t.Fatalf("failed to write Terraform file: %s", err)
+	}
+
+	tf, err := NewTerraform(td, mockExecPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// forward terraform logs for better test debugging
+	tf.SetStdout(os.Stdout)
+	tf.SetStderr(os.Stderr)
+
+	ctx := context.Background()
+	ctx, cancelFunc := context.WithTimeout(ctx, 900*time.Millisecond)
+
+	t.Cleanup(cancelFunc)
+
+	cmd, err := tf.applyCmd(ctx)
+	if err != nil {
+		t.Fatalf("failed to apply command: %s", err)
+	}
+	cmd.Env = append(cmd.Env,
+		"TF_LOG_PROVIDER=INFO",
+		"TF_CLI_CONFIG_FILE=test.tfrc",
+		fmt.Sprintf("PATH=%s:%s", td, os.Getenv("PATH")),
+	)
+
+	err = tf.runTerraformCmd(ctx, cmd)
+
+	if err != nil {
+		var exitErr *exec.ExitError
+		isExitErr := errors.As(err, &exitErr)
+		if isExitErr && exitErr.ProcessState.String() == "signal: interrupt" {
+			return
+		}
+		if isExitErr {
+			t.Fatalf("expected interrupt signal, received %q", exitErr)
+		}
+		t.Fatalf("unexpected command error: %s", err)
+	}
+	t.Fatalf("expected interrupt signal, but no error was received")
 }
 
 func TestGracefulCancellation_withDelay(t *testing.T) {
