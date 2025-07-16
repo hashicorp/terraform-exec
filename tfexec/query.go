@@ -58,7 +58,7 @@ func (opt *VarOption) configureQuery(conf *queryConfig) {
 // QueryJSON is likely to be removed in a future major version in favour of
 // query returning JSON by default.
 func (tf *Terraform) QueryJSON(ctx context.Context, w io.Writer, opts ...QueryOption) error {
-	err := tf.compatible(ctx, tf1_13_0, nil) // TODO update to tf1_14_0 when 1.14 alpha is released
+	err := tf.compatible(ctx, tf1_14_0, nil)
 	if err != nil {
 		return fmt.Errorf("terraform query -json was added in 1.14.0: %w", err)
 	}
