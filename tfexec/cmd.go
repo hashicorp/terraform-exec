@@ -252,21 +252,7 @@ func mergeWriters(writers ...io.Writer) io.Writer {
 	return io.MultiWriter(compact...)
 }
 
-func writeOutput(ctx context.Context, r io.ReadCloser, w io.Writer) error {
-	// ReadBytes will block until bytes are read, which can cause a delay in
-	// returning even if the command's context has been canceled. Use a separate
-	// goroutine to prompt ReadBytes to return on cancel
-	closeCtx, closeCancel := context.WithCancel(ctx)
-	defer closeCancel()
-	go func() {
-		select {
-		case <-ctx.Done():
-			r.Close()
-		case <-closeCtx.Done():
-			return
-		}
-	}()
-
+func writeOutput(r io.ReadCloser, w io.Writer) error {
 	buf := bufio.NewReader(r)
 	for {
 		line, err := buf.ReadBytes('\n')
