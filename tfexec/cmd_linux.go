@@ -64,13 +64,13 @@ func (tf *Terraform) runTerraformCmd(ctx context.Context, cmd *exec.Cmd) error {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		errStdout = writeOutput(ctx, stdoutPipe, stdoutWriter)
+		errStdout = writeOutput(stdoutPipe, stdoutWriter)
 	}()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		errStderr = writeOutput(ctx, stderrPipe, stderrWriter)
+		errStderr = writeOutput(stderrPipe, stderrWriter)
 	}()
 
 	// Reads from pipes must be completed before calling cmd.Wait(). Otherwise
