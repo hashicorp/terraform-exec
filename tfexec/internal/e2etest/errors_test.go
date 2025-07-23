@@ -166,8 +166,8 @@ func TestContext_sleepNoCancellation(t *testing.T) {
 func TestContext_sleepTimeoutExpired(t *testing.T) {
 	runTest(t, "sleep", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		// only testing versions that can cancel mid apply
-		if !tfv.GreaterThanOrEqual(protocol5MinVersion) {
-			t.Skip("the ability to interrupt an apply was added in protocol 5.0 in Terraform 0.12, so test is not valid")
+		if !tfv.GreaterThanOrEqual(gracefulShutdownMinVersion) {
+			t.Skip("graceful shutdown was added in Terraform 1.1, so test is not valid")
 		}
 
 		// sleep will not react to SIGINT
