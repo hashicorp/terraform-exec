@@ -4,10 +4,13 @@
 package tfexec
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"io"
 	"os/exec"
+
+	tfjson "github.com/hashicorp/terraform-json"
 )
 
 type queryConfig struct {
@@ -57,25 +60,42 @@ func (opt *VarOption) configureQuery(conf *queryConfig) {
 //
 // QueryJSON is likely to be removed in a future major version in favour of
 // query returning JSON by default.
-func (tf *Terraform) QueryJSON(ctx context.Context, w io.Writer, opts ...QueryOption) error {
+func (tf *Terraform) QueryJSON(ctx context.Context, opts ...QueryOption) (*LogMsgEmitter, error) {
 	err := tf.compatible(ctx, tf1_14_0, nil)
 	if err != nil {
-		return fmt.Errorf("terraform query -json was added in 1.14.0: %w", err)
+		return nil, fmt.Errorf("terraform query -json was added in 1.14.0: %w", err)
 	}
 
-	tf.SetStdout(w)
+	pr, pw := io.Pipe()
+	defer pw.Close()
+	defer pr.Close()
+	tf.SetStdout(pw)
 
 	cmd, err := tf.queryJSONCmd(ctx, opts...)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	err = tf.runTerraformCmd(ctx, cmd)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &LogMsgEmitter{
+		r: bufio.NewReader(pr),
+	}, nil
+}
+
+type LogMsgEmitter struct {
+	r *bufio.Reader
+}
+
+func (e *LogMsgEmitter) NextMessage() (tfjson.LogMsg, error) {
+	rawMessage, err := e.r.ReadBytes('\n')
+	if err != nil {
+		return nil, err
+	}
+	return tfjson.UnmarshalLogMessage(rawMessage)
 }
 
 func (tf *Terraform) queryJSONCmd(ctx context.Context, opts ...QueryOption) (*exec.Cmd, error) {
