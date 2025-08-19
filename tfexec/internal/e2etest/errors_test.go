@@ -212,8 +212,6 @@ func TestContext_sleepGracefulShutdown(t *testing.T) {
 			t.Skip("graceful shutdown was added in Terraform 1.1, so test is not valid")
 		}
 
-		// tf.SetWaitDelay(1 * time.Second)
-
 		err := tf.Init(context.Background())
 		if err != nil {
 			t.Fatalf("err during init: %s", err)
