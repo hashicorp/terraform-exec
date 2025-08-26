@@ -252,20 +252,30 @@ func mergeWriters(writers ...io.Writer) io.Writer {
 	return io.MultiWriter(compact...)
 }
 
-func writeOutput(ctx context.Context, r io.ReadCloser, w io.Writer) error {
-	// ReadBytes will block until bytes are read, which can cause a delay in
-	// returning even if the command's context has been canceled. Use a separate
-	// goroutine to prompt ReadBytes to return on cancel
-	closeCtx, closeCancel := context.WithCancel(ctx)
-	defer closeCancel()
-	go func() {
-		select {
-		case <-ctx.Done():
-			r.Close()
-		case <-closeCtx.Done():
-			return
-		}
-	}()
+func (tf *Terraform) writeOutput(ctx context.Context, r io.ReadCloser, w io.Writer) error {
+	// ReadBytes will block until all bytes are read, which can cause a delay in
+	// returning even if the command's context has been canceled. When the
+	// context is canceled, Terraform receives an interrupt signal and will exit
+	// after a short while. Once the process has exited, the stdio pipes will
+	// close, allowing this function to return.
+
+	if tf.enableLegacyPipeClosing {
+		// Rather than wait for the stdio pipes to close naturally, we can close
+		// them ourselves when the command's context is canceled, causing the
+		// process to exit immediately. This works around a bug in Terraform
+		// < v1.1 that would otherwise leave the process (and this function)
+		// hanging after the context is canceled.
+		closeCtx, closeCancel := context.WithCancel(ctx)
+		defer closeCancel()
+		go func() {
+			select {
+			case <-ctx.Done():
+				r.Close()
+			case <-closeCtx.Done():
+				return
+			}
+		}()
+	}
 
 	buf := bufio.NewReader(r)
 	for {

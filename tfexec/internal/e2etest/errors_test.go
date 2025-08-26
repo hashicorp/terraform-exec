@@ -23,6 +23,8 @@ import (
 
 var (
 	protocol5MinVersion = version.Must(version.NewVersion("0.12.0"))
+
+	gracefulShutdownMinVersion = version.Must(version.NewVersion("1.1.0"))
 )
 
 func TestUnparsedError(t *testing.T) {
@@ -168,9 +170,12 @@ func TestContext_sleepTimeoutExpired(t *testing.T) {
 			t.Skip("the ability to interrupt an apply was added in protocol 5.0 in Terraform 0.12, so test is not valid")
 		}
 
-		// sleep will not react to SIGINT
-		// This ensures that process is killed within the expected time limit.
-		tf.SetWaitDelay(500 * time.Millisecond)
+		if !tfv.GreaterThanOrEqual(gracefulShutdownMinVersion) {
+			// Versions < 1.1 will not react to SIGINT.
+			// This ensures the process is killed within the expected time limit.
+			tf.SetEnableLegacyPipeClosing(true)
+			tf.SetWaitDelay(500 * time.Millisecond)
+		}
 
 		err := tf.Init(context.Background())
 		if err != nil {
@@ -193,6 +198,51 @@ func TestContext_sleepTimeoutExpired(t *testing.T) {
 		case err := <-errCh:
 			if !errors.Is(err, context.DeadlineExceeded) {
 				t.Fatalf("expected context.DeadlineExceeded, got %T %s", err, err)
+			}
+		case <-time.After(time.Second * 10):
+			t.Fatal("terraform apply should have canceled and returned in ~5s")
+		}
+	})
+}
+
+func TestContext_sleepGracefulShutdown(t *testing.T) {
+	runTest(t, "sleep", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		// only testing versions that can shut down gracefully
+		if !tfv.GreaterThanOrEqual(gracefulShutdownMinVersion) {
+			t.Skip("graceful shutdown was added in Terraform 1.1, so test is not valid")
+		}
+
+		err := tf.Init(context.Background())
+		if err != nil {
+			t.Fatalf("err during init: %s", err)
+		}
+
+		ctx := context.Background()
+		ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+		defer cancel()
+
+		errCh := make(chan error)
+		go func() {
+			err = tf.Apply(ctx)
+			if err != nil {
+				errCh <- err
+			}
+		}()
+
+		select {
+		case err := <-errCh:
+			if !errors.Is(err, context.DeadlineExceeded) {
+				t.Fatalf("expected context.DeadlineExceeded, got %T %s", err, err)
+			}
+			var ee *exec.ExitError
+			if !errors.As(err, &ee) {
+				t.Fatalf("expected exec.ExitError, got %T, %s", err, err)
+			}
+			if !ee.Exited() {
+				t.Fatalf("expected process to have exited, but it did not (%s)", ee.ProcessState.String())
+			}
+			if ee.ExitCode() != 1 {
+				t.Fatalf("expected exit code 1, got %d", ee.ExitCode())
 			}
 		case <-time.After(time.Second * 10):
 			t.Fatal("terraform apply should have canceled and returned in ~5s")
