@@ -211,9 +211,36 @@ func (tf *Terraform) runTerraformCmdJSON(ctx context.Context, cmd *exec.Cmd, v i
 		return err
 	}
 
-	dec := json.NewDecoder(&outbuf)
+	// Skip backend log lines
+	jsonData := SkipLogLines(outbuf)
+
+	dec := json.NewDecoder(&jsonData)
 	dec.UseNumber()
 	return dec.Decode(v)
+}
+
+func SkipLogLines(buf bytes.Buffer) bytes.Buffer {
+	// Initialize a scanner to read line by line
+	scanner := bufio.NewScanner(&buf)
+	var jsonData bytes.Buffer
+	inJsonBlock := false
+
+	// Scan each line and accumulate the JSON content
+	for scanner.Scan() {
+		line := scanner.Text()
+		trimmed := strings.TrimSpace(line)
+
+		// Start accumulating once we encounter the start of a JSON object
+		if strings.HasPrefix(trimmed, "{") {
+			inJsonBlock = true
+		}
+
+		// Accumulate lines if inside a JSON block
+		if inJsonBlock {
+			jsonData.WriteString(line + "\n")
+		}
+	}
+	return jsonData
 }
 
 // mergeUserAgent does some minor deduplication to ensure we aren't
