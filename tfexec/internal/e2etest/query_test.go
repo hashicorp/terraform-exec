@@ -4,16 +4,15 @@
 package e2etest
 
 import (
-	"bytes"
 	"context"
-	"io"
 	"regexp"
-	"strings"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-exec/tfexec"
 	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
+	tfjson "github.com/hashicorp/terraform-json"
 )
 
 func TestQueryJSON_TF112(t *testing.T) {
@@ -27,7 +26,7 @@ func TestQueryJSON_TF112(t *testing.T) {
 
 		re := regexp.MustCompile("terraform query -json was added in 1.14.0")
 
-		err = tf.QueryJSON(context.Background(), io.Discard)
+		_, err = tf.QueryJSON(context.Background())
 		if err != nil && !re.MatchString(err.Error()) {
 			t.Fatalf("error running Query: %s", err)
 		}
@@ -43,15 +42,39 @@ func TestQueryJSON_TF114(t *testing.T) {
 			t.Fatalf("error running Init in test directory: %s", err)
 		}
 
-		var output bytes.Buffer
-		err = tf.QueryJSON(context.Background(), &output)
+		le, err := tf.QueryJSON(context.Background())
 		if err != nil {
 			t.Fatalf("error running Query: %s", err)
 		}
 
-		results := strings.Count(output.String(), "list.concept_pet.pets: Result found")
+		results := 0
+		var completeData tfjson.ListCompleteData
+		for {
+			msg, ok, err := le.NextMessage()
+			if !ok {
+				break
+			}
+			if err != nil {
+				t.Fatalf("error getting next message: %s", err)
+			}
+			switch m := msg.(type) {
+			case tfjson.ListResourceFoundMessage:
+				results++
+			case tfjson.ListCompleteMessage:
+				completeData = m.ListComplete
+			}
+		}
+
 		if results != 5 {
 			t.Fatalf("expected 5 query results, but got %d", results)
+		}
+		expectedData := tfjson.ListCompleteData{
+			Address:      "list.concept_pet.pets",
+			ResourceType: "concept_pet",
+			Total:        5,
+		}
+		if diff := cmp.Diff(expectedData, completeData); diff != "" {
+			t.Fatalf("unexpected complete message data: %s", diff)
 		}
 	})
 }

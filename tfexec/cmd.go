@@ -18,6 +18,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-exec/internal/version"
+	tfjson "github.com/hashicorp/terraform-json"
 )
 
 const (
@@ -214,6 +215,55 @@ func (tf *Terraform) runTerraformCmdJSON(ctx context.Context, cmd *exec.Cmd, v i
 	dec := json.NewDecoder(&outbuf)
 	dec.UseNumber()
 	return dec.Decode(v)
+}
+
+func (tf *Terraform) runTerraformCmdJSONLog(ctx context.Context, cmd *exec.Cmd) *LogMsgEmitter {
+	pr, pw := io.Pipe()
+	tf.SetStdout(pw)
+
+	go func() {
+		_ = tf.runTerraformCmd(ctx, cmd)
+		// TODO: handle error
+		_ = pr.Close()
+		// TODO: handle error
+		_ = pw.Close()
+		// TODO: handle error
+	}()
+
+	return newLogMsgEmitter(pr)
+}
+
+func newLogMsgEmitter(stdout io.ReadCloser) *LogMsgEmitter {
+	return &LogMsgEmitter{
+		scanner:            bufio.NewScanner(stdout),
+		stdoutReaderCloser: stdout,
+	}
+}
+
+type LogMsgEmitter struct {
+	scanner            *bufio.Scanner
+	stdoutReaderCloser io.Closer
+}
+
+// NextMessage returns next decoded message along with true until the last one.
+// Stdout reader is closed when the last message is received.
+//
+// Error returned can be related to decoding of the message (nil, true, error)
+// or closing of stdout reader (nil, false, error).
+//
+// Any error coming from Terraform (such as wrong configuration syntax) is
+// represented as LogMsg of Level [tfjson.Error].
+func (e *LogMsgEmitter) NextMessage() (tfjson.LogMsg, bool, error) {
+	ok := e.scanner.Scan()
+	if !ok {
+		return nil, ok, nil
+	}
+	msg, err := tfjson.UnmarshalLogMessage(e.scanner.Bytes())
+	return msg, true, err
+}
+
+func (e *LogMsgEmitter) Err() error {
+	return e.scanner.Err()
 }
 
 // mergeUserAgent does some minor deduplication to ensure we aren't

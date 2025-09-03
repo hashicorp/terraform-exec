@@ -6,7 +6,6 @@ package tfexec
 import (
 	"context"
 	"fmt"
-	"io"
 	"os/exec"
 )
 
@@ -57,25 +56,18 @@ func (opt *VarOption) configureQuery(conf *queryConfig) {
 //
 // QueryJSON is likely to be removed in a future major version in favour of
 // query returning JSON by default.
-func (tf *Terraform) QueryJSON(ctx context.Context, w io.Writer, opts ...QueryOption) error {
+func (tf *Terraform) QueryJSON(ctx context.Context, opts ...QueryOption) (*LogMsgEmitter, error) {
 	err := tf.compatible(ctx, tf1_14_0, nil)
 	if err != nil {
-		return fmt.Errorf("terraform query -json was added in 1.14.0: %w", err)
+		return nil, fmt.Errorf("terraform query -json was added in 1.14.0: %w", err)
 	}
 
-	tf.SetStdout(w)
-
-	cmd, err := tf.queryJSONCmd(ctx, opts...)
+	queryCmd, err := tf.queryJSONCmd(ctx, opts...)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	err = tf.runTerraformCmd(ctx, cmd)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return tf.runTerraformCmdJSONLog(ctx, queryCmd), nil
 }
 
 func (tf *Terraform) queryJSONCmd(ctx context.Context, opts ...QueryOption) (*exec.Cmd, error) {
