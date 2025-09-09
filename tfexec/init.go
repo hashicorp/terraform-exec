@@ -23,6 +23,7 @@ type initConfig struct {
 	pluginDir     []string
 	reattachInfo  ReattachInfo
 	reconfigure   bool
+	migrate       bool
 	upgrade       bool
 	verifyPlugins bool
 }
@@ -35,6 +36,7 @@ var defaultInitOptions = initConfig{
 	lock:          true,
 	lockTimeout:   "0s",
 	reconfigure:   false,
+	migrate:       false,
 	upgrade:       false,
 	verifyPlugins: true,
 }
@@ -86,6 +88,10 @@ func (opt *PluginDirOption) configureInit(conf *initConfig) {
 
 func (opt *ReattachOption) configureInit(conf *initConfig) {
 	conf.reattachInfo = opt.info
+}
+
+func (opt *MigrateStateOption) configureInit(conf *initConfig) {
+	conf.migrate = opt.migrate
 }
 
 func (opt *ReconfigureOption) configureInit(conf *initConfig) {
@@ -219,6 +225,17 @@ func (tf *Terraform) buildInitArgs(ctx context.Context, c initConfig) ([]string,
 
 	if c.forceCopy {
 		args = append(args, "-force-copy")
+	}
+
+	// -migrate-state added in 0.15.4 before it was automatic and returned errors
+	err = tf.compatible(ctx, tf0_15_4, nil)
+	if err == nil {
+		if c.migrate && c.reconfigure {
+			return nil, fmt.Errorf("the -migrate-state and -reconfigure options are mutually-exclusive")
+		}
+		if c.migrate {
+			args = append(args, "-migrate-state")
+		}
 	}
 
 	// unary flags: pass if true
