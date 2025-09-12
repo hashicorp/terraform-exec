@@ -221,28 +221,29 @@ func (tf *Terraform) runTerraformCmdJSONLog(ctx context.Context, cmd *exec.Cmd) 
 	pr, pw := io.Pipe()
 	tf.SetStdout(pw)
 
+	emitter := newLogMsgEmitter(pr)
+
 	go func() {
-		_ = tf.runTerraformCmd(ctx, cmd)
-		// TODO: handle error
-		_ = pr.Close()
-		// TODO: handle error
-		_ = pw.Close()
-		// TODO: handle error
+		err := tf.runTerraformCmd(ctx, cmd)
+		err = errors.Join(err, pr.Close(), pw.Close())
+		emitter.done <- err
 	}()
 
-	return newLogMsgEmitter(pr)
+	return emitter
 }
 
 func newLogMsgEmitter(stdout io.ReadCloser) *LogMsgEmitter {
 	return &LogMsgEmitter{
 		scanner:            bufio.NewScanner(stdout),
 		stdoutReaderCloser: stdout,
+		done:               make(chan error, 1),
 	}
 }
 
 type LogMsgEmitter struct {
 	scanner            *bufio.Scanner
 	stdoutReaderCloser io.Closer
+	done               chan error
 }
 
 // NextMessage returns next decoded message along with true until the last one.
@@ -254,12 +255,13 @@ type LogMsgEmitter struct {
 // Any error coming from Terraform (such as wrong configuration syntax) is
 // represented as LogMsg of Level [tfjson.Error].
 func (e *LogMsgEmitter) NextMessage() (tfjson.LogMsg, bool, error) {
-	ok := e.scanner.Scan()
-	if !ok {
-		return nil, ok, nil
+	if e.scanner.Scan() {
+		msg, err := tfjson.UnmarshalLogMessage(e.scanner.Bytes())
+		return msg, true, err
 	}
-	msg, err := tfjson.UnmarshalLogMessage(e.scanner.Bytes())
-	return msg, true, err
+
+	err := <-e.done
+	return nil, false, err
 }
 
 func (e *LogMsgEmitter) Err() error {
