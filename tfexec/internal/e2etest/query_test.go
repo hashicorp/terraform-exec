@@ -48,8 +48,11 @@ func TestQueryJSON_TF114(t *testing.T) {
 		}
 
 		results := 0
-		var completeData tfjson.ListCompleteData
+		var completeData *tfjson.ListCompleteData
 		for {
+			if completeData != nil {
+				// t.Fatalf("continued to read after complete message")
+			}
 			msg, ok, err := le.NextMessage()
 			if !ok {
 				break
@@ -61,7 +64,7 @@ func TestQueryJSON_TF114(t *testing.T) {
 			case tfjson.ListResourceFoundMessage:
 				results++
 			case tfjson.ListCompleteMessage:
-				completeData = m.ListComplete
+				completeData = &m.ListComplete
 			}
 		}
 
@@ -73,7 +76,7 @@ func TestQueryJSON_TF114(t *testing.T) {
 			ResourceType: "concept_pet",
 			Total:        5,
 		}
-		if diff := cmp.Diff(expectedData, completeData); diff != "" {
+		if diff := cmp.Diff(expectedData, *completeData); diff != "" {
 			t.Fatalf("unexpected complete message data: %s", diff)
 		}
 	})
