@@ -256,7 +256,13 @@ type LogMsgEmitter struct {
 func (e *LogMsgEmitter) NextMessage() (tfjson.LogMsg, bool, error) {
 	ok := e.scanner.Scan()
 	if !ok {
-		return nil, ok, nil
+		err := e.scanner.Err()
+		if err == nil {
+			// Means the scanner encountered EOF
+			return nil, ok, io.EOF
+		}
+		// A non-EOF error occurred
+		return nil, ok, err
 	}
 	msg, err := tfjson.UnmarshalLogMessage(e.scanner.Bytes())
 	return msg, true, err
