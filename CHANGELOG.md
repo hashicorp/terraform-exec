@@ -1,3 +1,13 @@
+# 0.24.0 (Unreleased)
+
+ENHANCEMENTS:
+
+* Implement `QueryJSON` and introduce new way for consuming Terraform's structured logging ([#539](https://github.com/hashicorp/terraform-exec/pull/539))
+
+INTERNAL:
+
+* bump actions/setup-go from 5.5.0 to 6.0.0 ([#536](https://github.com/hashicorp/terraform-exec/pull/536))
+
 # 0.23.1 (August 27, 2025)
 
 BUG FIXES:
@@ -251,12 +261,12 @@ FEATURES:
 
 BREAKING CHANGES:
  - Add `-detailed-exit-code` to `Terraform.Plan` calls, `Terraform.Plan` now also returns a bool indicating if any diff is present ([#55](https://github.com/hashicorp/terraform-exec/issues/55))
- 
+
 FEATURES:
  - Added `Terraform.SetAppendUserAgent` for User-Agent management from consuming applications ([#46](https://github.com/hashicorp/terraform-exec/issues/46))
  - Added `Terraform.WorkspaceList`, `Terraform.WorkspaceNew`, and `Terraform.WorkspaceSelect` along with the `ErrNoWorkspace` error to indicate a workspace does not exist ([#56](https://github.com/hashicorp/terraform-exec/issues/56))
  - Added support for using multiple `VarFile` options ([#61](https://github.com/hashicorp/terraform-exec/issues/61))
- 
+
 BUG FIXES:
  - Fix bug with checking for empty path before executing version command ([#62](https://github.com/hashicorp/terraform-exec/issues/62))
 
