@@ -259,11 +259,11 @@ type NextMessage struct {
 	Err error
 }
 
-// NextMessage returns next decoded message along with true until the last one.
+// NextMessage returns next decoded message, if any, along with any errors.
 // Stdout reader is closed when the last message is received.
 //
-// Error returned can be related to decoding of the message (nil, true, error)
-// or closing of stdout reader (nil, false, error).
+// Error returned can be related to decoding of the message, the Terraform command
+// or closing of stdout reader.
 //
 // Any error coming from Terraform (such as wrong configuration syntax) is
 // represented as LogMsg of Level [tfjson.Error].
