@@ -90,6 +90,15 @@ The following notes are only relevant to maintainers.
   - Tag will be pushed
 1. [Create new release](https://github.com/hashicorp/terraform-exec/releases/new) via GitHub UI to point to the new tag and copy the appropriate part of the CHANGELOG.md there.
 
+### Problems with the release process
+
+If you experience an error with the `release` workflow you may be able to resolve it by re-running the workflow.
+
+Known errors that can be addressed by re-running the workflow:
+* `gpg failed to sign the data`
+
+In other cases, you may need to check on the SSH and GPG keys associated with the `proj-terraform-exec-bot` bot. You can ask for help with Signore in #team-selfmanaged-releng in Slack.
+
 ## Security vulnerabilities
 
 Please disclose security vulnerabilities by following the procedure
