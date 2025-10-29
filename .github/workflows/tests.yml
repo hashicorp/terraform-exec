@@ -44,7 +44,7 @@ jobs:
       stable: ${{ steps.stable.outputs.go-version }}
 
   static-checks:
-    name: static-checks (go ${{ matrix.go_version }})
+    name: static-checks
     needs: resolve-versions
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -73,7 +73,7 @@ jobs:
         run: go vet ./...
 
   unit-tests:
-    name: unit-tests (${{ matrix.os }}, go ${{ matrix.go_version }})
+    name: unit-tests
     needs:
       - resolve-versions
       - static-checks
@@ -112,7 +112,7 @@ jobs:
         run: go test -cover -race $(go list ./... | grep -v /tfexec/internal/e2etest)
 
   e2e-tests:
-    name: e2e-tests (${{ matrix.os }}, go ${{ matrix.go_version }}, terraform ${{ matrix.terraform_version }})
+    name: e2e-tests
     needs:
       - resolve-versions
       - static-checks
