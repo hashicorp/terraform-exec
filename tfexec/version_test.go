@@ -174,6 +174,7 @@ func TestVersionInRange(t *testing.T) {
 		{true, "0.12.26", "0.12.26", ""},
 		{true, "0.12.26", "0.12.26", "0.12.27"},
 		{true, "0.12.26", "0.12.26", "0.13.0"},
+		{false, "0.15.0", "1.11.4", "1.0.10"},
 
 		{false, "0.12.26", "0.13.0-beta3", "0.13.0"},
 		{true, "0.12.26", "0.13.0-beta3", ""},
@@ -283,6 +284,88 @@ func TestCompatible(t *testing.T) {
 			}
 			var mismatch *ErrVersionMismatch
 			err = tf.compatible(context.Background(), min, max)
+			switch {
+			case c.expected && err != nil:
+				t.Fatal(err)
+			case !c.expected && err == nil:
+				t.Fatal("expected version mismatch error, no error returned")
+			case !c.expected && !errors.As(err, &mismatch):
+				t.Fatal(err)
+			}
+		})
+	}
+}
+
+func TestIncompatible(t *testing.T) {
+	ev := &releases.ExactVersion{
+		Product: product.Terraform,
+		Version: version.Must(version.NewVersion("1.0.9")),
+	}
+	ev.SetLogger(testutil.TestLogger())
+
+	ctx := context.Background()
+	t.Cleanup(func() { ev.Remove(ctx) })
+
+	tf1_0_9, err := ev.Install(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ev = &releases.ExactVersion{
+		Product: product.Terraform,
+		Version: version.Must(version.NewVersion("1.13.5")),
+	}
+	ev.SetLogger(testutil.TestLogger())
+	t.Cleanup(func() { ev.Remove(ctx) })
+
+	tf1_13_5, err := ev.Install(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for i, c := range []struct {
+		expected bool
+		min      string
+		max      string
+		binPath  string
+	}{
+		{false, "0.15.0", "", tf1_0_9},
+		{false, "1.0.9", "", tf1_0_9},
+		{true, "1.13.5", "", tf1_0_9},
+
+		{false, "0.15.0", "1.13.5", tf1_0_9},
+		{true, "0.15.0", "1.0.9", tf1_13_5},
+		{true, "0.15.0", "1.13.5", tf1_13_5},
+		{false, "1.0.9", "1.13.5", tf1_0_9},
+		{true, "1.0.10", "1.13.5", tf1_0_9},
+
+		{false, "", "1.13.5", tf1_0_9},
+		{true, "", "1.13.5", tf1_13_5},
+		{true, "", "1.0.9", tf1_13_5},
+	} {
+		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
+			tf, err := NewTerraform(filepath.Dir(c.binPath), c.binPath)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			var min *version.Version
+			if c.min != "" {
+				min, err = version.NewVersion(c.min)
+				if err != nil {
+					t.Fatal(err)
+				}
+			}
+
+			var max *version.Version
+			if c.max != "" {
+				max, err = version.NewVersion(c.max)
+				if err != nil {
+					t.Fatal(err)
+				}
+			}
+			var mismatch *ErrVersionMismatch
+			err = tf.incompatible(context.Background(), min, max)
 			switch {
 			case c.expected && err != nil:
 				t.Fatal(err)
