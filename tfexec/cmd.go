@@ -13,6 +13,7 @@ import (
 	"io"
 	"io/ioutil"
 	"iter"
+	"maps"
 	"os"
 	"os/exec"
 	"runtime"
@@ -130,15 +131,11 @@ func (tf *Terraform) buildEnv(mergeEnv map[string]string) []string {
 		env = envMap(os.Environ())
 	} else {
 		env = make(map[string]string, len(tf.env))
-		for k, v := range tf.env {
-			env[k] = v
-		}
+		maps.Copy(env, tf.env)
 	}
 
 	// override env with any command specific environment
-	for k, v := range mergeEnv {
-		env[k] = v
-	}
+	maps.Copy(env, mergeEnv)
 
 	// always propagate CHECKPOINT_DISABLE env var unless it is
 	// explicitly overridden with tf.SetEnv or command env
