@@ -14,7 +14,7 @@ We strictly follow [semantic versioning](https://semver.org).
 
 This library is built in Go, and uses the [support policy](https://golang.org/doc/devel/release.html#policy) of Go as its support policy. The two latest major releases of Go are supported by terraform-exec.
 
-Currently, that means Go **1.23** or later must be used.
+Currently, that means Go **1.24** or later must be used.
 
 ## Terraform compatibility
 
