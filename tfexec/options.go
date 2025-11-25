@@ -467,3 +467,12 @@ type VerifyPluginsOption struct {
 func VerifyPlugins(verifyPlugins bool) *VerifyPluginsOption {
 	return &VerifyPluginsOption{verifyPlugins}
 }
+
+// LockFileOption represents the -lock-file flag.
+type LockFileOption struct {
+	useLockFile bool
+}
+
+func LockFile(useLockFile bool) *LockFileOption {
+	return &LockFileOption{useLockFile: useLockFile}
+}
