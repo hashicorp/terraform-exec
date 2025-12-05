@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copyright (c) HashiCorp, Inc.
+# Copyright IBM Corp. 2020, 2025
 # SPDX-License-Identifier: MPL-2.0
 
 printf '\n[GNUPG:] SIG_CREATED ' >&${1#--status-fd=}
