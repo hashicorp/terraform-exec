@@ -121,7 +121,7 @@ func TestShow_noInitBasic(t *testing.T) {
 	// no providers to download, this is unintended behaviour, as
 	// init is not actually necessary. This is considered a known issue in
 	// pre-1.2.0 versions.
-	runTestWithVersions(t, []string{testutil.Latest012, testutil.Latest013, testutil.Latest014, testutil.Latest015, testutil.Latest_v1, testutil.Latest_v1_1}, "basic", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+	runTestWithVersions(t, []string{testutil.Latest012, testutil.Latest013, testutil.Latest014, testutil.Latest015, testutil.Latest_v1_0, testutil.Latest_v1_1}, "basic", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		_, err := tf.Show(context.Background())
 		if err == nil {
 			t.Fatalf("expected error, but did not get one")
@@ -158,7 +158,7 @@ func TestShow_noInitModule(t *testing.T) {
 	// no providers to download, this is unintended behaviour, as
 	// init is not actually necessary. This is considered a known issue in
 	// pre-1.2.0 versions.
-	runTestWithVersions(t, []string{testutil.Latest012, testutil.Latest013, testutil.Latest014, testutil.Latest015, testutil.Latest_v1, testutil.Latest_v1_1}, "registry_module", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+	runTestWithVersions(t, []string{testutil.Latest012, testutil.Latest013, testutil.Latest014, testutil.Latest015, testutil.Latest_v1_0, testutil.Latest_v1_1}, "registry_module", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		_, err := tf.Show(context.Background())
 		if err == nil {
 			t.Fatalf("expected error, but did not get one")
