@@ -78,6 +78,7 @@ func (tf *Terraform) workspaceNewCmd(ctx context.Context, workspace string, opts
 		args = append(args, "-state="+c.copyState)
 	}
 
+	args = append(args, "--")
 	args = append(args, workspace)
 
 	cmd := tf.buildTerraformCmd(ctx, nil, args...)
