@@ -1,0 +1,74 @@
+name: Prepare Release PR
+
+permissions:
+  contents: write # to push a new branch
+  packages: read # for downloading signore docker image
+  pull-requests: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      release-branch:
+        description: "The branch to prepare for release"
+        required: true
+        default: "main"
+      release-type:
+        description: "The type of release to prepare for."
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - beta
+          - patch
+          - minor
+
+jobs:
+  prepare:
+    runs-on: ['ubuntu-latest']
+    steps:
+
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          fetch-depth: 0 # We need the tags, so a full checkout is necessary
+          ref: ${{ inputs.release-branch }}
+
+      - name: "Create changelog and update version"
+        run: ./scripts/release/changelog.sh generate "${{ inputs.release-type }}"
+
+      - name: "Get release version"
+        id: get-release-version
+        run: |
+          export VERSION=$(./scripts/release/changelog.sh getVersion)
+          if [ ! $VERSION ]; then
+            echo "Could not get release version, VERSION is empty";
+            exit 1;
+          fi
+          echo "Release version is: $VERSION"
+          echo "release-version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: "branch, commit, and push changes"
+        env:
+          SIGNORE_CLIENT_ID: ${{ secrets.SIGNORE_CLIENT_ID }}
+          SIGNORE_CLIENT_SECRET: ${{ secrets.SIGNORE_CLIENT_SECRET }}
+          SIGNORE_SIGNER: ${{ secrets.SIGNORE_SIGNER }}
+        run: |
+          git config --global user.email "proj-terraform-exec@hashicorp.com"
+          git config --global user.name "terraform-exec [bot]"
+          git config --global gpg.program scripts/release/signore-wrapper.sh
+
+          git checkout -b prepare/${{ steps.get-release-version.outputs.release-version }}
+          git add .changes/
+          git add CHANGELOG.md
+          git add internal/version/version.go
+          git commit --gpg-sign="${SIGNORE_SIGNER}" -m "Prepare before ${{ steps.get-release-version.outputs.release-version }} release"
+          git push origin prepare/${{ steps.get-release-version.outputs.release-version }}
+
+      - name: "Create pull request"
+        run: |
+          gh pr create \
+            --base ${{ inputs.release-branch }} \
+            --head prepare/${{ steps.get-release-version.outputs.release-version }} \
+            --title "Prepare for ${{ steps.get-release-version.outputs.release-version }} release" \
+            --body "This PR prepares the repository for the ${{ steps.get-release-version.outputs.release-version }} release. It includes the updated CHANGELOG.md and internal/version/version.go files." \
+            --reviewer "${{ github.actor }}" \
+            --label "skip-changelog-check"

@@ -83,12 +83,10 @@ Releases are made on a reasonably regular basis by the Terraform team, using our
 
 The following notes are only relevant to maintainers.
 
-1. Make sure [CHANGELOG.md](https://github.com/hashicorp/terraform-exec/blob/main/CHANGELOG.md) has all **changes** and the first line has the **version** you're intending to release (with ` (Unreleased)` suffix).
-1. Trigger the [`release` workflow](https://github.com/hashicorp/terraform-exec/actions/workflows/release.yml) from GitHub UI. This will run the [release script](https://github.com/hashicorp/terraform-exec/blob/main/scripts/release/release.sh). As part of that script:
-  - `Unreleased`, `[GH-XXX]` will be replaced.
-  - The [version](https://github.com/hashicorp/terraform-exec/blob/main/internal/version/version.go#L3) will be bumped to match the one parsed from `CHANGELOG.md`.
-  - Tag will be pushed
+1. Trigger the [`release-prepare` workflow](https://github.com/hashicorp/terraform-exec/actions/workflows/release-prepare.yml) from GitHub UI. This will generate the Changelog via changie and update `internal/version/VERSION` to the version being released.
+1. Review and merge the PR
 1. [Create new release](https://github.com/hashicorp/terraform-exec/releases/new) via GitHub UI to point to the new tag and copy the appropriate part of the CHANGELOG.md there.
+1. Trigger the [`release-cleanup` workflow](https://github.com/hashicorp/terraform-exec/actions/workflows/release-cleanup.yml) from GitHub UI. This will empty the Changelog and set `internal/version/VERSION` back to `dev`.
 
 ### Problems with the release process
 
