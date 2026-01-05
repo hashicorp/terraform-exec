@@ -1,0 +1,60 @@
+name: Cleanup Release Branch
+
+permissions:
+  contents: write # to push a new branch
+  packages: read # for downloading signore docker image
+  pull-requests: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      release-branch:
+        description: "The branch the release was made from"
+        required: true
+        default: "main"
+
+jobs:
+  cleanup:
+    runs-on: ['ubuntu-latest']
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          fetch-depth: 0 # We need the tags, so a full checkout is necessary
+          ref: ${{ inputs.release-branch }}
+
+      - name: "Get release version"
+        id: get-release-version
+        run: |
+          export VERSION=$(./scripts/release/changelog.sh getVersion)
+          if [ ! $VERSION ]; then
+            echo "Could not get release version, VERSION is empty";
+            exit 1;
+          fi
+          echo "Release version is: $VERSION"
+          echo "release-version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: "Update changelog and update version"
+        run: ./scripts/release/changelog.sh generate dev
+
+      - name: "branch, commit, and push changes"
+        run: |
+          git config --global user.email "proj-terraform-exec@hashicorp.com"
+          git config --global user.name "terraform-exec [bot]"
+          git config --global gpg.program scripts/release/signore-wrapper.sh
+
+          git checkout -b cleanup/${{ steps.get-release-version.outputs.release-version }}
+          git add .changes/
+          git add CHANGELOG.md
+          git add internal/version/version.go
+          git commit -m "Cleanup after ${{ steps.get-release-version.outputs.release-version }} release"
+          git push origin cleanup/${{ steps.get-release-version.outputs.release-version }}
+
+      - name: "create pull request"
+        run: |
+          gh pr create \
+            --base ${{ inputs.release-branch }} \
+            --head cleanup/${{ steps.get-release-version.outputs.release-version }} \
+            --title "Cleanup after ${{ steps.get-release-version.outputs.release-version }} release" \
+            --body "This PR cleans up the repository after the ${{ steps.get-release-version.outputs.release-version }} release. It includes the updated CHANGELOG.md and internal/version/version.go files." \
+            --reviewer "${{ github.actor }}" \
+            --label "skip-changelog-check"
