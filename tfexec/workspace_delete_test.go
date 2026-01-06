@@ -50,4 +50,30 @@ func TestWorkspaceDeleteCmd(t *testing.T) {
 			"workspace-name",
 		}, nil, workspaceDeleteCmd)
 	})
+
+	t.Run("reattach config", func(t *testing.T) {
+		workspaceDeleteCmd, err := tf.workspaceDeleteCmd(context.Background(), "workspace-name", Reattach(map[string]ReattachConfig{
+			"registry.terraform.io/hashicorp/examplecloud": {
+				Protocol:        "grpc",
+				ProtocolVersion: 6,
+				Pid:             1234,
+				Test:            true,
+				Addr: ReattachConfigAddr{
+					Network: "unix",
+					String:  "/fake_folder/T/plugin123",
+				},
+			},
+		}))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assertCmd(t, []string{
+			"workspace", "delete",
+			"-no-color",
+			"workspace-name",
+		}, map[string]string{
+			"TF_REATTACH_PROVIDERS": `{"registry.terraform.io/hashicorp/examplecloud":{"Protocol":"grpc","ProtocolVersion":6,"Pid":1234,"Test":true,"Addr":{"Network":"unix","String":"/fake_folder/T/plugin123"}}}`,
+		}, workspaceDeleteCmd)
+	})
 }
