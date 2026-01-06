@@ -21,14 +21,42 @@ func TestWorkspaceShowCmd_v1(t *testing.T) {
 	// empty env, to avoid environ mismatch in testing
 	tf.SetEnv(map[string]string{})
 
-	cmd, err := tf.workspaceShowCmd(context.Background())
-	if err != nil {
-		t.Fatal(err)
-	}
+	t.Run("defaults", func(t *testing.T) {
+		cmd, err := tf.workspaceShowCmd(context.Background())
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	assertCmd(t, []string{
-		"workspace",
-		"show",
-		"-no-color",
-	}, map[string]string{}, cmd)
+		assertCmd(t, []string{
+			"workspace",
+			"show",
+			"-no-color",
+		}, nil, cmd)
+	})
+
+	t.Run("reattach config", func(t *testing.T) {
+		cmd, err := tf.workspaceShowCmd(context.Background(), Reattach(map[string]ReattachConfig{
+			"registry.terraform.io/hashicorp/examplecloud": {
+				Protocol:        "grpc",
+				ProtocolVersion: 6,
+				Pid:             1234,
+				Test:            true,
+				Addr: ReattachConfigAddr{
+					Network: "unix",
+					String:  "/fake_folder/T/plugin123",
+				},
+			},
+		}))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assertCmd(t, []string{
+			"workspace",
+			"show",
+			"-no-color",
+		}, map[string]string{
+			"TF_REATTACH_PROVIDERS": `{"registry.terraform.io/hashicorp/examplecloud":{"Protocol":"grpc","ProtocolVersion":6,"Pid":1234,"Test":true,"Addr":{"Network":"unix","String":"/fake_folder/T/plugin123"}}}`,
+		}, cmd)
+	})
 }

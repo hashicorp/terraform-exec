@@ -5,60 +5,35 @@ package tfexec
 
 import (
 	"context"
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
 )
 
-func TestWorkspaceNewCmd(t *testing.T) {
-	td := t.TempDir()
-
-	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest_v1))
+func TestWorkspaceSelectCmd(t *testing.T) {
+	tf, err := NewTerraform(t.TempDir(), tfVersion(t, testutil.Latest_v1))
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// empty env, to avoid environ mismatch in testing
-	tf.SetEnv(map[string]string{
-		// propagate for temp dirs
-		"TMPDIR":      os.Getenv("TMPDIR"),
-		"TMP":         os.Getenv("TMP"),
-		"TEMP":        os.Getenv("TEMP"),
-		"USERPROFILE": os.Getenv("USERPROFILE"),
-	})
+	tf.SetEnv(map[string]string{})
 
 	t.Run("defaults", func(t *testing.T) {
-		workspaceNewCmd, err := tf.workspaceNewCmd(context.Background(), "workspace-name")
+		workspaceSelectCmd, err := tf.workspaceSelectCmd(context.Background(), "workspace-name")
 		if err != nil {
 			t.Fatal(err)
 		}
 
 		assertCmd(t, []string{
-			"workspace", "new",
+			"workspace", "select",
 			"-no-color",
 			"workspace-name",
-		}, nil, workspaceNewCmd)
-	})
-
-	t.Run("override all defaults", func(t *testing.T) {
-		workspaceNewCmd, err := tf.workspaceNewCmd(context.Background(), "workspace-name", LockTimeout("200s"), CopyState("teststate"), Lock(false))
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		assertCmd(t, []string{
-			"workspace", "new",
-			"-no-color",
-			"-lock-timeout=200s",
-			"-lock=false",
-			"-state=teststate",
-			"workspace-name",
-		}, nil, workspaceNewCmd)
+		}, nil, workspaceSelectCmd)
 	})
 
 	t.Run("reattach config", func(t *testing.T) {
-		workspaceNewCmd, err := tf.workspaceNewCmd(context.Background(), "workspace-name", Reattach(map[string]ReattachConfig{
+		workspaceSelectCmd, err := tf.workspaceSelectCmd(context.Background(), "workspace-name", Reattach(map[string]ReattachConfig{
 			"registry.terraform.io/hashicorp/examplecloud": {
 				Protocol:        "grpc",
 				ProtocolVersion: 6,
@@ -75,11 +50,11 @@ func TestWorkspaceNewCmd(t *testing.T) {
 		}
 
 		assertCmd(t, []string{
-			"workspace", "new",
+			"workspace", "select",
 			"-no-color",
 			"workspace-name",
 		}, map[string]string{
 			"TF_REATTACH_PROVIDERS": `{"registry.terraform.io/hashicorp/examplecloud":{"Protocol":"grpc","ProtocolVersion":6,"Pid":1234,"Test":true,"Addr":{"Network":"unix","String":"/fake_folder/T/plugin123"}}}`,
-		}, workspaceNewCmd)
+		}, workspaceSelectCmd)
 	})
 }

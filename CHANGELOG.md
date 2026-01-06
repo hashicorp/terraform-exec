@@ -1,3 +1,8 @@
+# 0.25.0 (Unreleased)
+
+ENHANCEMENTS:
+- tfexec: Added provider reattach support to all `terraform workspace` subcommands ([#556](https://github.com/hashicorp/terraform-exec/pull/556))
+
 # 0.24.0 (September 17, 2025)
 
 ENHANCEMENTS:
