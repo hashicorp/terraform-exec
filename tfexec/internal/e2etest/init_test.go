@@ -52,8 +52,7 @@ func TestInitJSON_TF18AndEarlier(t *testing.T) {
 func TestInitJSON_TF19AndLater(t *testing.T) {
 	versions := []string{
 		testutil.Latest_v1_9,
-		testutil.Latest_Alpha_v1_9,
-		testutil.Latest_Alpha_v1_10,
+		testutil.Latest_v1_10,
 	}
 
 	runTestWithVersions(t, versions, "basic", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {

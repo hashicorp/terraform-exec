@@ -29,14 +29,18 @@ const (
 	Latest_v1_6        = "1.6.6"
 	Latest_v1_7        = "1.7.5"
 	Latest_v1_8        = "1.8.5"
-	Latest_Beta_v1_8   = "1.8.0-beta1"
 	Latest_v1_9        = "1.9.8"
-	Latest_Alpha_v1_9  = "1.9.0-alpha20240516"
 	Latest_v1_10       = "1.10.5"
-	Latest_Alpha_v1_10 = "1.10.0-alpha20240926"
 	Latest_v1_11       = "1.11.4"
 	Latest_v1_12       = "1.12.2"
+	Latest_v1_13       = "1.13.5"
+	Latest_v1_14       = "1.14.3"
 	Latest_Alpha_v1_14 = "1.14.0-alpha20250903"
+	Latest_Alpha_v1_15 = "1.15.0-alpha20251203"
+
+	// Special cases
+	Latest_Beta_v1_8  = "1.8.0-beta1"         // Used to test experiments are disabled in betas
+	Latest_Alpha_v1_9 = "1.9.0-alpha20240516" // Used to test deferred actions and that experiments are enabled in actions
 )
 
 const appendUserAgent = "tfexec-testutil"
