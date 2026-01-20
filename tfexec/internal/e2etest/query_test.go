@@ -34,7 +34,7 @@ func TestQueryJSON_TF112(t *testing.T) {
 }
 
 func TestQueryJSON_TF114(t *testing.T) {
-	versions := []string{testutil.Latest_Alpha_v1_14}
+	versions := []string{testutil.Latest_v1_14}
 
 	runTestWithVersions(t, versions, "query", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		err := tf.Init(context.Background())

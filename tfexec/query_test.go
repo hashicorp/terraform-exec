@@ -13,7 +13,7 @@ import (
 func TestQueryJSONCmd(t *testing.T) {
 	td := t.TempDir()
 
-	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest_Alpha_v1_14))
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest_v1_14))
 	if err != nil {
 		t.Fatal(err)
 	}
