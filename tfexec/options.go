@@ -168,10 +168,18 @@ func Force(force bool) *ForceOption {
 	return &ForceOption{force}
 }
 
+// ForceCopyOption represents the `-force-copy` flag for `terraform init`.
+// Defaults to false.
 type ForceCopyOption struct {
 	forceCopy bool
 }
 
+// ForceCopy returns a ForceCopyOption that indicates whether the init command's -force-copy flag
+// should be set to true or false.
+//
+// Using -force-copy with an init command enables the -migrate-state option but all prompts for
+// input are suppressed and automatically answers "yes" to the migration questions. This is an
+// alternative to `-migrate-state` when Terraform is running in automation, including via terrform-exec.
 func ForceCopy(forceCopy bool) *ForceCopyOption {
 	return &ForceCopyOption{forceCopy}
 }
