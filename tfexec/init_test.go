@@ -48,7 +48,24 @@ func TestInitCmd_v012(t *testing.T) {
 	})
 
 	t.Run("override all defaults", func(t *testing.T) {
-		initCmd, err := tf.initCmd(context.Background(), Backend(false), BackendConfig("confpath1"), BackendConfig("confpath2"), ForceCopy(true), FromModule("testsource"), Get(false), GetPlugins(false), Lock(false), LockTimeout("999s"), PluginDir("testdir1"), PluginDir("testdir2"), Reconfigure(true), Upgrade(true), VerifyPlugins(false), Dir("initdir"))
+		initCmd, err := tf.initCmd(
+			context.Background(),
+			FromModule("testsource"),
+			LockTimeout("999s"),
+			Backend(false),
+			Get(false),
+			Upgrade(true),
+			Lock(false),
+			GetPlugins(false),
+			VerifyPlugins(false),
+			ForceCopy(true),
+			Reconfigure(true),
+			BackendConfig("confpath1"),
+			BackendConfig("confpath2"),
+			PluginDir("testdir1"),
+			PluginDir("testdir2"),
+			Dir("initdir"),
+		)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -105,7 +122,19 @@ func TestInitCmd_v1(t *testing.T) {
 	})
 
 	t.Run("override all defaults", func(t *testing.T) {
-		initCmd, err := tf.initCmd(context.Background(), Backend(false), BackendConfig("confpath1"), BackendConfig("confpath2"), FromModule("testsource"), Get(false), PluginDir("testdir1"), PluginDir("testdir2"), Reconfigure(true), Upgrade(true), Dir("initdir"))
+		initCmd, err := tf.initCmd(
+			context.Background(),
+			FromModule("testsource"),
+			Backend(false),
+			Get(false),
+			Upgrade(true),
+			Reconfigure(true),
+			BackendConfig("confpath1"),
+			BackendConfig("confpath2"),
+			PluginDir("testdir1"),
+			PluginDir("testdir2"),
+			Dir("initdir"),
+		)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -158,7 +187,19 @@ func TestInitJSONCmd(t *testing.T) {
 	})
 
 	t.Run("override all defaults", func(t *testing.T) {
-		initCmd, err := tf.initJSONCmd(context.Background(), Backend(false), BackendConfig("confpath1"), BackendConfig("confpath2"), FromModule("testsource"), Get(false), PluginDir("testdir1"), PluginDir("testdir2"), Reconfigure(true), Upgrade(true), Dir("initdir"))
+		initCmd, err := tf.initJSONCmd(
+			context.Background(),
+			FromModule("testsource"),
+			Backend(false),
+			Get(false),
+			Upgrade(true),
+			Reconfigure(true),
+			BackendConfig("confpath1"),
+			BackendConfig("confpath2"),
+			PluginDir("testdir1"),
+			PluginDir("testdir2"),
+			Dir("initdir"),
+		)
 		if err != nil {
 			t.Fatal(err)
 		}
