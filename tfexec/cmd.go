@@ -11,7 +11,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"iter"
 	"os"
 	"os/exec"
@@ -322,7 +321,7 @@ func mergeWriters(writers ...io.Writer) io.Writer {
 		}
 	}
 	if len(compact) == 0 {
-		return ioutil.Discard
+		return io.Discard
 	}
 	if len(compact) == 1 {
 		return compact[0]
