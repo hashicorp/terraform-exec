@@ -49,6 +49,8 @@ func defaultEnv() []string {
 	}
 }
 
+// assertCmd asserts that a constructed exec.Cmd contains the expected args and environment variables.
+// The command itself isn't executed; that is only done in E2E tests.
 func assertCmd(t *testing.T, expectedArgs []string, expectedEnv map[string]string, actual *exec.Cmd) {
 	t.Helper()
 
