@@ -218,6 +218,11 @@ func (tf *Terraform) buildInitArgs(ctx context.Context, c initConfig) ([]string,
 	}
 
 	if c.forceCopy {
+		err := tf.compatible(ctx, nil, tf0_9_2)
+		if err != nil {
+			return nil, fmt.Errorf("-force-copy was added to init in Terraform 0.9.2: %w", err)
+		}
+
 		args = append(args, "-force-copy")
 	}
 
