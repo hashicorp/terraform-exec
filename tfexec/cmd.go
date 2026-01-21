@@ -123,6 +123,16 @@ func envSlice(environ map[string]string) []string {
 	return env
 }
 
+// buildEnv determines which environment variables should affect use of a Terraform
+// executable.
+//
+// Factors that can affect the final set of environment variables are:
+// > Whether a user has explicitly set environment variables via (tf *Terraform) SetEnv.
+// > The environment of the machine terraform-exec is run on.
+// > Any override ENVs set in command-specific code (e.g. use of TF_REATTACH_PROVIDERS).
+//
+// This method also enforces some rules for the entire terraform-exec library,
+// for example User Agent data set via ENVs.
 func (tf *Terraform) buildEnv(mergeEnv map[string]string) []string {
 	// set Terraform level env, if env is nil, fall back to os.Environ
 	var env map[string]string
