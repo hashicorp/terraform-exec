@@ -12,21 +12,22 @@ import (
 )
 
 type planConfig struct {
-	allowDeferral bool
-	destroy       bool
-	dir           string
-	lock          bool
-	lockTimeout   string
-	out           string
-	parallelism   int
-	reattachInfo  ReattachInfo
-	refresh       bool
-	refreshOnly   bool
-	replaceAddrs  []string
-	state         string
-	targets       []string
-	vars          []string
-	varFiles      []string
+	allowDeferral  bool
+	destroy        bool
+	dir            string
+	generateConfig string
+	lock           bool
+	lockTimeout    string
+	out            string
+	parallelism    int
+	reattachInfo   ReattachInfo
+	refresh        bool
+	refreshOnly    bool
+	replaceAddrs   []string
+	state          string
+	targets        []string
+	vars           []string
+	varFiles       []string
 }
 
 var defaultPlanOptions = planConfig{
@@ -44,6 +45,10 @@ type PlanOption interface {
 
 func (opt *DirOption) configurePlan(conf *planConfig) {
 	conf.dir = opt.path
+}
+
+func (opt *GenerateConfigOutOption) configurePlan(conf *planConfig) {
+	conf.generateConfig = opt.path
 }
 
 func (opt *VarFileOption) configurePlan(conf *planConfig) {
@@ -194,6 +199,9 @@ func (tf *Terraform) buildPlanArgs(ctx context.Context, c planConfig) ([]string,
 	args := []string{"plan", "-no-color", "-input=false", "-detailed-exitcode"}
 
 	// string opts: only pass if set
+	if c.generateConfig != "" {
+		args = append(args, "-generate-config-out="+c.generateConfig)
+	}
 	if c.lockTimeout != "" {
 		args = append(args, "-lock-timeout="+c.lockTimeout)
 	}

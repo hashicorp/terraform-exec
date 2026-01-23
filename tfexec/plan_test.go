@@ -136,6 +136,7 @@ func TestPlanJSONCmd(t *testing.T) {
 	t.Run("override all defaults", func(t *testing.T) {
 		planCmd, err := tf.planJSONCmd(context.Background(),
 			Destroy(true),
+			GenerateConfigOut("generated.tf"),
 			Lock(false),
 			LockTimeout("22s"),
 			Out("whale"),
@@ -159,6 +160,7 @@ func TestPlanJSONCmd(t *testing.T) {
 			"-no-color",
 			"-input=false",
 			"-detailed-exitcode",
+			"-generate-config-out=generated.tf",
 			"-lock-timeout=22s",
 			"-out=whale",
 			"-state=marvin",
