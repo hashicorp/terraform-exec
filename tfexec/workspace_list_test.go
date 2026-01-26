@@ -94,6 +94,36 @@ func TestParseWorkspaceList(t *testing.T) {
 			"foo",
 			"  default\r\n* foo\r\n\r\n",
 		},
+		// warning about no workspaces being present is set to stdout and
+		// should not be parsed as a list.
+		{
+			[]string{},
+			"",
+			`
+Warning: Terraform cannot find any existing workspaces.
+
+The "default" workspace is selected in your working directory. You can create
+this workspace by running "terraform init", by using the "terraform workspace
+new" subcommand or by including the "-or-create" flag with the "terraform
+workspace select" subcommand.
+
+`,
+		},
+		// warning present alongside a list of workspaces.
+		{
+			[]string{"default", "foo", "bar"},
+			"foo",
+			`
+Warning: This warning is part of a test!
+
+This warning doesn't exist in Terraform core, but we're seeing if it can be
+ignored while parsing the list below:
+
+  default
+* foo
+  bar
+`,
+		},
 	} {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
 			actualList, actualCurrent := parseWorkspaceList(c.stdout)
