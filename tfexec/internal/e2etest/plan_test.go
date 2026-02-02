@@ -6,6 +6,8 @@ package e2etest
 import (
 	"context"
 	"io"
+	"os"
+	"path/filepath"
 	"regexp"
 	"testing"
 
@@ -13,6 +15,10 @@ import (
 
 	"github.com/hashicorp/terraform-exec/tfexec"
 	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
+)
+
+var (
+	generateConfigOutMinVersion = version.Must(version.NewVersion("1.5.0"))
 )
 
 func TestPlan(t *testing.T) {
@@ -89,6 +95,28 @@ func TestPlanJSON_TF015AndLater(t *testing.T) {
 		}
 		if !hasChanges {
 			t.Fatalf("expected: true, got: %t", hasChanges)
+		}
+	})
+}
+
+func TestPlanGenerateConfigOut(t *testing.T) {
+	runTest(t, "generate_config_out", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		if tfv.LessThan(generateConfigOutMinVersion) {
+			t.Skip("terraform plan -generate-config-out was added in Terraform 1.5.0, so test is not valid")
+		}
+
+		err := tf.Init(context.Background())
+		if err != nil {
+			t.Fatalf("error running Init in test directory: %s", err)
+		}
+
+		_, err = tf.Plan(context.Background(), tfexec.GenerateConfigOut("generated.tf"))
+		if err != nil {
+			t.Fatalf("error running Plan: %s", err)
+		}
+
+		if _, err = os.Stat(filepath.Join(tf.WorkingDir(), "generated.tf")); os.IsNotExist(err) {
+			t.Fatalf("expected generated.tf to be created, but it does not exist")
 		}
 	})
 }
