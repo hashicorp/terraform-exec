@@ -6,6 +6,8 @@ package e2etest
 import (
 	"context"
 	"io"
+	"os"
+	"path/filepath"
 	"regexp"
 	"testing"
 
@@ -108,12 +110,13 @@ func TestPlanGenerateConfigOut(t *testing.T) {
 			t.Fatalf("error running Init in test directory: %s", err)
 		}
 
-		hasChanges, err := tf.Plan(context.Background(), tfexec.GenerateConfigOut("generated.tf"))
+		_, err = tf.Plan(context.Background(), tfexec.GenerateConfigOut("generated.tf"))
 		if err != nil {
 			t.Fatalf("error running Plan: %s", err)
 		}
-		if !hasChanges {
-			t.Fatalf("expected: true, got: %t", hasChanges)
+
+		if _, err = os.Stat(filepath.Join(tf.WorkingDir(), "generated.tf")); os.IsNotExist(err) {
+			t.Fatalf("expected generated.tf to be created, but it does not exist")
 		}
 	})
 }
