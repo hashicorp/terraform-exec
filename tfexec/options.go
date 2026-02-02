@@ -188,6 +188,7 @@ type GenerateConfigOutOption struct {
 	path string
 }
 
+// GenerateConfigOut represents the -generate-config-out flag.
 func GenerateConfigOut(path string) *GenerateConfigOutOption {
 	return &GenerateConfigOutOption{path}
 }
