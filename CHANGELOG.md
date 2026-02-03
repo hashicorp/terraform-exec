@@ -3,6 +3,7 @@
 ENHANCEMENTS:
 - tfexec: Added provider reattach support to all `terraform workspace` subcommands ([#556](https://github.com/hashicorp/terraform-exec/pull/556))
 - tfexec: Add `-generate-config-out` to the `(Terraform).Plan()` method ([#563](https://github.com/hashicorp/terraform-exec/pull/563))
+- Add support for `providers mirror` subcommand ([#551](https://github.com/hashicorp/terraform-exec/pull/551))
 
 # 0.24.0 (September 17, 2025)
 

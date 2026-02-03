@@ -28,7 +28,7 @@ func TestProvidersLock(t *testing.T) {
 
 		err = tf.ProvidersLock(context.Background())
 		if err != nil {
-			t.Fatalf("error running provider lock: %s", err)
+			t.Fatalf("error running providers lock: %s", err)
 		}
 	})
 
