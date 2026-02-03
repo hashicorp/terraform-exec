@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2020, 2025
 // SPDX-License-Identifier: MPL-2.0
 
 // This file contains tests that only compile/work in Go 1.13 and forward
