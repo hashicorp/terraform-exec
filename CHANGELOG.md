@@ -1,9 +1,22 @@
 # 0.25.0 (Unreleased)
 
+NOTES:
+
+- bump Go compatibility from 1.23 to 1.24 (in-line with Go's support policy) ([#548](https://github.com/hashicorp/terraform-exec/pull/548), [#557](https://github.com/hashicorp/terraform-exec/pull/557))
+
 ENHANCEMENTS:
+
 - tfexec: Added provider reattach support to all `terraform workspace` subcommands ([#556](https://github.com/hashicorp/terraform-exec/pull/556))
 - tfexec: Add `-generate-config-out` to the `(Terraform).Plan()` method ([#563](https://github.com/hashicorp/terraform-exec/pull/563))
 - Add support for `providers mirror` subcommand ([#551](https://github.com/hashicorp/terraform-exec/pull/551))
+
+DEPENDENCIES:
+
+- build(deps): bump golang.org/x/crypto from 0.36.0 to 0.45.0 ([#547](https://github.com/hashicorp/terraform-exec/pull/547))
+- build(deps): bump github.com/hashicorp/go-version from 1.7.0 to 1.8.0 ([#552](https://github.com/hashicorp/terraform-exec/pull/552))
+- build(deps): bump github.com/hashicorp/hc-install from 0.9.2 to 0.9.3 ([#566](https://github.com/hashicorp/terraform-exec/pull/566))
+- build(deps): bump github.com/hashicorp/terraform-json from 0.27.1 to 0.27.2 ([#542](https://github.com/hashicorp/terraform-exec/pull/542))
+- build(deps): bump github.com/zclconf/go-cty from 1.16.4 to 1.17.0 ([#535](https://github.com/hashicorp/terraform-exec/pull/535))
 
 # 0.24.0 (September 17, 2025)
 
