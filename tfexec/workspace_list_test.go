@@ -9,7 +9,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
+	"github.com/magosproject/terraform-exec/tfexec/internal/testutil"
 )
 
 func TestWorkspaceListCmd(t *testing.T) {

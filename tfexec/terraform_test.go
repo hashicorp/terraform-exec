@@ -14,7 +14,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
+	"github.com/magosproject/terraform-exec/tfexec/internal/testutil"
 )
 
 var tfCache *testutil.TFCache

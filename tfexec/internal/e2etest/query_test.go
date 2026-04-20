@@ -9,10 +9,10 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/hashicorp/go-version"
-	"github.com/hashicorp/terraform-exec/tfexec"
-	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
 	tfjson "github.com/hashicorp/terraform-json"
+	"github.com/magosproject/go-version"
+	"github.com/magosproject/terraform-exec/tfexec"
+	"github.com/magosproject/terraform-exec/tfexec/internal/testutil"
 )
 
 func TestQueryJSON_TF112(t *testing.T) {

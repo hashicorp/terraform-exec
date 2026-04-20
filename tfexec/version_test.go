@@ -13,10 +13,10 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/hashicorp/go-version"
-	"github.com/hashicorp/hc-install/product"
-	"github.com/hashicorp/hc-install/releases"
-	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
+	"github.com/magosproject/go-version"
+	"github.com/magosproject/hc-install/product"
+	"github.com/magosproject/hc-install/releases"
+	"github.com/magosproject/terraform-exec/tfexec/internal/testutil"
 )
 
 func mustVersion(t *testing.T, s string) *version.Version {

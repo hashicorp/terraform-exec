@@ -1,4 +1,4 @@
-[![PkgGoDev](https://pkg.go.dev/badge/github.com/hashicorp/terraform-exec)](https://pkg.go.dev/github.com/hashicorp/terraform-exec)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/magosproject/terraform-exec)](https://pkg.go.dev/github.com/magosproject/terraform-exec)
 
 # terraform-exec
 
@@ -40,10 +40,10 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hashicorp/go-version"
-	"github.com/hashicorp/hc-install/product"
-	"github.com/hashicorp/hc-install/releases"
-	"github.com/hashicorp/terraform-exec/tfexec"
+	"github.com/magosproject/go-version"
+	"github.com/magosproject/hc-install/product"
+	"github.com/magosproject/hc-install/releases"
+	"github.com/magosproject/terraform-exec/tfexec"
 )
 
 func main() {

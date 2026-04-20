@@ -8,11 +8,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/go-version"
 	tfjson "github.com/hashicorp/terraform-json"
+	"github.com/magosproject/go-version"
 	"github.com/zclconf/go-cty/cty"
 
-	"github.com/hashicorp/terraform-exec/tfexec"
+	"github.com/magosproject/terraform-exec/tfexec"
 )
 
 var (

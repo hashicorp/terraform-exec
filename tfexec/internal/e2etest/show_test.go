@@ -16,11 +16,11 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	"github.com/hashicorp/go-version"
 	tfjson "github.com/hashicorp/terraform-json"
+	"github.com/magosproject/go-version"
 
-	"github.com/hashicorp/terraform-exec/tfexec"
-	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
+	"github.com/magosproject/terraform-exec/tfexec"
+	"github.com/magosproject/terraform-exec/tfexec/internal/testutil"
 )
 
 var (

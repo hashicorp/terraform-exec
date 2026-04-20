@@ -8,10 +8,10 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/hashicorp/go-version"
-	"github.com/hashicorp/hc-install/build"
-	"github.com/hashicorp/hc-install/product"
-	"github.com/hashicorp/hc-install/releases"
+	"github.com/magosproject/go-version"
+	"github.com/magosproject/hc-install/build"
+	"github.com/magosproject/hc-install/product"
+	"github.com/magosproject/hc-install/releases"
 )
 
 const (

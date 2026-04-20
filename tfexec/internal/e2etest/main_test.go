@@ -8,7 +8,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
+	"github.com/magosproject/terraform-exec/tfexec/internal/testutil"
 )
 
 var tfcache *testutil.TFCache
