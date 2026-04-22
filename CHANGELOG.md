@@ -1,3 +1,13 @@
+# 0.25.1 (Unreleased)
+
+DEPENDENCIES:
+
+- build(deps): bump github.com/zclconf/go-cty from 1.17.0 to 1.18.0 ([#568](https://github.com/hashicorp/terraform-exec/pull/568))
+- build(deps): bump github.com/hashicorp/go-version from 1.8.0 to 1.9.0 ([#574](https://github.com/hashicorp/terraform-exec/pull/574))
+- build(deps): bump github.com/go-git/go-git/v5 from 5.16.5 to 5.17.1 ([#573](https://github.com/hashicorp/terraform-exec/pull/573))
+- build(deps): bump github.com/zclconf/go-cty from 1.18.0 to 1.18.1 ([#576](https://github.com/hashicorp/terraform-exec/pull/576))
+- build(deps): bump github.com/hashicorp/hc-install from 0.9.3 to 0.9.4 ([#578](https://github.com/hashicorp/terraform-exec/pull/578))
+
 # 0.25.0 (February 16, 2026)
 
 NOTES:
