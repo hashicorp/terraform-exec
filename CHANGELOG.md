@@ -1,4 +1,4 @@
-# 0.25.1 (Unreleased)
+# 0.25.1 (April 22, 2026)
 
 DEPENDENCIES:
 
