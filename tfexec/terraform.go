@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"runtime"
@@ -103,7 +102,7 @@ func NewTerraform(workingDir string, execPath string) (*Terraform, error) {
 		execPath:   execPath,
 		workingDir: workingDir,
 		env:        nil, // explicit nil means copy os.Environ
-		logger:     log.New(ioutil.Discard, "", 0),
+		logger:     log.New(io.Discard, "", 0),
 		waitDelay:  60 * time.Second,
 	}
 
