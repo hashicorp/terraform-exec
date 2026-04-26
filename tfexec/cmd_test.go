@@ -5,6 +5,7 @@ package tfexec
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 	"testing"
@@ -49,6 +50,24 @@ func defaultEnv() []string {
 	}
 }
 
+// stripSafeInherited removes variables that safeInheritedEnv pulls in from the
+// test machine's environment. assertCmd calls this on the actual env so that
+// command-level tests can assert on the library-managed vars only, without
+// needing to know which safe-inherited vars happen to be set on the host.
+func stripSafeInherited(env map[string]string) {
+	for k := range inheritedEnvAllowlist {
+		delete(env, k)
+	}
+	for k := range env {
+		for _, prefix := range inheritedEnvPrefixAllowlist {
+			if strings.HasPrefix(k, prefix) {
+				delete(env, k)
+				break
+			}
+		}
+	}
+}
+
 // assertCmd asserts that a constructed exec.Cmd contains the expected args and environment variables.
 // The command itself isn't executed; that is only done in E2E tests.
 func assertCmd(t *testing.T, expectedArgs []string, expectedEnv map[string]string, actual *exec.Cmd) {
@@ -87,6 +106,10 @@ func assertCmd(t *testing.T, expectedArgs []string, expectedEnv map[string]strin
 		}
 	}
 
+	// strip safe-inherited vars from actual: they come from the test machine's
+	// environment and are not what command-level tests are asserting on
+	stripSafeInherited(actualEnv)
+
 	// compare against raw slice len incase of duplication or something
 	if len(expectedEnv) != len(actualEnv) {
 		t.Fatalf("env mismatch\n\nexpected:\n%v\n\ngot:\n%v", envSlice(expectedEnv), actual.Env)
@@ -100,5 +123,146 @@ func assertCmd(t *testing.T, expectedArgs []string, expectedEnv map[string]strin
 		if ev != av {
 			t.Fatalf("env mismatch, expected %q, got %q\n\nfull expected:\n%v\n\nfull actual:\n%v", ev, av, envSlice(expectedEnv), envSlice(actualEnv))
 		}
+	}
+}
+
+func TestSafeInheritedEnvAllowlist(t *testing.T) {
+	for key := range inheritedEnvAllowlist {
+		t.Run(key, func(t *testing.T) {
+			t.Setenv(key, "test-value")
+			env := safeInheritedEnv()
+			if v, ok := env[key]; !ok || v != "test-value" {
+				t.Fatalf("expected allowlisted var %q to be inherited, present=%v value=%q", key, ok, v)
+			}
+		})
+	}
+}
+
+func TestSafeInheritedEnvCloudPrefixes(t *testing.T) {
+	for _, tc := range []struct {
+		key    string
+		reason string
+	}{
+		{"AWS_ACCESS_KEY_ID", "AWS credentials"},
+		{"AWS_SECRET_ACCESS_KEY", "AWS credentials"},
+		{"AWS_SESSION_TOKEN", "AWS credentials"},
+		{"AWS_REGION", "AWS config"},
+		{"GOOGLE_CREDENTIALS", "GCP credentials"},
+		{"GOOGLE_APPLICATION_CREDENTIALS", "GCP service account"},
+		{"GCLOUD_PROJECT", "gcloud config"},
+		{"CLOUDSDK_COMPUTE_ZONE", "Cloud SDK config"},
+		{"ARM_CLIENT_ID", "Azure credentials"},
+		{"ARM_TENANT_ID", "Azure credentials"},
+		{"AZURE_CLIENT_SECRET", "Azure credentials"},
+		{"VAULT_ADDR", "Vault config"},
+		{"VAULT_TOKEN", "Vault credentials"},
+		{"GITHUB_TOKEN", "GitHub provider"},
+	} {
+		t.Run(tc.key, func(t *testing.T) {
+			t.Setenv(tc.key, "test-value")
+			env := safeInheritedEnv()
+			if v, ok := env[tc.key]; !ok || v != "test-value" {
+				t.Fatalf("expected cloud provider var %q (%s) to be inherited, present=%v value=%q", tc.key, tc.reason, ok, v)
+			}
+		})
+	}
+}
+
+func TestSafeInheritedEnvBlocksDangerousVars(t *testing.T) {
+	for _, tc := range []struct {
+		key    string
+		reason string
+	}{
+		{"LD_PRELOAD", "dynamic linker injection"},
+		{"LD_LIBRARY_PATH", "dynamic linker injection"},
+		{"DYLD_INSERT_LIBRARIES", "macOS dynamic linker injection"},
+		{"DYLD_LIBRARY_PATH", "macOS dynamic linker injection"},
+		{"TF_CLI_CONFIG_FILE", "redirect terraform config"},
+		{"TF_PLUGIN_DIR", "redirect provider lookup"},
+		{"TF_DATA_DIR", "redirect .terraform directory"},
+		{"TERRAFORMRC", "redirect terraform config"},
+		{"BASH_ENV", "bash code injection via subshells"},
+		{"ENV", "POSIX shell code injection"},
+		{"TF_LOG", "managed by library, not user-injectable"},
+		{"TF_WORKSPACE", "managed by library, not user-injectable"},
+		{"TF_INPUT", "managed by library, not user-injectable"},
+	} {
+		t.Run(tc.key, func(t *testing.T) {
+			t.Setenv(tc.key, "malicious-value")
+			env := safeInheritedEnv()
+			if v, ok := env[tc.key]; ok {
+				t.Fatalf("expected dangerous var %q (%s) to be blocked, but it was inherited with value %q", tc.key, tc.reason, v)
+			}
+		})
+	}
+}
+
+func TestSafeInheritedEnvSetEnvCanPassAnything(t *testing.T) {
+	// SetEnv must be able to pass non-allowlisted vars explicitly — callers
+	// need an escape hatch for providers not covered by the allowlist.
+	td := t.TempDir()
+	tf, err := NewTerraform(td, "echo")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = tf.SetEnv(map[string]string{
+		"KUBECONFIG":    "/tmp/kubeconfig",
+		"MY_CUSTOM_VAR": "custom-value",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cmd := tf.buildTerraformCmd(t.Context(), nil)
+	env := envMap(cmd.Env)
+
+	for k, want := range map[string]string{
+		"KUBECONFIG":    "/tmp/kubeconfig",
+		"MY_CUSTOM_VAR": "custom-value",
+	} {
+		if got := env[k]; got != want {
+			t.Fatalf("expected SetEnv var %q=%q in cmd env, got %q", k, want, got)
+		}
+	}
+}
+
+func TestSafeInheritedEnvEmptyValue(t *testing.T) {
+	// an allowlisted var set to empty string should still pass through
+	t.Setenv("HOME", "")
+	env := safeInheritedEnv()
+	if _, ok := env["HOME"]; !ok {
+		t.Fatal("expected HOME with empty value to be inherited")
+	}
+}
+
+func TestSafeInheritedEnvPrefixMatchInherited(t *testing.T) {
+	// any var whose name starts with an allowlisted prefix passes through,
+	// regardless of the suffix — this is intentional and required for IAM
+	// credential vars like AWS_SESSION_TOKEN, GOOGLE_APPLICATION_CREDENTIALS, etc.
+	t.Setenv("AWS_ANYTHING", "value")
+	env := safeInheritedEnv()
+	if _, ok := env["AWS_ANYTHING"]; !ok {
+		t.Fatal("expected AWS_ANYTHING to be inherited via AWS_ prefix")
+	}
+}
+
+func TestSafeInheritedEnvUnknownVarBlocked(t *testing.T) {
+	// a var that matches neither the exact allowlist nor any prefix is stripped
+	t.Setenv("RANDOM_SECRET", "secret")
+	env := safeInheritedEnv()
+	if _, ok := env["RANDOM_SECRET"]; ok {
+		t.Fatal("expected RANDOM_SECRET to be blocked")
+	}
+}
+
+func TestSafeInheritedEnvHomePresent(t *testing.T) {
+	// HOME must always be inherited
+	home := os.Getenv("HOME")
+	if home == "" {
+		t.Skip("HOME not set in this environment")
+	}
+	env := safeInheritedEnv()
+	if env["HOME"] != home {
+		t.Fatalf("expected HOME=%q, got %q", home, env["HOME"])
 	}
 }
