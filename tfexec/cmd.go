@@ -123,6 +123,64 @@ func envSlice(environ map[string]string) []string {
 	return env
 }
 
+// exact variable names that are safe to inherit from the calling process.
+// anything not listed here or matched by inheritedEnvPrefixAllowlist is
+// excluded; callers may pass additional variables explicitly via SetEnv.
+var inheritedEnvAllowlist = map[string]bool{
+	"HOME":           true,
+	"PATH":           true,
+	"USER":           true,
+	"LOGNAME":        true,
+	"TMPDIR":         true,
+	"TEMP":           true,
+	"TMP":            true,
+	"SSL_CERT_FILE":  true,
+	"SSL_CERT_DIR":   true,
+	"CURL_CA_BUNDLE": true,
+	"HTTP_PROXY":     true,
+	"HTTPS_PROXY":    true,
+	"NO_PROXY":       true,
+	"http_proxy":     true,
+	"https_proxy":    true,
+	"no_proxy":       true,
+}
+
+// prefixes of cloud-provider authentication variable families that are safe
+// to inherit. these are commonly injected by platform IAM mechanisms (IRSA,
+// Workload Identity, Managed Identity) and consumed directly by providers.
+var inheritedEnvPrefixAllowlist = []string{
+	"AWS_",
+	"GOOGLE_",
+	"GCLOUD_",
+	"CLOUDSDK_",
+	"ARM_",
+	"AZURE_",
+	"VAULT_",
+	"GITHUB_",
+	"MAGOS_",
+}
+
+func safeInheritedEnv() map[string]string {
+	env := make(map[string]string)
+	for _, e := range os.Environ() {
+		k, v, ok := strings.Cut(e, "=")
+		if !ok {
+			continue
+		}
+		if inheritedEnvAllowlist[k] {
+			env[k] = v
+			continue
+		}
+		for _, prefix := range inheritedEnvPrefixAllowlist {
+			if strings.HasPrefix(k, prefix) {
+				env[k] = v
+				break
+			}
+		}
+	}
+	return env
+}
+
 // buildEnv determines which environment variables should affect use of a Terraform
 // executable.
 //
@@ -134,12 +192,10 @@ func envSlice(environ map[string]string) []string {
 // This method also enforces some rules for the entire terraform-exec library,
 // for example User Agent data set via ENVs.
 func (tf *Terraform) buildEnv(mergeEnv map[string]string) []string {
-	// set Terraform level env, if env is nil, fall back to os.Environ
-	var env map[string]string
-	if tf.env == nil {
-		env = envMap(os.Environ())
-	} else {
-		env = make(map[string]string, len(tf.env))
+	// inherit only the allowlisted subset of the process environment, then
+	// overlay any variables the caller set explicitly via SetEnv
+	env := safeInheritedEnv()
+	if tf.env != nil {
 		maps.Copy(env, tf.env)
 	}
 
