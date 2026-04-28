@@ -1,3 +1,13 @@
+# 0.25.2 (Unreleased)
+
+NOTES:
+
+- go.mod: Lower compatibility constraint from 1.25.8 to 1.25.0 ([#581](https://github.com/hashicorp/terraform-exec/pull/581))
+
+DEPENDENCIES:
+
+- build(deps): bump github.com/hashicorp/hc-install from 0.9.4 to 0.9.5 ([#585](https://github.com/hashicorp/terraform-exec/pull/585))
+
 # 0.25.1 (April 22, 2026)
 
 DEPENDENCIES:
