@@ -38,12 +38,11 @@ func (tf *Terraform) WorkspaceList(ctx context.Context, opts ...WorkspaceListOpt
 		return nil, "", err
 	}
 
-	ws, current := parseWorkspaceList(outBuf.String())
+	// Parse human output into a list of workspaces and the current workspace
+	ws, current := parseWorkspaceListHumanOutput(outBuf.String())
 
 	return ws, current, nil
 }
-
-const currentWorkspacePrefix = "* "
 
 func (tf *Terraform) workspaceListCmd(ctx context.Context, opts ...WorkspaceListOption) (*exec.Cmd, error) {
 	c := defaultWorkspaceListOptions
@@ -52,19 +51,15 @@ func (tf *Terraform) workspaceListCmd(ctx context.Context, opts ...WorkspaceList
 		o.configureWorkspaceList(&c)
 	}
 
-	mergeEnv := map[string]string{}
-	if c.reattachInfo != nil {
-		reattachStr, err := c.reattachInfo.marshalString()
-		if err != nil {
-			return nil, err
-		}
-		mergeEnv[reattachEnvVar] = reattachStr
-	}
-
-	return tf.buildTerraformCmd(ctx, mergeEnv, "workspace", "list", "-no-color"), nil
+	args := []string{"workspace", "list", "-no-color"}
+	return tf.buildWorkspaceListCmd(ctx, c, args)
 }
 
-func parseWorkspaceList(stdout string) ([]string, string) {
+// parseWorkspaceListHumanOutput parses human output from the workspace list command
+// to return a slice of workspace names and the current workspace name
+func parseWorkspaceListHumanOutput(stdout string) ([]string, string) {
+	var currentWorkspacePrefix string = "* "
+
 	lines := strings.Split(stdout, "\n")
 
 	current := ""
@@ -82,4 +77,17 @@ func parseWorkspaceList(stdout string) ([]string, string) {
 	}
 
 	return workspaces, current
+}
+
+func (tf *Terraform) buildWorkspaceListCmd(ctx context.Context, c workspaceListConfig, args []string) (*exec.Cmd, error) {
+	mergeEnv := map[string]string{}
+	if c.reattachInfo != nil {
+		reattachStr, err := c.reattachInfo.marshalString()
+		if err != nil {
+			return nil, err
+		}
+		mergeEnv[reattachEnvVar] = reattachStr
+	}
+
+	return tf.buildTerraformCmd(ctx, mergeEnv, args...), nil
 }
