@@ -59,7 +59,7 @@ func TestWorkspaceListCmd(t *testing.T) {
 	})
 }
 
-func TestParseWorkspaceList(t *testing.T) {
+func TestParseWorkspaceListHumanOutput(t *testing.T) {
 	for i, c := range []struct {
 		expected        []string
 		expectedCurrent string
@@ -96,7 +96,7 @@ func TestParseWorkspaceList(t *testing.T) {
 		},
 	} {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-			actualList, actualCurrent := parseWorkspaceList(c.stdout)
+			actualList, actualCurrent := parseWorkspaceListHumanOutput(c.stdout)
 
 			if actualCurrent != c.expectedCurrent {
 				t.Fatalf("expected selected %q, got %q", c.expectedCurrent, actualCurrent)
