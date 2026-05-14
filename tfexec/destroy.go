@@ -146,7 +146,7 @@ func (tf *Terraform) destroyJSONCmd(ctx context.Context, opts ...DestroyOption) 
 }
 
 func (tf *Terraform) buildDestroyArgs(c destroyConfig) []string {
-	args := []string{"destroy", "-no-color", "-auto-approve", "-input=false"}
+	args := []string{"destroy", "-auto-approve", "-input=false"}
 
 	// string opts: only pass if set
 	if c.backup != "" {

@@ -73,7 +73,7 @@ func (tf *Terraform) stateRmCmd(ctx context.Context, address string, opts ...Sta
 		o.configureStateRm(&c)
 	}
 
-	args := []string{"state", "rm", "-no-color"}
+	args := []string{"state", "rm"}
 
 	// string opts: only pass if set
 	if c.backup != "" {

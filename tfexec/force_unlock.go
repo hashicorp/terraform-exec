@@ -43,7 +43,7 @@ func (tf *Terraform) forceUnlockCmd(ctx context.Context, lockID string, opts ...
 	for _, o := range opts {
 		o.configureForceUnlock(&c)
 	}
-	args := []string{"force-unlock", "-no-color", "-force"}
+	args := []string{"force-unlock", "-force"}
 
 	// positional arguments
 	args = append(args, lockID)

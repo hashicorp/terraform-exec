@@ -70,6 +70,10 @@ type Terraform struct {
 	// TF_LOG_PROVIDER environment variable
 	logProvider string
 
+	// noColor controls whether -no-color is passed to all Terraform commands.
+	// Defaults to true to preserve backward-compatible plain-text output.
+	noColor bool
+
 	// waitDelay represents the WaitDelay field of the [exec.Cmd] of Terraform
 	waitDelay time.Duration
 
@@ -105,6 +109,7 @@ func NewTerraform(workingDir string, execPath string) (*Terraform, error) {
 		env:        nil, // explicit nil means copy os.Environ
 		logger:     log.New(ioutil.Discard, "", 0),
 		waitDelay:  60 * time.Second,
+		noColor:    true,
 	}
 
 	return &tf, nil
@@ -144,6 +149,13 @@ func (tf *Terraform) SetStdout(w io.Writer) {
 // flow. Any parsing necessary should be added as functionality to this package.
 func (tf *Terraform) SetStderr(w io.Writer) {
 	tf.stderr = w
+}
+
+// SetNoColor controls whether the -no-color flag is passed to every Terraform
+// command. It defaults to true (plain-text output). Pass false to enable ANSI
+// colour sequences in command output.
+func (tf *Terraform) SetNoColor(noColor bool) {
+	tf.noColor = noColor
 }
 
 // SetLog sets the TF_LOG environment variable for Terraform CLI execution.

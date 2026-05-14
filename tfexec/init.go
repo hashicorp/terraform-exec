@@ -189,7 +189,7 @@ func (tf *Terraform) initJSONCmd(ctx context.Context, opts ...InitOption) (*exec
 }
 
 func (tf *Terraform) buildInitArgs(ctx context.Context, c initConfig) ([]string, error) {
-	args := []string{"init", "-no-color", "-input=false"}
+	args := []string{"init", "-input=false"}
 
 	// string opts: only pass if set
 	if c.fromModule != "" {

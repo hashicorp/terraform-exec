@@ -196,7 +196,7 @@ func (tf *Terraform) planJSONCmd(ctx context.Context, opts ...PlanOption) (*exec
 }
 
 func (tf *Terraform) buildPlanArgs(ctx context.Context, c planConfig) ([]string, error) {
-	args := []string{"plan", "-no-color", "-input=false", "-detailed-exitcode"}
+	args := []string{"plan", "-input=false", "-detailed-exitcode"}
 
 	// string opts: only pass if set
 	if c.generateConfigOut != "" {

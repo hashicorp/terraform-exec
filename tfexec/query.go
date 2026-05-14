@@ -89,7 +89,7 @@ func (tf *Terraform) queryJSONCmd(ctx context.Context, opts ...QueryOption) (*ex
 }
 
 func (tf *Terraform) buildQueryArgs(ctx context.Context, c queryConfig) ([]string, error) {
-	args := []string{"query", "-no-color"}
+	args := []string{"query"}
 
 	if c.generateConfig != "" {
 		args = append(args, "-generate-config-out="+c.generateConfig)

@@ -173,7 +173,7 @@ func (tf *Terraform) applyJSONCmd(ctx context.Context, opts ...ApplyOption) (*ex
 }
 
 func (tf *Terraform) buildApplyArgs(ctx context.Context, c applyConfig) ([]string, error) {
-	args := []string{"apply", "-no-color", "-auto-approve", "-input=false"}
+	args := []string{"apply", "-auto-approve", "-input=false"}
 
 	// string opts: only pass if set
 	if c.backup != "" {

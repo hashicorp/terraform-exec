@@ -61,7 +61,7 @@ func (tf *Terraform) workspaceListCmd(ctx context.Context, opts ...WorkspaceList
 		mergeEnv[reattachEnvVar] = reattachStr
 	}
 
-	return tf.buildTerraformCmd(ctx, mergeEnv, "workspace", "list", "-no-color"), nil
+	return tf.buildTerraformCmd(ctx, mergeEnv, "workspace", "list"), nil
 }
 
 func parseWorkspaceList(stdout string) ([]string, string) {

@@ -63,5 +63,5 @@ func (tf *Terraform) workspaceShowCmd(ctx context.Context, opts ...WorkspaceShow
 		mergeEnv[reattachEnvVar] = reattachStr
 	}
 
-	return tf.buildTerraformCmd(ctx, mergeEnv, "workspace", "show", "-no-color"), nil
+	return tf.buildTerraformCmd(ctx, mergeEnv, "workspace", "show"), nil
 }

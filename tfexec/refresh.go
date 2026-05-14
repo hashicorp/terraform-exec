@@ -131,7 +131,7 @@ func (tf *Terraform) refreshJSONCmd(ctx context.Context, opts ...RefreshCmdOptio
 }
 
 func (tf *Terraform) buildRefreshArgs(c refreshConfig) []string {
-	args := []string{"refresh", "-no-color", "-input=false"}
+	args := []string{"refresh", "-input=false"}
 
 	// string opts: only pass if set
 	if c.backup != "" {
