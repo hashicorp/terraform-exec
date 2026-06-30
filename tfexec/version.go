@@ -31,6 +31,7 @@ var (
 	tf0_15_2 = version.Must(version.NewVersion("0.15.2"))
 	tf0_15_3 = version.Must(version.NewVersion("0.15.3"))
 	tf0_15_4 = version.Must(version.NewVersion("0.15.4"))
+	tf1_0_10 = version.Must(version.NewVersion("1.0.10"))
 	tf1_1_0  = version.Must(version.NewVersion("1.1.0"))
 	tf1_4_0  = version.Must(version.NewVersion("1.4.0"))
 	tf1_5_0  = version.Must(version.NewVersion("1.5.0"))
@@ -183,6 +184,23 @@ func (tf *Terraform) compatible(ctx context.Context, minInclusive *version.Versi
 		return err
 	}
 	if ok := versionInRange(tfv, minInclusive, maxExclusive); !ok {
+		return &ErrVersionMismatch{
+			MinInclusive: errorVersionString(minInclusive),
+			MaxExclusive: errorVersionString(maxExclusive),
+			Actual:       errorVersionString(tfv),
+		}
+	}
+
+	return nil
+}
+
+// incompatible asserts the cached terraform version is NOT in the specified range, and returns a well known error if it is.
+func (tf *Terraform) incompatible(ctx context.Context, minInclusive *version.Version, maxExclusive *version.Version) error {
+	tfv, _, err := tf.Version(ctx, false)
+	if err != nil {
+		return err
+	}
+	if ok := versionInRange(tfv, minInclusive, maxExclusive); ok {
 		return &ErrVersionMismatch{
 			MinInclusive: errorVersionString(minInclusive),
 			MaxExclusive: errorVersionString(maxExclusive),
