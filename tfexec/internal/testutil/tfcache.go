@@ -41,7 +41,7 @@ const (
 	Latest_v1_15       = "1.15.8"
 	Latest_v1_16       = "1.16.0"
 
-	Latest_v1 = "1.16.1"
+	Latest_v1 = "1.15.8"
 )
 
 const appendUserAgent = "tfexec-testutil"
