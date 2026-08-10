@@ -248,3 +248,36 @@ func TestPlanCmd_AllowDeferral(t *testing.T) {
 		}, nil, planCmd)
 	})
 }
+
+func TestPlanCmd_Invoke(t *testing.T) {
+	td := t.TempDir()
+
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest_v1))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// empty env, to avoid environ mismatch in testing
+	tf.SetEnv(map[string]string{})
+
+	t.Run("invoke an action", func(t *testing.T) {
+		planCmd, err := tf.planCmd(context.Background(),
+			Invoke("action.aws_lambda_invoke.example"),
+		)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assertCmd(t, []string{
+			"plan",
+			"-no-color",
+			"-input=false",
+			"-detailed-exitcode",
+			"-lock-timeout=0s",
+			"-lock=true",
+			"-parallelism=10",
+			"-refresh=true",
+			"-invoke=action.aws_lambda_invoke.example",
+		}, nil, planCmd)
+	})
+}
