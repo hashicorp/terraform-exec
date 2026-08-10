@@ -89,6 +89,26 @@ func TestApplyCmd(t *testing.T) {
 			"-refresh-only",
 		}, nil, applyCmd)
 	})
+
+	t.Run("invoke an action", func(t *testing.T) {
+		applyCmd, err := tf.applyCmd(context.Background(),
+			Invoke("action.aws_lambda_invoke.example"),
+		)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assertCmd(t, []string{
+			"apply",
+			"-no-color",
+			"-auto-approve",
+			"-input=false",
+			"-lock=true",
+			"-parallelism=10",
+			"-refresh=true",
+			"-invoke=action.aws_lambda_invoke.example",
+		}, nil, applyCmd)
+	})
 }
 
 func TestApplyJSONCmd(t *testing.T) {

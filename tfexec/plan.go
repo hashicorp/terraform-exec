@@ -28,6 +28,7 @@ type planConfig struct {
 	targets           []string
 	vars              []string
 	varFiles          []string
+	invoke            string
 }
 
 var defaultPlanOptions = planConfig{
@@ -105,6 +106,10 @@ func (opt *AllowDeferralOption) configurePlan(conf *planConfig) {
 
 func (opt *GenerateConfigOutOption) configurePlan(conf *planConfig) {
 	conf.generateConfigOut = opt.path
+}
+
+func (opt *InvokeOption) configurePlan(conf *planConfig) {
+	conf.invoke = opt.address
 }
 
 // Plan executes `terraform plan` with the specified options and waits for it
@@ -274,6 +279,15 @@ func (tf *Terraform) buildPlanArgs(ctx context.Context, c planConfig) ([]string,
 		}
 
 		args = append(args, "-allow-deferral")
+	}
+
+	// string opts: only pass if set
+	if c.invoke != "" {
+		err := tf.compatible(ctx, tf1_14_0, nil)
+		if err != nil {
+			return nil, fmt.Errorf("-invoke option was introduced in Terraform 1.14.0: %w", err)
+		}
+		args = append(args, "-invoke="+c.invoke)
 	}
 
 	return args, nil

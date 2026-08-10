@@ -476,3 +476,17 @@ type LockFileOption struct {
 func LockFile(useLockFile bool) *LockFileOption {
 	return &LockFileOption{useLockFile: useLockFile}
 }
+
+// InvokeOption represents the -invoke flag.
+type InvokeOption struct {
+	address string
+}
+
+// Invoke represents the -invoke flag, used to invoke a specific Terraform
+// action. The address must be in the form action.<action type>.<label>, for
+// example action.aws_lambda_invoke.example.
+//
+// The -invoke flag was introduced in Terraform 1.14.0.
+func Invoke(address string) *InvokeOption {
+	return &InvokeOption{address}
+}

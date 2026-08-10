@@ -32,6 +32,8 @@ type applyConfig struct {
 	// Vars: each var must be supplied as a single string, e.g. 'foo=bar'
 	vars     []string
 	varFiles []string
+
+	invoke string
 }
 
 var defaultApplyOptions = applyConfig{
@@ -108,6 +110,10 @@ func (opt *DestroyFlagOption) configureApply(conf *applyConfig) {
 
 func (opt *AllowDeferralOption) configureApply(conf *applyConfig) {
 	conf.allowDeferral = opt.allowDeferral
+}
+
+func (opt *InvokeOption) configureApply(conf *applyConfig) {
+	conf.invoke = opt.address
 }
 
 // Apply represents the terraform apply subcommand.
@@ -251,6 +257,15 @@ func (tf *Terraform) buildApplyArgs(ctx context.Context, c applyConfig) ([]strin
 		}
 
 		args = append(args, "-allow-deferral")
+	}
+
+	// string opts: only pass if set
+	if c.invoke != "" {
+		err := tf.compatible(ctx, tf1_14_0, nil)
+		if err != nil {
+			return nil, fmt.Errorf("-invoke option was introduced in Terraform 1.14.0: %w", err)
+		}
+		args = append(args, "-invoke="+c.invoke)
 	}
 
 	return args, nil

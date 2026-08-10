@@ -1,3 +1,9 @@
+# UNRELEASED
+
+ENHANCEMENTS:
+
+- tfexec: Add support for the `-invoke` flag to the `(Terraform).Apply()` and `(Terraform).Plan()` methods, enabling invocation of Terraform actions (introduced in Terraform 1.14.0)
+
 # 0.25.2 (April 29, 2026)
 
 NOTES:
