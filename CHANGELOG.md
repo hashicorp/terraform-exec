@@ -1,3 +1,13 @@
+# 0.25.3 (Unreleased)
+
+DEPENDENCIES:
+
+* build(deps): bump github.com/go-git/go-billy/v5 from 5.8.0 to 5.9.0 ([#589](https://github.com/hashicorp/terraform-exec/pull/589))
+* build(deps): bump github.com/go-git/go-git/v5 from 5.18.0 to 5.19.2 ([#588](https://github.com/hashicorp/terraform-exec/pull/588), [#591](https://github.com/hashicorp/terraform-exec/pull/591), [#604](https://github.com/hashicorp/terraform-exec/pull/604))
+* build(deps): bump github.com/hashicorp/terraform-json from 0.27.2 to 0.28.0 ([#598](https://github.com/hashicorp/terraform-exec/pull/598))
+* build(deps): bump golang.org/x/crypto from 0.51.0 to 0.52.0 ([#597](https://github.com/hashicorp/terraform-exec/pull/597))
+* build(deps): bump golang.org/x/net from 0.53.0 to 0.55.0 ([#595](https://github.com/hashicorp/terraform-exec/pull/595))
+
 # 0.25.2 (April 29, 2026)
 
 NOTES:
