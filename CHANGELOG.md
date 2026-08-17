@@ -1,4 +1,4 @@
-# 0.25.3 (Unreleased)
+# 0.25.3 (August 17, 2026)
 
 DEPENDENCIES:
 
