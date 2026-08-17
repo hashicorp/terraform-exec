@@ -6,7 +6,6 @@ package e2etest
 import (
 	"context"
 	"io"
-	"io/ioutil"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -163,7 +162,7 @@ resource "foo" "bar" {
 			t.Fatal(err)
 		}
 
-		actual, err := ioutil.ReadAll(outR)
+		actual, err := io.ReadAll(outR)
 		if err != nil {
 			t.Fatal(err)
 		}
