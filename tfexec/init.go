@@ -19,6 +19,7 @@ type initConfig struct {
 	get           bool
 	getPlugins    bool
 	lock          bool
+	lockFileMode  string
 	lockTimeout   string
 	pluginDir     []string
 	reattachInfo  ReattachInfo
@@ -76,6 +77,10 @@ func (opt *LockOption) configureInit(conf *initConfig) {
 	conf.lock = opt.lock
 }
 
+func (opt *LockFileModeOption) configureInit(conf *initConfig) {
+	conf.lockFileMode = opt.mode
+}
+
 func (opt *LockTimeoutOption) configureInit(conf *initConfig) {
 	conf.lockTimeout = opt.timeout
 }
@@ -107,6 +112,11 @@ func (tf *Terraform) configureInitOptions(ctx context.Context, c *initConfig, op
 			err := tf.compatible(ctx, nil, tf0_15_0)
 			if err != nil {
 				return fmt.Errorf("-lock, -lock-timeout, -verify-plugins, and -get-plugins options are no longer available as of Terraform 0.15: %w", err)
+			}
+		case *LockFileModeOption:
+			err := tf.compatible(ctx, tf0_15_0, nil)
+			if err != nil {
+				return fmt.Errorf("terraform init -lockfile was added in 0.15.0: %w", err)
 			}
 		}
 
@@ -194,6 +204,9 @@ func (tf *Terraform) buildInitArgs(ctx context.Context, c initConfig) ([]string,
 	// string opts: only pass if set
 	if c.fromModule != "" {
 		args = append(args, "-from-module="+c.fromModule)
+	}
+	if c.lockFileMode != "" {
+		args = append(args, "-lockfile="+c.lockFileMode)
 	}
 
 	// string opts removed in 0.15: pass if set and <0.15

@@ -476,3 +476,14 @@ type LockFileOption struct {
 func LockFile(useLockFile bool) *LockFileOption {
 	return &LockFileOption{useLockFile: useLockFile}
 }
+
+// LockFileModeOption represents the -lockfile flag for terraform init.
+type LockFileModeOption struct {
+	mode string
+}
+
+// LockFileMode sets the dependency lock file mode for terraform init.
+// Terraform currently accepts only "readonly", which conflicts with Upgrade(true).
+func LockFileMode(mode string) *LockFileModeOption {
+	return &LockFileModeOption{mode: mode}
+}

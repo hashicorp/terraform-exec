@@ -15,11 +15,22 @@ import (
 	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
 )
 
+var initLockFileModeMinVersion = version.Must(version.NewVersion("0.15.0"))
+
 func TestInit(t *testing.T) {
 	runTest(t, "basic", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		err := tf.Init(context.Background())
 		if err != nil {
 			t.Fatalf("error running Init in test directory: %s", err)
+		}
+
+		if tfv.LessThan(initLockFileModeMinVersion) {
+			return
+		}
+
+		err = tf.Init(context.Background(), tfexec.LockFileMode("readonly"))
+		if err != nil {
+			t.Fatalf("error running Init with a read-only lock file: %s", err)
 		}
 	})
 }
