@@ -1,3 +1,8 @@
+# 0.27.0 (Unreleased)
+
+ENHANCEMENTS:
+- tfexec: Add `-minimal-refresh` to `(Terraform).Plan()` method ([#607](https://github.com/hashicorp/terraform-exec/pull/607))
+
 # 0.26.0 (October 30, 2026)
 
 NOTES:
