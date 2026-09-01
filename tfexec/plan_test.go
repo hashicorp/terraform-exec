@@ -5,6 +5,7 @@ package tfexec
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
@@ -246,5 +247,89 @@ func TestPlanCmd_AllowDeferral(t *testing.T) {
 			"-refresh=true",
 			"-allow-deferral",
 		}, nil, planCmd)
+	})
+}
+
+func TestPlanCmd_MinimalRefresh(t *testing.T) {
+	td := t.TempDir()
+
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest_v1_17))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// empty env, to avoid environ mismatch in testing
+	tf.SetEnv(map[string]string{})
+
+	t.Run("minimal-refresh plan", func(t *testing.T) {
+		planCmd, err := tf.planCmd(context.Background(), MinimalRefresh(true))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assertCmd(t, []string{
+			"plan",
+			"-no-color",
+			"-input=false",
+			"-detailed-exitcode",
+			"-lock-timeout=0s",
+			"-lock=true",
+			"-parallelism=10",
+			"-refresh=true",
+			"-minimal-refresh",
+		}, nil, planCmd)
+	})
+
+	t.Run("minimal-refresh unsupported version", func(t *testing.T) {
+		tf, err := NewTerraform(td, tfVersion(t, "1.16.0"))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		_, err = tf.planCmd(context.Background(), MinimalRefresh(true))
+		if err == nil {
+			t.Fatal("expected an error but received none")
+		}
+
+		expectedErr := "minimal-refresh option was introduced in Terraform 1.17.0"
+		if !strings.Contains(err.Error(), expectedErr) {
+			t.Fatalf("expected error to contain %q, got: %q", expectedErr, err)
+		}
+	})
+
+	t.Run("minimal-refresh and refresh=false returns an error", func(t *testing.T) {
+		_, err := tf.planCmd(context.Background(), Refresh(false), MinimalRefresh(true))
+		if err == nil {
+			t.Fatal("expected an error but received none")
+		}
+
+		expectedErr := "cannot use refresh=false with mimimal-refresh"
+		if !strings.Contains(err.Error(), expectedErr) {
+			t.Fatalf("expected error to contain %q, got: %q", expectedErr, err)
+		}
+	})
+
+	t.Run("minimal-refresh and refresh-only returns an error", func(t *testing.T) {
+		_, err := tf.planCmd(context.Background(), RefreshOnly(true), MinimalRefresh(true))
+		if err == nil {
+			t.Fatal("expected an error but received none")
+		}
+
+		expectedErr := "cannot use refresh-only with mimimal-refresh"
+		if !strings.Contains(err.Error(), expectedErr) {
+			t.Fatalf("expected error to contain %q, got: %q", expectedErr, err)
+		}
+	})
+
+	t.Run("minimal-refresh and destroy returns an error", func(t *testing.T) {
+		_, err := tf.planCmd(context.Background(), Destroy(true), MinimalRefresh(true))
+		if err == nil {
+			t.Fatal("expected an error but received none")
+		}
+
+		expectedErr := "cannot use destroy with mimimal-refresh"
+		if !strings.Contains(err.Error(), expectedErr) {
+			t.Fatalf("expected error to contain %q, got: %q", expectedErr, err)
+		}
 	})
 }
