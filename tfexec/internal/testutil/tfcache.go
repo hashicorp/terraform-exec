@@ -38,6 +38,7 @@ const (
 	Latest_v1_11       = "1.11.4"
 	Latest_v1_12       = "1.12.2"
 	Latest_Alpha_v1_14 = "1.14.0-alpha20250903"
+	Latest_v1_17       = "1.17.0-alpha20260827"
 
 	Latest_v1 = "1.14.0"
 )
