@@ -22,7 +22,6 @@ var (
 	tf0_6_13 = version.Must(version.NewVersion("0.6.13"))
 	tf0_7_7  = version.Must(version.NewVersion("0.7.7"))
 	tf0_8_0  = version.Must(version.NewVersion("0.8.0"))
-	tf0_9_2  = version.Must(version.NewVersion("0.9.2"))
 	tf0_10_0 = version.Must(version.NewVersion("0.10.0"))
 	tf0_12_0 = version.Must(version.NewVersion("0.12.0"))
 	tf0_13_0 = version.Must(version.NewVersion("0.13.0"))
@@ -31,14 +30,13 @@ var (
 	tf0_15_2 = version.Must(version.NewVersion("0.15.2"))
 	tf0_15_3 = version.Must(version.NewVersion("0.15.3"))
 	tf0_15_4 = version.Must(version.NewVersion("0.15.4"))
-	tf1_1_0  = version.Must(version.NewVersion("1.1.0"))
 	tf1_4_0  = version.Must(version.NewVersion("1.4.0"))
 	tf1_5_0  = version.Must(version.NewVersion("1.5.0"))
 	tf1_6_0  = version.Must(version.NewVersion("1.6.0"))
 	tf1_9_0  = version.Must(version.NewVersion("1.9.0"))
 	tf1_10_0 = version.Must(version.NewVersion("1.10.0"))
-	tf1_13_0 = version.Must(version.NewVersion("1.13.0"))
 	tf1_14_0 = version.Must(version.NewVersion("1.14.0"))
+	tf1_17_0 = version.Must(version.NewVersion("1.17.0"))
 )
 
 // Version returns structured output from the terraform version command including both the Terraform CLI version
