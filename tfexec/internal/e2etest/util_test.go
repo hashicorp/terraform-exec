@@ -29,6 +29,10 @@ var (
 	providerAddressMinVersion = version.Must(version.NewVersion("0.13.0"))
 
 	metadataFunctionsMinVersion = version.Must(version.NewVersion("1.4.0"))
+
+	// TODO: Confirm how complete the implementation of that command actually is in this version
+	// it might be enough for the purpose of the E2E test
+	stateMigrateMinVersion = version.Must(version.NewVersion("1.16.0"))
 )
 
 func runTest(t *testing.T, fixtureName string, cb func(t *testing.T, tfVersion *version.Version, tf *tfexec.Terraform)) {
