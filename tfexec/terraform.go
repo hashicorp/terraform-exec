@@ -53,6 +53,7 @@ type Terraform struct {
 	disablePluginTLS   bool
 	skipProviderVerify bool
 	env                map[string]string
+	hideWindow         bool
 
 	stdout io.Writer
 	stderr io.Writer
@@ -123,6 +124,13 @@ func (tf *Terraform) SetEnv(env map[string]string) error {
 
 	tf.env = env
 	return nil
+}
+
+// SetHideWindow controls whether Terraform command windows are hidden on Windows.
+// It is disabled by default and has no effect on other operating systems.
+// Set this before running commands when embedding Terraform in a Windows GUI app.
+func (tf *Terraform) SetHideWindow(hide bool) {
+	tf.hideWindow = hide
 }
 
 // SetLogger specifies a logger for tfexec to use.
