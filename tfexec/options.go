@@ -247,6 +247,17 @@ func NetMirror(netMirror string) *NetMirrorOption {
 	return &NetMirrorOption{netMirror}
 }
 
+// OrCreateOption controls whether WorkspaceSelect creates a missing workspace.
+type OrCreateOption struct {
+	orCreate bool
+}
+
+// OrCreate represents the -or-create option to workspace select.
+// Enabling it requires Terraform 1.4 or later.
+func OrCreate(orCreate bool) *OrCreateOption {
+	return &OrCreateOption{orCreate}
+}
+
 type OutOption struct {
 	path string
 }

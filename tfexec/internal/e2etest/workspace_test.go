@@ -162,3 +162,26 @@ func assertWorkspaceShow(t *testing.T, tf *tfexec.Terraform, expectedWorkspace s
 		t.Fatalf("expected %q workspace, got %q workspace", expectedWorkspace, actualWorkspace)
 	}
 }
+
+func TestWorkspace_select_or_create(t *testing.T) {
+	runTest(t, "basic", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		if tfv.LessThan(version.Must(version.NewVersion("1.4.0"))) {
+			t.Skip("-or-create requires Terraform 1.4 or later")
+		}
+		ctx := context.Background()
+		const workspace = "select-or-create"
+		if err := tf.WorkspaceSelect(ctx, workspace, tfexec.OrCreate(false)); err == nil {
+			t.Fatal("disabled OrCreate should not create a missing workspace")
+		}
+		for i := 0; i < 2; i++ {
+			if err := tf.WorkspaceSelect(ctx, workspace, tfexec.OrCreate(true)); err != nil {
+				t.Fatalf("unable to select or create workspace: %s", err)
+			}
+			assertWorkspaceShow(t, tf, workspace)
+			assertWorkspaceList(t, tf, workspace, workspace)
+			if err := tf.WorkspaceSelect(ctx, defaultWorkspace); err != nil {
+				t.Fatal(err)
+			}
+		}
+	})
+}

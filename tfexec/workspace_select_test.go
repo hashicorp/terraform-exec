@@ -5,6 +5,7 @@ package tfexec
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
@@ -57,4 +58,44 @@ func TestWorkspaceSelectCmd(t *testing.T) {
 			"TF_REATTACH_PROVIDERS": `{"registry.terraform.io/hashicorp/examplecloud":{"Protocol":"grpc","ProtocolVersion":6,"Pid":1234,"Test":true,"Addr":{"Network":"unix","String":"/fake_folder/T/plugin123"}}}`,
 		}, workspaceSelectCmd)
 	})
+}
+
+func TestWorkspaceSelectOrCreate(t *testing.T) {
+	for _, tc := range []struct {
+		name      string
+		version   string
+		enabled   bool
+		wantError bool
+	}{
+		{"enabled", "1.4.0", true, false},
+		{"disabled", "1.4.0", false, false},
+		{"unsupported", "1.3.9", true, true},
+		{"disabled on older version", "1.3.9", false, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			tf, err := NewTerraform(t.TempDir(), "terraform")
+			if err != nil {
+				t.Fatal(err)
+			}
+			tf.execVersion = mustVersion(t, tc.version)
+			tf.SetEnv(map[string]string{})
+			cmd, err := tf.workspaceSelectCmd(context.Background(), "workspace-name", OrCreate(tc.enabled))
+			if tc.wantError {
+				var mismatch *ErrVersionMismatch
+				if !errors.As(err, &mismatch) {
+					t.Fatalf("expected version mismatch, got %v", err)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			args := []string{"workspace", "select", "-no-color"}
+			if tc.enabled {
+				args = append(args, "-or-create")
+			}
+			args = append(args, "workspace-name")
+			assertCmd(t, args, nil, cmd)
+		})
+	}
 }
