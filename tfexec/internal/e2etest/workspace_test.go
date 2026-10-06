@@ -5,15 +5,39 @@ package e2etest
 
 import (
 	"context"
+	"io"
 	"reflect"
 	"testing"
 
 	"github.com/hashicorp/go-version"
+	tfjson "github.com/hashicorp/terraform-json"
 
 	"github.com/hashicorp/terraform-exec/tfexec"
+	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
 )
 
 const defaultWorkspace = "default"
+
+func makeWorkspaceListOutput(current string, workspaces ...string) tfjson.WorkspaceListOutput {
+	output := tfjson.WorkspaceListOutput{
+		FormatVersion: "1.0",
+		Diagnostics:   []tfjson.Diagnostic{},
+	}
+
+	// Allow empty results
+	if current == "" {
+		return output
+	}
+
+	for _, ws := range workspaces {
+		entry := tfjson.WorkspaceListEntry{
+			Name:      ws,
+			IsCurrent: ws == current,
+		}
+		output.Workspaces = append(output.Workspaces, entry)
+	}
+	return output
+}
 
 func TestWorkspace_default_only(t *testing.T) {
 	runTest(t, "basic", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
@@ -139,6 +163,22 @@ func TestWorkspace_deletion(t *testing.T) {
 	})
 }
 
+func TestWorkspace_listJSON(t *testing.T) {
+	runTestWithVersions(t, []string{testutil.Latest_v1_16}, "basic", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		// When using the local backend, the default workspace always exists initially.
+		assertWorkspaceListJSON(t, tf, makeWorkspaceListOutput("default", "default"))
+
+		// Create a workspace
+		newWorkspace := "new-workspace"
+		err := tf.WorkspaceNew(context.Background(), newWorkspace)
+		if err != nil {
+			t.Fatalf("got error creating new workspace: %s", err)
+		}
+
+		assertWorkspaceListJSON(t, tf, makeWorkspaceListOutput(newWorkspace, "default", newWorkspace))
+	})
+}
+
 func assertWorkspaceList(t *testing.T, tf *tfexec.Terraform, expectedCurrent string, expectedWorkspaces ...string) {
 	actualWorkspaces, actualCurrent, err := tf.WorkspaceList(context.Background())
 	if err != nil {
@@ -150,6 +190,30 @@ func assertWorkspaceList(t *testing.T, tf *tfexec.Terraform, expectedCurrent str
 	expectedWorkspaces = append([]string{defaultWorkspace}, expectedWorkspaces...)
 	if !reflect.DeepEqual(actualWorkspaces, expectedWorkspaces) {
 		t.Fatalf("expected %#v, got %#v", actualWorkspaces, expectedWorkspaces)
+	}
+}
+
+func assertWorkspaceListJSON(t *testing.T, tf *tfexec.Terraform, expected tfjson.WorkspaceListOutput) {
+	w := io.Discard
+	output, err := tf.WorkspaceListJSON(context.Background(), w)
+	if err != nil {
+		t.Fatalf("got error querying workspace list: %s", err)
+	}
+	expectedCurrent := expected.CurrentWorkspace()
+	if expectedCurrent == nil && output != nil {
+		t.Fatalf("expected no current workspace, got %q", output.CurrentWorkspace().Name)
+	}
+	if expectedCurrent != nil {
+		if output == nil {
+			t.Fatalf("expected current workspace %q, got none", expectedCurrent.Name)
+		}
+		if output.CurrentWorkspace().Name != expectedCurrent.Name {
+			t.Fatalf("expected %q workspace to be selected, got %q", expectedCurrent.Name, output.CurrentWorkspace().Name)
+		}
+	}
+
+	if !reflect.DeepEqual(*output, expected) {
+		t.Fatalf("expected %#v, got %#v", expected, *output)
 	}
 }
 
