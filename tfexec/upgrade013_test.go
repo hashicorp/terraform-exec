@@ -59,6 +59,7 @@ func TestUpgrade013(t *testing.T) {
 			"0.13upgrade",
 			"-no-color",
 			"-yes",
+			"--",
 			"upgrade013dir",
 		}, nil, upgrade013Cmd)
 	})

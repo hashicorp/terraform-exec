@@ -282,7 +282,7 @@ func (tf *Terraform) buildPlanArgs(ctx context.Context, c planConfig) ([]string,
 func (tf *Terraform) buildPlanCmd(ctx context.Context, c planConfig, args []string) (*exec.Cmd, error) {
 	// optional positional argument
 	if c.dir != "" {
-		args = append(args, c.dir)
+		args = append(args, "--", c.dir)
 	}
 
 	mergeEnv := map[string]string{}

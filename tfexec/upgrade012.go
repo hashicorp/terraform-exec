@@ -67,7 +67,7 @@ func (tf *Terraform) upgrade012Cmd(ctx context.Context, opts ...Upgrade012Option
 
 	// optional positional argument
 	if c.dir != "" {
-		args = append(args, c.dir)
+		args = append(args, "--", c.dir)
 	}
 
 	mergeEnv := map[string]string{}

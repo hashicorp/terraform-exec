@@ -75,7 +75,7 @@ func (tf *Terraform) taintCmd(ctx context.Context, address string, opts ...Taint
 	if c.allowMissing {
 		args = append(args, "-allow-missing")
 	}
-	args = append(args, address)
+	args = append(args, "--", address)
 
 	return tf.buildTerraformCmd(ctx, nil, args...)
 }
