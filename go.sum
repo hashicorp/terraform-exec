@@ -51,8 +51,8 @@ github.com/hashicorp/go-version v1.9.0 h1:CeOIz6k+LoN3qX9Z0tyQrPtiB1DFYRPfCIBtaX
 github.com/hashicorp/go-version v1.9.0/go.mod h1:fltr4n8CU8Ke44wwGCBoEymUuxUHl09ZGVZPK5anwXA=
 github.com/hashicorp/hc-install v0.10.0 h1:uIxUzTXNIm3O36cERJZikxUwbCacDUOhjZ9UKpm3oCQ=
 github.com/hashicorp/hc-install v0.10.0/go.mod h1:5kfh7dISJeGaGA1OuETooZsk6p9LVctKt3Hq5RM6oMU=
-github.com/hashicorp/terraform-json v0.28.0 h1:dOkJT55rWfU6T1/VklHde51ym4LfNP+9xYR3ZizAJe4=
-github.com/hashicorp/terraform-json v0.28.0/go.mod h1:PJIRf+Yzu5iLb52c/xYp1tUOL4jzMzfIAB5gvWWKIWE=
+github.com/hashicorp/terraform-json v0.29.0 h1:ZggVL0YzGj5zdbafX4+rDcROM7EvVU0eXlIMkHieptI=
+github.com/hashicorp/terraform-json v0.29.0/go.mod h1:PJIRf+Yzu5iLb52c/xYp1tUOL4jzMzfIAB5gvWWKIWE=
 github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 h1:BQSFePA1RWJOlocH6Fxy8MmwDt+yVQYULKfN0RoTN8A=
 github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99/go.mod h1:1lJo3i6rXxKeerYnT8Nvf0QmHCRC1n8sfWVwXF2Frvo=
 github.com/kevinburke/ssh_config v1.2.0 h1:x584FjTGwHzMwvHx18PXxbBVzfnxogHaAReU4gf13a4=
