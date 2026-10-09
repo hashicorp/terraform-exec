@@ -188,7 +188,7 @@ func (tf *Terraform) buildDestroyArgs(c destroyConfig) []string {
 func (tf *Terraform) buildDestroyCmd(ctx context.Context, c destroyConfig, args []string) (*exec.Cmd, error) {
 	// optional positional argument
 	if c.dir != "" {
-		args = append(args, c.dir)
+		args = append(args, "--", c.dir)
 	}
 
 	mergeEnv := map[string]string{}

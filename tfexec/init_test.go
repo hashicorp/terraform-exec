@@ -88,6 +88,7 @@ func TestInitCmd_v012(t *testing.T) {
 			"-backend-config=confpath2",
 			"-plugin-dir=testdir1",
 			"-plugin-dir=testdir2",
+			"--",
 			"initdir",
 		}, nil, initCmd)
 	})
@@ -154,6 +155,7 @@ func TestInitCmd_v1(t *testing.T) {
 			"-backend-config=confpath2",
 			"-plugin-dir=testdir1",
 			"-plugin-dir=testdir2",
+			"--",
 			"initdir",
 		}, nil, initCmd)
 	})
@@ -222,6 +224,7 @@ func TestInitJSONCmd(t *testing.T) {
 			"-plugin-dir=testdir1",
 			"-plugin-dir=testdir2",
 			"-json",
+			"--",
 			"initdir",
 		}, nil, initCmd)
 	})

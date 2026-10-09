@@ -42,9 +42,10 @@ func TestGraphCmd_v013(t *testing.T) {
 
 		assertCmd(t, []string{
 			"graph",
-			"teststate",
 			"-draw-cycles",
 			"-type=output",
+			"--",
+			"teststate",
 		}, nil, graphCmd)
 	})
 }

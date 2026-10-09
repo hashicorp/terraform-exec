@@ -171,7 +171,7 @@ func (tf *Terraform) buildRefreshArgs(c refreshConfig) []string {
 func (tf *Terraform) buildRefreshCmd(ctx context.Context, c refreshConfig, args []string) (*exec.Cmd, error) {
 	// optional positional argument
 	if c.dir != "" {
-		args = append(args, c.dir)
+		args = append(args, "--", c.dir)
 	}
 
 	mergeEnv := map[string]string{}

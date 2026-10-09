@@ -213,7 +213,10 @@ func (tf *Terraform) showCmd(ctx context.Context, jsonOutput bool, mergeEnv map[
 		allArgs = append(allArgs, "-json")
 	}
 	allArgs = append(allArgs, "-no-color")
-	allArgs = append(allArgs, args...)
+	if len(args) != 0 {
+		allArgs = append(allArgs, "--") // to prevent subsequent arguments from being interpreted as options
+		allArgs = append(allArgs, args...)
+	}
 
 	return tf.buildTerraformCmd(ctx, mergeEnv, allArgs...)
 }

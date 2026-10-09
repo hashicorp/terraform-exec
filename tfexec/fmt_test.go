@@ -53,6 +53,7 @@ func TestFormatCmd(t *testing.T) {
 			"string1",
 			"string2",
 			"-recursive",
+			"--",
 			"mydir",
 		}, nil, fmtCmd)
 	})

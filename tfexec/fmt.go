@@ -155,7 +155,7 @@ func (tf *Terraform) formatCmd(ctx context.Context, args []string, opts ...Forma
 	}
 
 	if c.dir != "" {
-		args = append(args, c.dir)
+		args = append(args, "--", c.dir)
 	}
 
 	return tf.buildTerraformCmd(ctx, nil, args...), nil
