@@ -5,8 +5,11 @@ package tfexec
 
 import (
 	"context"
+	"fmt"
 	"os/exec"
 	"strings"
+
+	tfjson "github.com/hashicorp/terraform-json"
 )
 
 type workspaceListConfig struct {
@@ -38,12 +41,11 @@ func (tf *Terraform) WorkspaceList(ctx context.Context, opts ...WorkspaceListOpt
 		return nil, "", err
 	}
 
-	ws, current := parseWorkspaceList(outBuf.String())
+	// Parse human output into a list of workspaces and the current workspace
+	ws, current := parseWorkspaceListHumanOutput(outBuf.String())
 
 	return ws, current, nil
 }
-
-const currentWorkspacePrefix = "* "
 
 func (tf *Terraform) workspaceListCmd(ctx context.Context, opts ...WorkspaceListOption) (*exec.Cmd, error) {
 	c := defaultWorkspaceListOptions
@@ -52,19 +54,15 @@ func (tf *Terraform) workspaceListCmd(ctx context.Context, opts ...WorkspaceList
 		o.configureWorkspaceList(&c)
 	}
 
-	mergeEnv := map[string]string{}
-	if c.reattachInfo != nil {
-		reattachStr, err := c.reattachInfo.marshalString()
-		if err != nil {
-			return nil, err
-		}
-		mergeEnv[reattachEnvVar] = reattachStr
-	}
-
-	return tf.buildTerraformCmd(ctx, mergeEnv, "workspace", "list", "-no-color"), nil
+	args := []string{"workspace", "list", "-no-color"}
+	return tf.buildWorkspaceListCmd(ctx, c, args)
 }
 
-func parseWorkspaceList(stdout string) ([]string, string) {
+// parseWorkspaceListHumanOutput parses human output from the workspace list command
+// to return a slice of workspace names and the current workspace name
+func parseWorkspaceListHumanOutput(stdout string) ([]string, string) {
+	var currentWorkspacePrefix string = "* "
+
 	lines := strings.Split(stdout, "\n")
 
 	current := ""
@@ -82,4 +80,62 @@ func parseWorkspaceList(stdout string) ([]string, string) {
 	}
 
 	return workspaces, current
+}
+
+// WorkspaceListJSON represents the terraform workspace list subcommand with the `-json` flag.
+//
+// WorkspaceListJSON is likely to be removed in a future major version, in favour of
+// WorkspaceList handling JSON by default instead of human output.
+func (tf *Terraform) WorkspaceListJSON(ctx context.Context, opts ...WorkspaceListOption) (*tfjson.WorkspaceListOutput, error) {
+	err := tf.compatible(ctx, tf1_16_0, nil)
+	if err != nil {
+		return nil, fmt.Errorf("terraform workspace list -json was added in 1.16.0: %w", err)
+	}
+
+	cmd, err := tf.workspaceListJSONCmd(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	var output tfjson.WorkspaceListOutput
+
+	err = tf.runTerraformCmdJSON(ctx, cmd, &output)
+	if err != nil {
+		return nil, err
+	}
+
+	return &output, nil
+}
+
+func (tf *Terraform) workspaceListJSONCmd(ctx context.Context, opts ...WorkspaceListOption) (*exec.Cmd, error) {
+	c := defaultWorkspaceListOptions
+
+	for _, o := range opts {
+		o.configureWorkspaceList(&c)
+	}
+
+	mergeEnv := map[string]string{}
+	if c.reattachInfo != nil {
+		reattachStr, err := c.reattachInfo.marshalString()
+		if err != nil {
+			return nil, err
+		}
+		mergeEnv[reattachEnvVar] = reattachStr
+	}
+
+	args := []string{"workspace", "list", "-json"}
+	return tf.buildWorkspaceListCmd(ctx, c, args)
+}
+
+func (tf *Terraform) buildWorkspaceListCmd(ctx context.Context, c workspaceListConfig, args []string) (*exec.Cmd, error) {
+	mergeEnv := map[string]string{}
+	if c.reattachInfo != nil {
+		reattachStr, err := c.reattachInfo.marshalString()
+		if err != nil {
+			return nil, err
+		}
+		mergeEnv[reattachEnvVar] = reattachStr
+	}
+
+	return tf.buildTerraformCmd(ctx, mergeEnv, args...), nil
 }
