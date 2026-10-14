@@ -91,6 +91,13 @@ func TestInitCmd_v012(t *testing.T) {
 			"initdir",
 		}, nil, initCmd)
 	})
+
+	t.Run("lock file mode unsupported", func(t *testing.T) {
+		_, err := tf.initCmd(context.Background(), LockFileMode("readonly"))
+		if err == nil {
+			t.Fatal("expected an error for -lockfile with Terraform 0.12")
+		}
+	})
 }
 
 func TestInitCmd_v1(t *testing.T) {
@@ -125,6 +132,7 @@ func TestInitCmd_v1(t *testing.T) {
 		initCmd, err := tf.initCmd(
 			context.Background(),
 			FromModule("testsource"),
+			LockFileMode("readonly"),
 			Backend(false),
 			Get(false),
 			Upgrade(true),
@@ -145,6 +153,7 @@ func TestInitCmd_v1(t *testing.T) {
 			"-no-color",
 			"-input=false",
 			"-from-module=testsource",
+			"-lockfile=readonly",
 			"-backend=false",
 			"-get=false",
 			"-upgrade=true",
@@ -192,6 +201,7 @@ func TestInitJSONCmd(t *testing.T) {
 		initCmd, err := tf.initJSONCmd(
 			context.Background(),
 			FromModule("testsource"),
+			LockFileMode("readonly"),
 			Backend(false),
 			Get(false),
 			Upgrade(true),
@@ -212,6 +222,7 @@ func TestInitJSONCmd(t *testing.T) {
 			"-no-color",
 			"-input=false",
 			"-from-module=testsource",
+			"-lockfile=readonly",
 			"-backend=false",
 			"-get=false",
 			"-upgrade=true",
