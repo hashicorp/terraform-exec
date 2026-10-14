@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"hash/crc32"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -67,7 +66,7 @@ func runTest(t *testing.T, fixtureName string, cb func(t *testing.T, tfVersion *
 		// prevents any possible confusion that could result from
 		// reusing an os.TempDir() (for example) that already contained
 		// Terraform files.
-		td, err := ioutil.TempDir("", "tf")
+		td, err := os.MkdirTemp("", "tf")
 		if err != nil {
 			t.Fatalf("error creating temporary test directory: %s", err)
 		}
@@ -113,7 +112,7 @@ func runTestWithVersions(t *testing.T, versions []string, fixtureName string, cb
 			}
 			alreadyRunVersions[tfv] = true
 
-			td, err := ioutil.TempDir("", "tf")
+			td, err := os.MkdirTemp("", "tf")
 			if err != nil {
 				t.Fatalf("error creating temporary test directory: %s", err)
 			}
@@ -190,7 +189,7 @@ func (t *testingPrintfer) Printf(format string, v ...interface{}) {
 }
 
 func copyFiles(path string, dstPath string) error {
-	infos, err := ioutil.ReadDir(path)
+	infos, err := os.ReadDir(path)
 	if err != nil {
 		return err
 	}
@@ -199,7 +198,7 @@ func copyFiles(path string, dstPath string) error {
 		srcPath := filepath.Join(path, info.Name())
 		if info.IsDir() {
 			newDir := filepath.Join(dstPath, info.Name())
-			err = os.MkdirAll(newDir, info.Mode())
+			err = os.MkdirAll(newDir, info.Type())
 			if err != nil {
 				return err
 			}
@@ -249,12 +248,12 @@ func copyFile(path string, dstPath string) error {
 
 // filesEqual asserts that two files have the same contents.
 func textFilesEqual(t *testing.T, expected, actual string) {
-	eb, err := ioutil.ReadFile(expected)
+	eb, err := os.ReadFile(expected)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	ab, err := ioutil.ReadFile(actual)
+	ab, err := os.ReadFile(actual)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -271,7 +270,7 @@ func textFilesEqual(t *testing.T, expected, actual string) {
 }
 
 func checkSum(t *testing.T, filename string) uint32 {
-	b, err := ioutil.ReadFile(filename)
+	b, err := os.ReadFile(filename)
 	if err != nil {
 		t.Fatal(err)
 	}

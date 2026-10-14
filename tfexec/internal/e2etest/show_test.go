@@ -7,7 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -622,7 +622,7 @@ func TestShowPlanFileRaw012_linux(t *testing.T) {
 			t.Fatal(err)
 		}
 		defer f.Close()
-		expected, err := ioutil.ReadAll(f)
+		expected, err := io.ReadAll(f)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -650,7 +650,7 @@ func TestShowPlanFileRaw013(t *testing.T) {
 			t.Fatal(err)
 		}
 		defer f.Close()
-		expected, err := ioutil.ReadAll(f)
+		expected, err := io.ReadAll(f)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -678,7 +678,7 @@ func TestShowPlanFileRaw014(t *testing.T) {
 			t.Fatal(err)
 		}
 		defer f.Close()
-		expected, err := ioutil.ReadAll(f)
+		expected, err := io.ReadAll(f)
 		if err != nil {
 			t.Fatal(err)
 		}
