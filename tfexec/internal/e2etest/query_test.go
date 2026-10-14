@@ -6,6 +6,7 @@ package e2etest
 import (
 	"context"
 	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -42,6 +43,9 @@ func TestQueryJSON_TF114(t *testing.T) {
 			t.Fatalf("error running Init in test directory: %s", err)
 		}
 
+		var output strings.Builder
+		tf.SetStdout(&output)
+
 		iter, err := tf.QueryJSON(context.Background())
 		if err != nil {
 			t.Fatalf("error running Query: %s", err)
@@ -52,7 +56,7 @@ func TestQueryJSON_TF114(t *testing.T) {
 		var completeData tfjson.ListCompleteData
 		for nextMsg := range iter {
 			if nextMsg.Err != nil {
-				t.Fatalf("error getting next message: %s", err)
+				t.Fatalf("error getting next message: %s", nextMsg.Err)
 			}
 			switch m := nextMsg.Msg.(type) {
 			case tfjson.ListStartMessage:
@@ -77,6 +81,14 @@ func TestQueryJSON_TF114(t *testing.T) {
 		}
 		if diff := cmp.Diff(expectedData, completeData); diff != "" {
 			t.Fatalf("unexpected complete message data: %s", diff)
+		}
+
+		output.Reset()
+		if err := tf.Init(context.Background()); err != nil {
+			t.Fatalf("error running Init after Query: %s", err)
+		}
+		if output.Len() == 0 {
+			t.Fatal("init output did not reach the original stdout writer")
 		}
 	})
 }
