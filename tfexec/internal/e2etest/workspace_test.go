@@ -5,7 +5,6 @@ package e2etest
 
 import (
 	"context"
-	"io"
 	"reflect"
 	"testing"
 
@@ -194,8 +193,7 @@ func assertWorkspaceList(t *testing.T, tf *tfexec.Terraform, expectedCurrent str
 }
 
 func assertWorkspaceListJSON(t *testing.T, tf *tfexec.Terraform, expected tfjson.WorkspaceListOutput) {
-	w := io.Discard
-	output, err := tf.WorkspaceListJSON(context.Background(), w)
+	output, err := tf.WorkspaceListJSON(context.Background())
 	if err != nil {
 		t.Fatalf("got error querying workspace list: %s", err)
 	}

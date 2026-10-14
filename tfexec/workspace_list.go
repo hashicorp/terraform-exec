@@ -6,7 +6,6 @@ package tfexec
 import (
 	"context"
 	"fmt"
-	"io"
 	"os/exec"
 	"strings"
 
@@ -84,17 +83,14 @@ func parseWorkspaceListHumanOutput(stdout string) ([]string, string) {
 }
 
 // WorkspaceListJSON represents the terraform workspace list subcommand with the `-json` flag.
-// Using the `-json` flag will result in
-// [machine-readable](https://developer.hashicorp.com/terraform/internals/machine-readable-ui)
-// JSON being written to the supplied `io.Writer`. WorkspaceListJSON is likely to be
-// removed in a future major version in favour of WorkspaceList returning JSON by default.
-func (tf *Terraform) WorkspaceListJSON(ctx context.Context, w io.Writer, opts ...WorkspaceListOption) (*tfjson.WorkspaceListOutput, error) {
+//
+// WorkspaceListJSON is likely to be removed in a future major version, in favour of
+// WorkspaceList handling JSON by default instead of human output.
+func (tf *Terraform) WorkspaceListJSON(ctx context.Context, opts ...WorkspaceListOption) (*tfjson.WorkspaceListOutput, error) {
 	err := tf.compatible(ctx, tf1_16_0, nil)
 	if err != nil {
 		return nil, fmt.Errorf("terraform workspace list -json was added in 1.16.0: %w", err)
 	}
-
-	tf.SetStdout(w)
 
 	cmd, err := tf.workspaceListJSONCmd(ctx, opts...)
 	if err != nil {
