@@ -32,6 +32,7 @@ func TestForceUnlockCmd(t *testing.T) {
 			"force-unlock",
 			"-no-color",
 			"-force",
+			"--",
 			"12345",
 		}, nil, forceUnlockCmd)
 	})
@@ -64,6 +65,7 @@ func TestForceUnlockCmd_pre015(t *testing.T) {
 			"force-unlock",
 			"-no-color",
 			"-force",
+			"--",
 			"12345",
 			"mydir",
 		}, nil, forceUnlockCmd)
