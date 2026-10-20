@@ -5,6 +5,7 @@ package e2etest
 
 import (
 	"context"
+	"path/filepath"
 	"regexp"
 	"testing"
 
@@ -77,6 +78,47 @@ func TestQueryJSON_TF114(t *testing.T) {
 		}
 		if diff := cmp.Diff(expectedData, completeData); diff != "" {
 			t.Fatalf("unexpected complete message data: %s", diff)
+		}
+	})
+}
+
+func TestQueryJSON_andValidate(t *testing.T) {
+	versions := []string{testutil.Latest_Alpha_v1_14}
+	runTestWithVersions(t, versions, "query", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		err := tf.Init(context.Background())
+		if err != nil {
+			t.Fatalf("error running Init in test directory: %s", err)
+		}
+
+		cfgOutPath := filepath.Join(tf.WorkingDir(), "gen.tf")
+		iter, err := tf.QueryJSON(t.Context(), tfexec.GenerateConfigOut(cfgOutPath))
+		if err != nil {
+			t.Fatalf("error running Query: %s", err)
+		}
+
+		var completeData tfjson.ListCompleteData
+		for nextMsg := range iter {
+			if nextMsg.Err != nil {
+				t.Fatalf("error getting next message: %s", nextMsg.Err)
+			}
+			switch m := nextMsg.Msg.(type) {
+			case tfjson.ListCompleteMessage:
+				completeData = m.ListComplete
+			}
+		}
+
+		expectedData := tfjson.ListCompleteData{
+			Address:      "list.concept_pet.pets",
+			ResourceType: "concept_pet",
+			Total:        5,
+		}
+		if diff := cmp.Diff(expectedData, completeData); diff != "" {
+			t.Fatalf("unexpected complete message data: %s", diff)
+		}
+
+		_, err = tf.Validate(t.Context())
+		if err != nil {
+			t.Fatalf("failed to run validate after query: %s", err)
 		}
 	})
 }
