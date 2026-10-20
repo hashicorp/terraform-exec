@@ -230,7 +230,7 @@ func (tf *Terraform) runTerraformCmdJSON(ctx context.Context, cmd *exec.Cmd, v i
 // Due to this it returns an iterator that allows calling code to consume a stream of messages.
 func (tf *Terraform) runTerraformCmdJSONLog(ctx context.Context, cmd *exec.Cmd) iter.Seq[NextMessage] {
 	pr, pw := io.Pipe()
-	tf.SetStdout(pw)
+	cmd.Stdout = mergeWriters(cmd.Stdout, pw)
 
 	emitter := newLogMsgEmitter(pr)
 
