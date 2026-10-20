@@ -114,15 +114,6 @@ func (tf *Terraform) workspaceListJSONCmd(ctx context.Context, opts ...Workspace
 		o.configureWorkspaceList(&c)
 	}
 
-	mergeEnv := map[string]string{}
-	if c.reattachInfo != nil {
-		reattachStr, err := c.reattachInfo.marshalString()
-		if err != nil {
-			return nil, err
-		}
-		mergeEnv[reattachEnvVar] = reattachStr
-	}
-
 	args := []string{"workspace", "list", "-json"}
 	return tf.buildWorkspaceListCmd(ctx, c, args)
 }
