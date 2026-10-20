@@ -7,8 +7,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
-	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -617,17 +615,7 @@ func TestShowPlanFileRaw012_linux(t *testing.T) {
 			t.Skip("plan file created in 0.12 on Linux is not compatible with other systems")
 		}
 
-		f, err := os.Open("testdata/non_default_planfile_012/human_readable_output.txt")
-		if err != nil {
-			t.Fatal(err)
-		}
-		defer f.Close()
-		expected, err := ioutil.ReadAll(f)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		err = tf.Init(context.Background())
+		err := tf.Init(context.Background())
 		if err != nil {
 			t.Fatalf("error running Init in test directory: %s", err)
 		}
@@ -637,7 +625,21 @@ func TestShowPlanFileRaw012_linux(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if diff := cmp.Diff(normalizePlanOutput(actual), normalizePlanOutput(string(expected))); diff != "" {
+		expected := `An execution plan has been generated and is shown below.
+Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # null_resource.foo will be created
+  + resource "null_resource" "foo" {
+      + id = (known after apply)
+    }
+
+Plan: 1 to add, 0 to change, 0 to destroy.
+`
+
+		if diff := cmp.Diff(normalizePlanOutput(actual), normalizePlanOutput(expected)); diff != "" {
 			t.Fatalf("unexpected difference: %s", diff)
 		}
 	})
@@ -645,17 +647,7 @@ func TestShowPlanFileRaw012_linux(t *testing.T) {
 
 func TestShowPlanFileRaw013(t *testing.T) {
 	runTestWithVersions(t, []string{testutil.Latest013}, "non_default_planfile_013", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
-		f, err := os.Open("testdata/non_default_planfile_013/human_readable_output.txt")
-		if err != nil {
-			t.Fatal(err)
-		}
-		defer f.Close()
-		expected, err := ioutil.ReadAll(f)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		err = tf.Init(context.Background())
+		err := tf.Init(context.Background())
 		if err != nil {
 			t.Fatalf("error running Init in test directory: %s", err)
 		}
@@ -665,7 +657,21 @@ func TestShowPlanFileRaw013(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if diff := cmp.Diff(normalizePlanOutput(actual), normalizePlanOutput(string(expected))); diff != "" {
+		expected := `An execution plan has been generated and is shown below.
+Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # null_resource.foo will be created
+  + resource "null_resource" "foo" {
+      + id = (known after apply)
+    }
+
+Plan: 1 to add, 0 to change, 0 to destroy.
+`
+
+		if diff := cmp.Diff(normalizePlanOutput(actual), normalizePlanOutput(expected)); diff != "" {
 			t.Fatalf("unexpected difference: %s", diff)
 		}
 	})
@@ -673,17 +679,7 @@ func TestShowPlanFileRaw013(t *testing.T) {
 
 func TestShowPlanFileRaw014(t *testing.T) {
 	runTestWithVersions(t, []string{testutil.Latest014}, "non_default_planfile_014", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
-		f, err := os.Open("testdata/non_default_planfile_013/human_readable_output.txt")
-		if err != nil {
-			t.Fatal(err)
-		}
-		defer f.Close()
-		expected, err := ioutil.ReadAll(f)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		err = tf.Init(context.Background())
+		err := tf.Init(context.Background())
 		if err != nil {
 			t.Fatalf("error running Init in test directory: %s", err)
 		}
@@ -692,7 +688,22 @@ func TestShowPlanFileRaw014(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if diff := cmp.Diff(normalizePlanOutput(actual), normalizePlanOutput(string(expected))); diff != "" {
+
+		expected := `An execution plan has been generated and is shown below.
+Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # null_resource.foo will be created
+  + resource "null_resource" "foo" {
+      + id = (known after apply)
+    }
+
+Plan: 1 to add, 0 to change, 0 to destroy.
+`
+
+		if diff := cmp.Diff(normalizePlanOutput(actual), normalizePlanOutput(expected)); diff != "" {
 			t.Fatalf("unexpected difference: %s", diff)
 		}
 	})
