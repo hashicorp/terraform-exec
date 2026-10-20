@@ -1,0 +1,3 @@
+# Always checkout state files with LF (even on Windows)
+# to match how the state is written by Terraform
+*.tfstate text eol=lf
