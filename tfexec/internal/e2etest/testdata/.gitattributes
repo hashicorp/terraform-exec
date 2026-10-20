@@ -1,3 +1,7 @@
-# Always checkout state files with LF (even on Windows)
-# to match how the state is written by Terraform
+# Always checkout specific files with LF (even on Windows)
+
+# To match how the state is written by Terraform
 *.tfstate text eol=lf
+
+# To avoid byte-offset differences in diagnostics due to extra \r
+*.tf text eol=lf
