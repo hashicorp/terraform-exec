@@ -1219,8 +1219,6 @@ func TestShowPlanFileFloat64(t *testing.T) {
 func normalizePlanOutput(str string) string {
 	// Ignore any extra newlines at the beginning or end of output
 	str = strings.TrimSpace(str)
-	// Normalize CRLF to LF for cross-platform testing
-	str = strings.Replace(str, "\r\n", "\n", -1)
 
 	return str
 }
