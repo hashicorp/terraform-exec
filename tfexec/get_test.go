@@ -33,4 +33,21 @@ func TestGetCmd(t *testing.T) {
 			"-update=false",
 		}, nil, getCmd)
 	})
+
+	t.Run("explicit directory and update option", func(t *testing.T) {
+		getCmd, err := tf.getCmd(context.Background(),
+			Dir("testdir"),
+			Update(true))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assertCmd(t, []string{
+			"get",
+			"-no-color",
+			"-update=true",
+			"--",
+			"testdir",
+		}, nil, getCmd)
+	})
 }

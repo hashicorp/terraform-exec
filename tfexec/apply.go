@@ -259,7 +259,7 @@ func (tf *Terraform) buildApplyArgs(ctx context.Context, c applyConfig) ([]strin
 func (tf *Terraform) buildApplyCmd(ctx context.Context, c applyConfig, args []string) (*exec.Cmd, error) {
 	// string argument: pass if set
 	if c.dirOrPlan != "" {
-		args = append(args, c.dirOrPlan)
+		args = append(args, "--", c.dirOrPlan)
 	}
 
 	mergeEnv := map[string]string{}
