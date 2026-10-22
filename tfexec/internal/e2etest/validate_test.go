@@ -72,6 +72,7 @@ func TestValidate(t *testing.T) {
 						End: tfjson.Pos{
 							Line:   1,
 							Column: 10,
+							Byte:   9,
 						},
 					},
 					Snippet: &tfjson.DiagnosticSnippet{
@@ -91,10 +92,12 @@ func TestValidate(t *testing.T) {
 						Start: tfjson.Pos{
 							Line:   5,
 							Column: 5,
+							Byte:   31,
 						},
 						End: tfjson.Pos{
 							Line:   5,
 							Column: 18,
+							Byte:   44,
 						},
 					},
 					Snippet: &tfjson.DiagnosticSnippet{
@@ -122,6 +125,7 @@ func TestValidate(t *testing.T) {
 						End: tfjson.Pos{
 							Line:   1,
 							Column: 10,
+							Byte:   9,
 						},
 					},
 				},
@@ -134,10 +138,12 @@ func TestValidate(t *testing.T) {
 						Start: tfjson.Pos{
 							Line:   5,
 							Column: 5,
+							Byte:   31,
 						},
 						End: tfjson.Pos{
 							Line:   5,
 							Column: 18,
+							Byte:   44,
 						},
 					},
 				},
@@ -149,15 +155,7 @@ func TestValidate(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		// reset byte locations in actual as CRLF issues render them off between operating systems
-		cleanActual := []tfjson.Diagnostic{}
-		for _, diag := range actual.Diagnostics {
-			diag.Range.Start.Byte = 0
-			diag.Range.End.Byte = 0
-			cleanActual = append(cleanActual, diag)
-		}
-
-		if diff := cmp.Diff(expectedDiags, cleanActual); diff != "" {
+		if diff := cmp.Diff(expectedDiags, actual.Diagnostics); diff != "" {
 			t.Fatalf("diags do not match: %s", diff)
 		}
 	})
