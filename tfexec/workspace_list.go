@@ -83,10 +83,10 @@ func parseWorkspaceListHumanOutput(stdout string) ([]string, string) {
 		if line != url.PathEscape(line) {
 			// If a line isn't URL-escaped then it's not a valid workspace name.
 			// If we're encountering a processed line string that isn't a valid workspace name it's
-			// almost certainly due to a warning being sent to stdout after the workspace commands
-			// were migrated from using cli.Ui to view.View, which causes warnings to begin being sent to
-			// stdout instead of stderr.
-			// See: https://github.com/hashicorp/terraform/blob/9fb1177c3566c247c72e6c36ca219463c4b6be2b/internal/command/workspace_command.go#L44-L52
+			// almost certainly due to a warning being present in stdout.
+			//
+			// See here for prior use of URL-escaping to validate workspace names:
+			// https://github.com/hashicorp/terraform/blob/9fb1177c3566c247c72e6c36ca219463c4b6be2b/internal/command/workspace_command.go#L44-L52
 			//
 			// tl;dr this line isn't a workspace name, so lets skip and see if there is a list of
 			// workspaces later in the output, under any warning text.
