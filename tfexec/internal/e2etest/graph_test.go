@@ -5,6 +5,7 @@ package e2etest
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -30,7 +31,10 @@ func TestGraph(t *testing.T) {
 			t.Fatalf("error running Graph: %s", err)
 		}
 
-		if diff := cmp.Diff(expectedGraphOutput(tfv), graphOutput); diff != "" {
+		got := strings.TrimSpace(graphOutput)
+		want := strings.TrimSpace(expectedGraphOutput(tfv))
+
+		if diff := cmp.Diff(want, got); diff != "" {
 			t.Fatalf("Graph output does not match: %s", diff)
 		}
 	})
@@ -114,6 +118,8 @@ func expectedGraphOutput(tfv *version.Version) string {
 	}
 
 	// 1.7.0+
+	// NOTE: there have been some trailing whitespace changes around v1.18,
+	// but this is handled in the test by trimming whitespace from both the expected and actual output.
 	return `digraph G {
   rankdir = "RL";
   node [shape = rect, fontname = "sans-serif"];
