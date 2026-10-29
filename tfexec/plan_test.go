@@ -79,6 +79,7 @@ func TestPlanCmd(t *testing.T) {
 			"-target=beeblebrox",
 			"-var", "android=paranoid",
 			"-var", "brain_size=planet",
+			"--",
 			"earth",
 		}, nil, planCmd)
 	})
@@ -193,6 +194,7 @@ func TestPlanJSONCmd(t *testing.T) {
 			"-var", "android=paranoid",
 			"-var", "brain_size=planet",
 			"-json",
+			"--",
 			"earth",
 		}, nil, planCmd)
 	})
