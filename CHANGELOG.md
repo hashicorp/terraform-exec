@@ -1,3 +1,23 @@
+# 0.26.0 (Unreleased)
+
+NOTES:
+
+* bump Go compatibility from 1.25 to 1.26 ([#612](https://github.com/hashicorp/terraform-exec/pull/612))
+
+DEPENDENCIES:
+
+* build(deps): bump github.com/hashicorp/hc-install from 0.9.5 to 0.10.0 ([#614](https://github.com/hashicorp/terraform-exec/pull/614))
+* build(deps): bump github.com/hashicorp/terraform-json from 0.28.0 to 0.29.0 ([#616](https://github.com/hashicorp/terraform-exec/pull/616))
+
+ENHANCEMENTS:
+
+* Introduce `WorkspaceListJSON` method/command ([#587](https://github.com/hashicorp/terraform-exec/pull/587))
+* Introduce `StateMigrateJSON` method/command ([#609](https://github.com/hashicorp/terraform-exec/pull/609))
+
+BUG FIXES:
+
+* fix: `QueryJSON`: Avoid overriding `Terraform.Stdout` ([#619](https://github.com/hashicorp/terraform-exec/pull/619))
+
 # 0.25.3 (August 17, 2026)
 
 DEPENDENCIES:
