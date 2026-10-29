@@ -103,10 +103,15 @@ func (opt *VerifyPluginsOption) configureInit(conf *initConfig) {
 func (tf *Terraform) configureInitOptions(ctx context.Context, c *initConfig, opts ...InitOption) error {
 	for _, o := range opts {
 		switch o.(type) {
-		case *LockOption, *LockTimeoutOption, *VerifyPluginsOption, *GetPluginsOption:
+		case *VerifyPluginsOption, *GetPluginsOption:
 			err := tf.compatible(ctx, nil, tf0_15_0)
 			if err != nil {
-				return fmt.Errorf("-lock, -lock-timeout, -verify-plugins, and -get-plugins options are no longer available as of Terraform 0.15: %w", err)
+				return fmt.Errorf("-verify-plugins and -get-plugins options are no longer available as of Terraform 0.15: %w", err)
+			}
+		case *LockOption, *LockTimeoutOption:
+			err := tf.incompatible(ctx, tf0_15_0, tf1_0_10)
+			if err != nil {
+				return fmt.Errorf("-lock, -lock-timeout options are not available in Terraform >=0.15 <1.0.10: %w", err)
 			}
 		}
 
@@ -196,12 +201,14 @@ func (tf *Terraform) buildInitArgs(ctx context.Context, c initConfig) ([]string,
 		args = append(args, "-from-module="+c.fromModule)
 	}
 
-	// string opts removed in 0.15: pass if set and <0.15
-	err := tf.compatible(ctx, nil, tf0_15_0)
-	if err == nil {
+	// lock and lock-timeout opts removed in >=0.15 and restored in >=1.0.10
+	// https://github.com/hashicorp/terraform/pull/29773
+	err := tf.compatible(ctx, tf0_15_0, tf1_0_10)
+	if err != nil {
 		if c.lockTimeout != "" {
 			args = append(args, "-lock-timeout="+c.lockTimeout)
 		}
+		args = append(args, "-lock="+fmt.Sprint(c.lock))
 	}
 
 	// boolean opts: always pass
@@ -212,7 +219,6 @@ func (tf *Terraform) buildInitArgs(ctx context.Context, c initConfig) ([]string,
 	// boolean opts removed in 0.15: pass if <0.15
 	err = tf.compatible(ctx, nil, tf0_15_0)
 	if err == nil {
-		args = append(args, "-lock="+fmt.Sprint(c.lock))
 		args = append(args, "-get-plugins="+fmt.Sprint(c.getPlugins))
 		args = append(args, "-verify-plugins="+fmt.Sprint(c.verifyPlugins))
 	}
