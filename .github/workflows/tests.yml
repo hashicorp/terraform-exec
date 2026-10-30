@@ -24,39 +24,16 @@ jobs:
       - name: Validate Header Compliance
         run: copywrite headers --plan
 
-  # resolve-versions allows us to show resolved Go versions in job titles
-  # for added clarity and quick orientation in a long list of past jobs
-  resolve-versions:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      -
-        name: Resolve old stable version
-        id: oldstable
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
-        with:
-          go-version: oldstable
-      -
-        name: Resolve stable version
-        id: stable
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
-        with:
-          go-version: stable
-    outputs:
-      oldstable: ${{ steps.oldstable.outputs.go-version }}
-      stable: ${{ steps.stable.outputs.go-version }}
-
   static-checks:
     name: static-checks
-    needs: resolve-versions
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
         go_version:
-          - ${{ needs.resolve-versions.outputs.oldstable }}
-          - ${{ needs.resolve-versions.outputs.stable }}
+          - oldstable
+          - stable
     steps:
       -
         name: Checkout
@@ -78,7 +55,6 @@ jobs:
   unit-tests:
     name: unit-tests
     needs:
-      - resolve-versions
       - static-checks
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
@@ -90,8 +66,8 @@ jobs:
           - windows-latest
           - macos-latest
         go_version:
-          - ${{ needs.resolve-versions.outputs.oldstable }}
-          - ${{ needs.resolve-versions.outputs.stable }}
+          - oldstable
+          - stable
     steps:
       -
         name: Checkout
@@ -117,7 +93,6 @@ jobs:
   e2e-tests:
     name: e2e-tests
     needs:
-      - resolve-versions
       - static-checks
       - unit-tests
     runs-on: ${{ matrix.os }}
@@ -130,8 +105,8 @@ jobs:
           - windows-latest
           - macos-latest
         go_version:
-          - ${{ needs.resolve-versions.outputs.oldstable }}
-          - ${{ needs.resolve-versions.outputs.stable }}
+          - oldstable
+          - stable
         terraform_version:
           - "0.12.31"
           - "0.13.7"
