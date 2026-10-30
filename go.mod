@@ -1,9 +1,7 @@
 module github.com/hashicorp/terraform-exec
 
-// Keep last digit at zero, use toolchain for Go build requirement
+// Keep last digit at zero, do not use toolchain directive (this is a library)
 go 1.26.0
-
-toolchain go1.26.8
 
 require (
 	github.com/google/go-cmp v0.7.0
