@@ -19,15 +19,16 @@ type applyConfig struct {
 	lock          bool
 
 	// LockTimeout must be a string with time unit, e.g. '10s'
-	lockTimeout  string
-	parallelism  int
-	reattachInfo ReattachInfo
-	refresh      bool
-	refreshOnly  bool
-	replaceAddrs []string
-	state        string
-	stateOut     string
-	targets      []string
+	lockTimeout    string
+	minimalRefresh bool
+	parallelism    int
+	reattachInfo   ReattachInfo
+	refresh        bool
+	refreshOnly    bool
+	replaceAddrs   []string
+	state          string
+	stateOut       string
+	targets        []string
 
 	// Vars: each var must be supplied as a single string, e.g. 'foo=bar'
 	vars     []string
@@ -108,6 +109,10 @@ func (opt *DestroyFlagOption) configureApply(conf *applyConfig) {
 
 func (opt *AllowDeferralOption) configureApply(conf *applyConfig) {
 	conf.allowDeferral = opt.allowDeferral
+}
+
+func (opt *MinimalRefreshOption) configureApply(conf *applyConfig) {
+	conf.minimalRefresh = opt.minimalRefresh
 }
 
 // Apply represents the terraform apply subcommand.
@@ -251,6 +256,20 @@ func (tf *Terraform) buildApplyArgs(ctx context.Context, c applyConfig) ([]strin
 		}
 
 		args = append(args, "-allow-deferral")
+	}
+
+	if c.minimalRefresh {
+		err := tf.compatible(ctx, tf1_17_0, nil)
+		if err != nil {
+			return nil, fmt.Errorf("minimal-refresh option was introduced in Terraform 1.17.0: %w", err)
+		}
+		if !c.refresh {
+			return nil, fmt.Errorf("you cannot use refresh=false with minimal-refresh as they are mutually exclusive")
+		}
+		if c.refreshOnly {
+			return nil, fmt.Errorf("you cannot use refresh-only with minimal-refresh as minimal-refresh is only valid in normal or destroy planning modes")
+		}
+		args = append(args, "-minimal-refresh")
 	}
 
 	return args, nil

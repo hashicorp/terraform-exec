@@ -301,7 +301,7 @@ func TestPlanCmd_MinimalRefresh(t *testing.T) {
 	})
 
 	t.Run("minimal-refresh unsupported version", func(t *testing.T) {
-		tf, err := NewTerraform(td, tfVersion(t, "1.16.0"))
+		tf, err := NewTerraform(td, tfVersion(t, testutil.Latest_v1_16))
 		if err != nil {
 			t.Fatal(err)
 		}

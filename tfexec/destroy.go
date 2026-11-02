@@ -17,13 +17,14 @@ type destroyConfig struct {
 	lock   bool
 
 	// LockTimeout must be a string with time unit, e.g. '10s'
-	lockTimeout  string
-	parallelism  int
-	reattachInfo ReattachInfo
-	refresh      bool
-	state        string
-	stateOut     string
-	targets      []string
+	lockTimeout    string
+	minimalRefresh bool
+	parallelism    int
+	reattachInfo   ReattachInfo
+	refresh        bool
+	state          string
+	stateOut       string
+	targets        []string
 
 	// Vars: each var must be supplied as a single string, e.g. 'foo=bar'
 	vars     []string
@@ -90,6 +91,10 @@ func (opt *ReattachOption) configureDestroy(conf *destroyConfig) {
 	conf.reattachInfo = opt.info
 }
 
+func (opt *MinimalRefreshOption) configureDestroy(conf *destroyConfig) {
+	conf.minimalRefresh = opt.minimalRefresh
+}
+
 // Destroy represents the terraform destroy subcommand.
 func (tf *Terraform) Destroy(ctx context.Context, opts ...DestroyOption) error {
 	cmd, err := tf.destroyCmd(ctx, opts...)
@@ -127,7 +132,10 @@ func (tf *Terraform) destroyCmd(ctx context.Context, opts ...DestroyOption) (*ex
 		o.configureDestroy(&c)
 	}
 
-	args := tf.buildDestroyArgs(c)
+	args, err := tf.buildDestroyArgs(ctx, c)
+	if err != nil {
+		return nil, err
+	}
 
 	return tf.buildDestroyCmd(ctx, c, args)
 }
@@ -139,13 +147,17 @@ func (tf *Terraform) destroyJSONCmd(ctx context.Context, opts ...DestroyOption) 
 		o.configureDestroy(&c)
 	}
 
-	args := tf.buildDestroyArgs(c)
+	args, err := tf.buildDestroyArgs(ctx, c)
+	if err != nil {
+		return nil, err
+	}
+
 	args = append(args, "-json")
 
 	return tf.buildDestroyCmd(ctx, c, args)
 }
 
-func (tf *Terraform) buildDestroyArgs(c destroyConfig) []string {
+func (tf *Terraform) buildDestroyArgs(ctx context.Context, c destroyConfig) ([]string, error) {
 	args := []string{"destroy", "-no-color", "-auto-approve", "-input=false"}
 
 	// string opts: only pass if set
@@ -182,7 +194,18 @@ func (tf *Terraform) buildDestroyArgs(c destroyConfig) []string {
 		}
 	}
 
-	return args
+	if c.minimalRefresh {
+		err := tf.compatible(ctx, tf1_17_0, nil)
+		if err != nil {
+			return nil, fmt.Errorf("minimal-refresh option was introduced in Terraform 1.17.0: %w", err)
+		}
+		if !c.refresh {
+			return nil, fmt.Errorf("you cannot use refresh=false with minimal-refresh as they are mutually exclusive")
+		}
+		args = append(args, "-minimal-refresh")
+	}
+
+	return args, nil
 }
 
 func (tf *Terraform) buildDestroyCmd(ctx context.Context, c destroyConfig, args []string) (*exec.Cmd, error) {

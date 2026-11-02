@@ -5,6 +5,7 @@ package tfexec
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
@@ -180,5 +181,95 @@ func TestApplyCmd_AllowDeferral(t *testing.T) {
 			"-refresh=true",
 			"-allow-deferral",
 		}, nil, applyCmd)
+	})
+}
+
+func TestApplyCmd_MinimalRefresh(t *testing.T) {
+	td := t.TempDir()
+
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest_v1_17))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// empty env, to avoid environ mismatch in testing
+	tf.SetEnv(map[string]string{})
+
+	t.Run("minimal-refresh apply", func(t *testing.T) {
+		applyCmd, err := tf.applyCmd(context.Background(), MinimalRefresh(true))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assertCmd(t, []string{
+			"apply",
+			"-no-color",
+			"-auto-approve",
+			"-input=false",
+			"-lock=true",
+			"-parallelism=10",
+			"-refresh=true",
+			"-minimal-refresh",
+		}, nil, applyCmd)
+	})
+
+	t.Run("minimal-refresh destroy apply", func(t *testing.T) {
+		applyCmd, err := tf.applyCmd(context.Background(), Destroy(true), MinimalRefresh(true))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assertCmd(t, []string{
+			"apply",
+			"-no-color",
+			"-auto-approve",
+			"-input=false",
+			"-lock=true",
+			"-parallelism=10",
+			"-refresh=true",
+			"-destroy",
+			"-minimal-refresh",
+		}, nil, applyCmd)
+	})
+
+	t.Run("minimal-refresh unsupported version", func(t *testing.T) {
+		tf, err := NewTerraform(td, tfVersion(t, testutil.Latest_v1_16))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		_, err = tf.applyCmd(context.Background(), MinimalRefresh(true))
+		if err == nil {
+			t.Fatal("expected an error but received none")
+		}
+
+		expectedErr := "minimal-refresh option was introduced in Terraform 1.17.0"
+		if !strings.Contains(err.Error(), expectedErr) {
+			t.Fatalf("expected error to contain %q, got: %q", expectedErr, err)
+		}
+	})
+
+	t.Run("minimal-refresh and refresh=false returns an error", func(t *testing.T) {
+		_, err := tf.applyCmd(context.Background(), Refresh(false), MinimalRefresh(true))
+		if err == nil {
+			t.Fatal("expected an error but received none")
+		}
+
+		expectedErr := "cannot use refresh=false with minimal-refresh"
+		if !strings.Contains(err.Error(), expectedErr) {
+			t.Fatalf("expected error to contain %q, got: %q", expectedErr, err)
+		}
+	})
+
+	t.Run("minimal-refresh and refresh-only returns an error", func(t *testing.T) {
+		_, err := tf.applyCmd(context.Background(), RefreshOnly(true), MinimalRefresh(true))
+		if err == nil {
+			t.Fatal("expected an error but received none")
+		}
+
+		expectedErr := "cannot use refresh-only with minimal-refresh"
+		if !strings.Contains(err.Error(), expectedErr) {
+			t.Fatalf("expected error to contain %q, got: %q", expectedErr, err)
+		}
 	})
 }
