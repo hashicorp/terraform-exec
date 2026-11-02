@@ -280,6 +280,26 @@ func TestPlanCmd_MinimalRefresh(t *testing.T) {
 		}, nil, planCmd)
 	})
 
+	t.Run("minimal-refresh destroy plan", func(t *testing.T) {
+		planCmd, err := tf.planCmd(context.Background(), Destroy(true), MinimalRefresh(true))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assertCmd(t, []string{
+			"plan",
+			"-no-color",
+			"-input=false",
+			"-detailed-exitcode",
+			"-lock-timeout=0s",
+			"-lock=true",
+			"-parallelism=10",
+			"-refresh=true",
+			"-destroy",
+			"-minimal-refresh",
+		}, nil, planCmd)
+	})
+
 	t.Run("minimal-refresh unsupported version", func(t *testing.T) {
 		tf, err := NewTerraform(td, tfVersion(t, "1.16.0"))
 		if err != nil {
@@ -303,7 +323,7 @@ func TestPlanCmd_MinimalRefresh(t *testing.T) {
 			t.Fatal("expected an error but received none")
 		}
 
-		expectedErr := "cannot use refresh=false with mimimal-refresh"
+		expectedErr := "cannot use refresh=false with minimal-refresh"
 		if !strings.Contains(err.Error(), expectedErr) {
 			t.Fatalf("expected error to contain %q, got: %q", expectedErr, err)
 		}
@@ -315,19 +335,7 @@ func TestPlanCmd_MinimalRefresh(t *testing.T) {
 			t.Fatal("expected an error but received none")
 		}
 
-		expectedErr := "cannot use refresh-only with mimimal-refresh"
-		if !strings.Contains(err.Error(), expectedErr) {
-			t.Fatalf("expected error to contain %q, got: %q", expectedErr, err)
-		}
-	})
-
-	t.Run("minimal-refresh and destroy returns an error", func(t *testing.T) {
-		_, err := tf.planCmd(context.Background(), Destroy(true), MinimalRefresh(true))
-		if err == nil {
-			t.Fatal("expected an error but received none")
-		}
-
-		expectedErr := "cannot use destroy with mimimal-refresh"
+		expectedErr := "cannot use refresh-only with minimal-refresh"
 		if !strings.Contains(err.Error(), expectedErr) {
 			t.Fatalf("expected error to contain %q, got: %q", expectedErr, err)
 		}

@@ -287,13 +287,10 @@ func (tf *Terraform) buildPlanArgs(ctx context.Context, c planConfig) ([]string,
 			return nil, fmt.Errorf("minimal-refresh option was introduced in Terraform 1.17.0: %w", err)
 		}
 		if !c.refresh {
-			return nil, fmt.Errorf("you cannot use refresh=false with mimimal-refresh as they are mutually exclusive")
+			return nil, fmt.Errorf("you cannot use refresh=false with minimal-refresh as they are mutually exclusive")
 		}
 		if c.refreshOnly {
-			return nil, fmt.Errorf("you cannot use refresh-only with mimimal-refresh as minimal-refresh is only valid in normal planning modes")
-		}
-		if c.destroy {
-			return nil, fmt.Errorf("you cannot use destroy with mimimal-refresh as minimal-refresh is only valid in normal planning modes")
+			return nil, fmt.Errorf("you cannot use refresh-only with minimal-refresh as minimal-refresh is only valid in normal or destroy planning modes")
 		}
 		args = append(args, "-minimal-refresh")
 	}
