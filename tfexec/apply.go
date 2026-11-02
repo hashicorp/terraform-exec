@@ -5,6 +5,7 @@ package tfexec
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os/exec"
@@ -264,10 +265,10 @@ func (tf *Terraform) buildApplyArgs(ctx context.Context, c applyConfig) ([]strin
 			return nil, fmt.Errorf("minimal-refresh option was introduced in Terraform 1.17.0: %w", err)
 		}
 		if !c.refresh {
-			return nil, fmt.Errorf("you cannot use refresh=false with minimal-refresh as they are mutually exclusive")
+			return nil, errors.New("you cannot use refresh=false with minimal-refresh as they are mutually exclusive")
 		}
 		if c.refreshOnly {
-			return nil, fmt.Errorf("you cannot use refresh-only with minimal-refresh as minimal-refresh is only valid in normal or destroy planning modes")
+			return nil, errors.New("you cannot use refresh-only with minimal-refresh as minimal-refresh is only valid in normal or destroy planning modes")
 		}
 		args = append(args, "-minimal-refresh")
 	}

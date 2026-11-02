@@ -5,6 +5,7 @@ package tfexec
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os/exec"
@@ -200,7 +201,7 @@ func (tf *Terraform) buildDestroyArgs(ctx context.Context, c destroyConfig) ([]s
 			return nil, fmt.Errorf("minimal-refresh option was introduced in Terraform 1.17.0: %w", err)
 		}
 		if !c.refresh {
-			return nil, fmt.Errorf("you cannot use refresh=false with minimal-refresh as they are mutually exclusive")
+			return nil, errors.New("you cannot use refresh=false with minimal-refresh as they are mutually exclusive")
 		}
 		args = append(args, "-minimal-refresh")
 	}
