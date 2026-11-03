@@ -30,6 +30,8 @@ var (
 
 	metadataFunctionsMinVersion = version.Must(version.NewVersion("1.4.0"))
 
+	stateIdentitiesMinVersion = version.Must(version.NewVersion("1.18.0-dev"))
+
 	stateMigrateMinVersion = version.Must(version.NewVersion("1.18.0-dev"))
 )
 
