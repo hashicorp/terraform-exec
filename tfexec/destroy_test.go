@@ -5,6 +5,7 @@ package tfexec
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-exec/tfexec/internal/testutil"
@@ -123,5 +124,65 @@ func TestDestroyJSONCmd(t *testing.T) {
 			"-json",
 			"destroydir",
 		}, nil, destroyCmd)
+	})
+}
+
+func TestDestroyCmd_MinimalRefresh(t *testing.T) {
+	td := t.TempDir()
+
+	tf, err := NewTerraform(td, tfVersion(t, testutil.Latest_v1_17))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// empty env, to avoid environ mismatch in testing
+	tf.SetEnv(map[string]string{})
+
+	t.Run("minimal-refresh destroy", func(t *testing.T) {
+		destroyCmd, err := tf.destroyCmd(context.Background(), MinimalRefresh(true))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assertCmd(t, []string{
+			"destroy",
+			"-no-color",
+			"-auto-approve",
+			"-input=false",
+			"-lock-timeout=0s",
+			"-lock=true",
+			"-parallelism=10",
+			"-refresh=true",
+			"-minimal-refresh",
+		}, nil, destroyCmd)
+	})
+
+	t.Run("minimal-refresh unsupported version", func(t *testing.T) {
+		tf, err := NewTerraform(td, tfVersion(t, testutil.Latest_v1_16))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		_, err = tf.destroyCmd(context.Background(), MinimalRefresh(true))
+		if err == nil {
+			t.Fatal("expected an error but received none")
+		}
+
+		expectedErr := "minimal-refresh option was introduced in Terraform 1.17.0"
+		if !strings.Contains(err.Error(), expectedErr) {
+			t.Fatalf("expected error to contain %q, got: %q", expectedErr, err)
+		}
+	})
+
+	t.Run("minimal-refresh and refresh=false returns an error", func(t *testing.T) {
+		_, err := tf.destroyCmd(context.Background(), Refresh(false), MinimalRefresh(true))
+		if err == nil {
+			t.Fatal("expected an error but received none")
+		}
+
+		expectedErr := "cannot use refresh=false with minimal-refresh"
+		if !strings.Contains(err.Error(), expectedErr) {
+			t.Fatalf("expected error to contain %q, got: %q", expectedErr, err)
+		}
 	})
 }

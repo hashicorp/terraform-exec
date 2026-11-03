@@ -5,6 +5,7 @@ package tfexec
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os/exec"
@@ -22,6 +23,7 @@ type planConfig struct {
 	parallelism       int
 	reattachInfo      ReattachInfo
 	refresh           bool
+	minimalRefresh    bool
 	refreshOnly       bool
 	replaceAddrs      []string
 	state             string
@@ -105,6 +107,10 @@ func (opt *AllowDeferralOption) configurePlan(conf *planConfig) {
 
 func (opt *GenerateConfigOutOption) configurePlan(conf *planConfig) {
 	conf.generateConfigOut = opt.path
+}
+
+func (opt *MinimalRefreshOption) configurePlan(conf *planConfig) {
+	conf.minimalRefresh = opt.minimalRefresh
 }
 
 // Plan executes `terraform plan` with the specified options and waits for it
@@ -274,6 +280,20 @@ func (tf *Terraform) buildPlanArgs(ctx context.Context, c planConfig) ([]string,
 		}
 
 		args = append(args, "-allow-deferral")
+	}
+
+	if c.minimalRefresh {
+		err := tf.compatible(ctx, tf1_17_0, nil)
+		if err != nil {
+			return nil, fmt.Errorf("minimal-refresh option was introduced in Terraform 1.17.0: %w", err)
+		}
+		if !c.refresh {
+			return nil, errors.New("you cannot use refresh=false with minimal-refresh as they are mutually exclusive")
+		}
+		if c.refreshOnly {
+			return nil, errors.New("you cannot use refresh-only with minimal-refresh as minimal-refresh is only valid in normal or destroy planning modes")
+		}
+		args = append(args, "-minimal-refresh")
 	}
 
 	return args, nil
