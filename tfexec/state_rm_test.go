@@ -33,6 +33,7 @@ func TestStateRmCmd(t *testing.T) {
 			"-no-color",
 			"-lock-timeout=0s",
 			"-lock=true",
+			"--",
 			"testAddress",
 		}, nil, stateRmCmd)
 	})
@@ -53,6 +54,7 @@ func TestStateRmCmd(t *testing.T) {
 			"-state=teststate",
 			"-state-out=teststateout",
 			"-lock=false",
+			"--",
 			"testAddress",
 		}, nil, stateRmCmd)
 	})

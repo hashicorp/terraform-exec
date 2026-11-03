@@ -48,7 +48,7 @@ func (tf *Terraform) getCmd(ctx context.Context, opts ...GetCmdOption) (*exec.Cm
 	args = append(args, "-update="+fmt.Sprint(c.update))
 
 	if c.dir != "" {
-		args = append(args, c.dir)
+		args = append(args, "--", c.dir)
 	}
 
 	return tf.buildTerraformCmd(ctx, nil, args...), nil

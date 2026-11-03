@@ -67,6 +67,7 @@ func TestApplyCmd(t *testing.T) {
 			"-target=target2",
 			"-var", "var1=foo",
 			"-var", "var2=bar",
+			"--",
 			"testfile",
 		}, nil, applyCmd)
 	})
@@ -147,6 +148,7 @@ func TestApplyJSONCmd(t *testing.T) {
 			"-var", "var1=foo",
 			"-var", "var2=bar",
 			"-json",
+			"--",
 			"testfile",
 		}, nil, applyCmd)
 	})

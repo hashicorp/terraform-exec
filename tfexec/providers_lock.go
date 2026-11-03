@@ -77,8 +77,9 @@ func (tf *Terraform) providersLockCmd(ctx context.Context, opts ...ProvidersLock
 	}
 
 	// positional providers argument
-	for _, p := range c.providers {
-		args = append(args, p)
+	if len(c.providers) > 0 {
+		args = append(args, "--")
+		args = append(args, c.providers...)
 	}
 
 	return tf.buildTerraformCmd(ctx, nil, args...)

@@ -101,7 +101,7 @@ func (tf *Terraform) stateRmCmd(ctx context.Context, address string, opts ...Sta
 	}
 
 	// positional arguments
-	args = append(args, address)
+	args = append(args, "--", address)
 
 	return tf.buildTerraformCmd(ctx, nil, args...), nil
 }
