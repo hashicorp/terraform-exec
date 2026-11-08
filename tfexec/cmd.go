@@ -252,14 +252,15 @@ func (tf *Terraform) runTerraformCmdJSONLog(ctx context.Context, cmd *exec.Cmd) 
 
 func newLogMsgEmitter(stdoutReader io.ReadCloser) *logMsgEmitter {
 	return &logMsgEmitter{
-		scanner:      bufio.NewScanner(stdoutReader),
+		reader:       bufio.NewReader(stdoutReader),
 		stdoutReader: stdoutReader,
 		done:         make(chan error, 1),
 	}
 }
 
 type logMsgEmitter struct {
-	scanner      *bufio.Scanner
+	reader       *bufio.Reader
+	readErr      error
 	stdoutReader io.Closer
 	done         chan error
 }
@@ -278,16 +279,23 @@ type NextMessage struct {
 // Any error coming from Terraform (such as wrong configuration syntax) is
 // represented as LogMsg of Level [tfjson.Error].
 func (e *logMsgEmitter) NextMessage() NextMessage {
-	if e.scanner.Scan() {
-		msg, err := tfjson.UnmarshalLogMessage(e.scanner.Bytes())
+	var line []byte
+	if e.readErr == nil {
+		line, e.readErr = e.reader.ReadBytes('\n')
+	}
+	if len(line) > 0 {
+		msg, err := tfjson.UnmarshalLogMessage(line)
 		return NextMessage{
 			Msg: msg,
 			Err: err,
 		}
 	}
 
-	err := <-e.done
-	err = errors.Join(err, e.scanner.Err(), e.stdoutReader.Close())
+	readErr := e.readErr
+	if errors.Is(readErr, io.EOF) {
+		readErr = nil
+	}
+	err := errors.Join(<-e.done, readErr, e.stdoutReader.Close())
 	return NextMessage{
 		Msg: nil,
 		Err: err,
