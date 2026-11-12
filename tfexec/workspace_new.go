@@ -81,7 +81,7 @@ func (tf *Terraform) workspaceNewCmd(ctx context.Context, workspace string, opts
 		args = append(args, "-state="+c.copyState)
 	}
 
-	args = append(args, workspace)
+	args = append(args, "--", workspace)
 
 	mergeEnv := map[string]string{}
 	if c.reattachInfo != nil {

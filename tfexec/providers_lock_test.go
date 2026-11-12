@@ -39,6 +39,7 @@ func TestProvidersLockCmd(t *testing.T) {
 			"-fs-mirror=test",
 			"-net-mirror=test",
 			"-platform=linux_amd64",
+			"--",
 			"workingdir",
 		}, nil, lockCmd)
 	})
