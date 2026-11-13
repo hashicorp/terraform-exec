@@ -30,6 +30,8 @@ var (
 
 	metadataFunctionsMinVersion = version.Must(version.NewVersion("1.4.0"))
 
+	modulesMinVersion = version.Must(version.NewVersion("1.10.0"))
+
 	stateMigrateMinVersion = version.Must(version.NewVersion("1.18.0-dev"))
 )
 
