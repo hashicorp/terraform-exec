@@ -34,7 +34,7 @@ func TestStateMigrateJSON_tooOldVersion(t *testing.T) {
 	})
 }
 
-func TestStateMigrateJSON_basic(t *testing.T) {
+func TestStateMigrateJSON_basic_migrationBetweenBackends(t *testing.T) {
 	runTest(t, "state_migrate_local_backend", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
 		if tfv.LessThan(stateMigrateMinVersion) {
 			t.Skip("state migrate command not available in this Terraform version")
