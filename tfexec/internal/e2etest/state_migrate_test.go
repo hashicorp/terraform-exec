@@ -5,6 +5,7 @@ package e2etest
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -83,8 +84,82 @@ func TestStateMigrateJSON_basic_migrationBetweenBackends(t *testing.T) {
 			t.Fatalf("unexpected difference after migration: %s", diff)
 		}
 	})
+}
 
-	// TODO: basic state store test (requires an implemented provider)
+func TestStateMigrateJSON_basic_migrationStateStoreConfigChange(t *testing.T) {
+	// Developing the test locally requires having a filesystem mirror with 2 versions of the provider available,
+	// and using a CLI configuration file that makes the provider be sourced from that mirror.
+	//
+	// Test fixture specifies v9.0.0
+	usedVersion := "9.0.0"
 
-	// TODO: provider upgrade test (requires an implemented provider)
+	runTest(t, "state_migrate_state_store_config_change", func(t *testing.T, tfv *version.Version, tf *tfexec.Terraform) {
+		if tfv.LessThan(stateMigrateMinVersion) {
+			t.Skip("state migrate command not available in this Terraform version")
+		}
+
+		iter, err := tf.StateMigrateJSON(context.Background())
+		if err != nil {
+			t.Fatalf("error running StateMigrateJSON: %s", err)
+		}
+
+		finalMsg := ""
+		for nextMsg := range iter {
+			if nextMsg.Err != nil {
+				t.Fatalf("error getting next message: %s", nextMsg.Err)
+			}
+			switch m := nextMsg.Msg.(type) {
+			case tfjson.VersionLogMessage:
+				t.Logf("versions: Terraform %q, UI %q", m.Terraform, m.UI)
+			case tfjson.DiagnosticLogMessage:
+				if m.Severity == tfjson.DiagnosticSeverityError {
+					t.Errorf("unexpected error diagnostic: %q", m.Msg)
+				}
+
+				// Warnings expected when using fs mirror during development of this test.
+				t.Logf("warning diagnostic message: %q", m.Msg)
+			case tfjson.MigrationSourceInitializationStartMessage:
+				t.Logf("migration source initialization started: %q", m.Msg)
+			case tfjson.MigrationSourceInitializationCompleteMessage:
+				t.Logf("migration source initialization complete: %q", m.Msg)
+			case tfjson.MigrationDestinationInitializationStartMessage:
+				t.Logf("migration destination initialization started: %q", m.Msg)
+			case tfjson.MigrationDestinationInitializationCompleteMessage:
+				t.Logf("migration destination initialization complete: %q", m.Msg)
+			case tfjson.ProviderInstallationStartMessage:
+				t.Logf("provider installation started: %q", m.Msg)
+			case tfjson.ProviderQueryUseLatestMessage:
+				t.Logf("provider query use latest: %q", m.Msg)
+			case tfjson.ProviderQueryUsePreviousConstraintsMessage:
+				// The test fixture doesn't have constraints; latest version should be used instead.
+				t.Errorf("unexpected attempt to use version constraints to select provider version: %q", m.Msg)
+			case tfjson.ProviderVersionInstallationStartMessage:
+				t.Logf("provider version installation started: %q", m.Msg)
+			case tfjson.ProviderVersionInstallationCompleteMessage:
+				t.Logf("provider version installation complete: %q", m.Msg)
+			case tfjson.MigrationStartMessage:
+				t.Logf("migration started: %q", m.Msg)
+			case tfjson.MigrationCompleteMessage:
+				t.Logf("migration complete: %q", m.Msg)
+			case tfjson.MigrationFinalizedMessage:
+				finalMsg = m.Msg
+			}
+		}
+
+		expectedMsg := fmt.Sprintf(`Finished migrating state from state store "tfcoremock_fs" (hashicorp/tfcoremock %s) to state store "tfcoremock_fs" (hashicorp/tfcoremock %s).`, usedVersion, usedVersion)
+		if finalMsg != expectedMsg {
+			t.Fatalf("unexpected final message: %s", finalMsg)
+		}
+
+		// The migrated state should be in the new workspace directory specified in the Terraform configuration.
+		if _, err = os.Stat(filepath.Join(tf.WorkingDir(), "new-location", "default", "terraform.tfstate")); err != nil {
+			if os.IsNotExist(err) {
+				t.Fatalf("destination state does not exist: %s", err)
+			}
+			t.Fatalf("unexpectedly failed to stat destination state: %s", err)
+		}
+
+		// We don't compare the contents of the state, because Terraform creates new lineage identifiers for the migrated state;
+		// it won't be an exact match of the source state.
+	})
 }
