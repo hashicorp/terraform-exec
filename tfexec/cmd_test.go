@@ -4,7 +4,11 @@
 package tfexec
 
 import (
+	"context"
+	"errors"
 	"fmt"
+	"io"
+	"os"
 	"os/exec"
 	"strings"
 	"testing"
@@ -101,4 +105,50 @@ func assertCmd(t *testing.T, expectedArgs []string, expectedEnv map[string]strin
 			t.Fatalf("env mismatch, expected %q, got %q\n\nfull expected:\n%v\n\nfull actual:\n%v", ev, av, envSlice(expectedEnv), envSlice(actualEnv))
 		}
 	}
+}
+
+func TestRunTerraformCmdOutputError(t *testing.T) {
+	execPath, err := os.Executable()
+	if err != nil {
+		t.Fatal(err)
+	}
+	outputErr := errors.New("output destination failed")
+	for _, stream := range []string{"stdout", "stderr"} {
+		t.Run(stream, func(t *testing.T) {
+			tf, err := NewTerraform(t.TempDir(), execPath)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if stream == "stdout" {
+				tf.SetStdout(failingOutputWriter{outputErr})
+			} else {
+				tf.SetStderr(failingOutputWriter{outputErr})
+			}
+			cmd := exec.Command(execPath, "-test.run=^TestOutputErrorHelperProcess$")
+			cmd.Env = append(os.Environ(), "TFEXEC_OUTPUT_ERROR_HELPER="+stream)
+			err = tf.runTerraformCmd(context.Background(), cmd)
+			if !errors.Is(err, outputErr) {
+				t.Fatalf("expected output destination error, got %v", err)
+			}
+		})
+	}
+}
+
+func TestOutputErrorHelperProcess(t *testing.T) {
+	stream := os.Getenv("TFEXEC_OUTPUT_ERROR_HELPER")
+	if stream == "" {
+		return
+	}
+	var output io.Writer = os.Stdout
+	if stream == "stderr" {
+		output = os.Stderr
+	}
+	fmt.Fprintln(output, "output")
+	os.Exit(0)
+}
+
+type failingOutputWriter struct{ err error }
+
+func (w failingOutputWriter) Write(p []byte) (int, error) {
+	return 0, w.err
 }

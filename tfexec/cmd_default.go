@@ -84,10 +84,10 @@ func (tf *Terraform) runTerraformCmd(ctx context.Context, cmd *exec.Cmd) error {
 	}
 
 	// Return error if there was an issue reading the std out/err
-	if errStdout != nil && ctx.Err() != nil {
+	if errStdout != nil {
 		return fmt.Errorf("%w\n%s", errStdout, errBuf.String())
 	}
-	if errStderr != nil && ctx.Err() != nil {
+	if errStderr != nil {
 		return fmt.Errorf("%w\n%s", errStderr, errBuf.String())
 	}
 
