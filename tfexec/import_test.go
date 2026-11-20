@@ -33,6 +33,7 @@ func TestImportCmd(t *testing.T) {
 			"-input=false",
 			"-lock-timeout=0s",
 			"-lock=true",
+			"--",
 			"my-addr",
 			"my-id",
 		}, nil, importCmd)
@@ -67,6 +68,7 @@ func TestImportCmd(t *testing.T) {
 			"-allow-missing-config",
 			"-var", "var1=foo",
 			"-var", "var2=bar",
+			"--",
 			"my-addr2",
 			"my-id2",
 		}, nil, importCmd)

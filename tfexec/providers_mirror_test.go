@@ -30,6 +30,7 @@ func TestProvidersMirrorCmd(t *testing.T) {
 		assertCmd(t, []string{
 			"providers",
 			"mirror",
+			"--",
 			"path",
 		}, nil, mirrorCmd)
 	})
@@ -46,6 +47,7 @@ func TestProvidersMirrorCmd(t *testing.T) {
 			"-platform=IBM-Z",
 			"-platform=Solaris",
 			"-platform=Commodore64",
+			"--",
 			"path",
 		}, nil, mirrorCmd)
 	})
@@ -61,6 +63,7 @@ func TestProvidersMirrorCmd(t *testing.T) {
 			"mirror",
 			"-platform=IBM-Z",
 			"-lock-file=false",
+			"--",
 			"path",
 		}, nil, mirrorCmd)
 	})

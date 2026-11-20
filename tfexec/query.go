@@ -111,7 +111,7 @@ func (tf *Terraform) buildQueryArgs(ctx context.Context, c queryConfig) ([]strin
 func (tf *Terraform) buildQueryCmd(ctx context.Context, c queryConfig, args []string) (*exec.Cmd, error) {
 	// optional positional argument
 	if c.dir != "" {
-		args = append(args, c.dir)
+		args = append(args, "--", c.dir)
 	}
 
 	mergeEnv := map[string]string{}

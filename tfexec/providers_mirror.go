@@ -79,7 +79,7 @@ func (tf *Terraform) providersMirrorCmd(ctx context.Context, targetDir string, o
 		args = append(args, "-lock-file=false")
 	}
 
-	args = append(args, targetDir)
+	args = append(args, "--", targetDir)
 
 	return tf.buildTerraformCmd(ctx, nil, args...), nil
 }

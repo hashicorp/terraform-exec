@@ -28,6 +28,7 @@ func TestTaintCmd(t *testing.T) {
 			"taint",
 			"-no-color",
 			"-lock=true",
+			"--",
 			"aws_instance.foo",
 		}, nil, taintCmd)
 	})
@@ -46,6 +47,7 @@ func TestTaintCmd(t *testing.T) {
 			"-state=teststate",
 			"-lock=false",
 			"-allow-missing",
+			"--",
 			"aws_instance.foo",
 		}, nil, taintCmd)
 	})

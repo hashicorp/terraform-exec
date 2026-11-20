@@ -37,6 +37,7 @@ func TestWorkspaceNewCmd(t *testing.T) {
 		assertCmd(t, []string{
 			"workspace", "new",
 			"-no-color",
+			"--",
 			"workspace-name",
 		}, nil, workspaceNewCmd)
 	})
@@ -53,6 +54,7 @@ func TestWorkspaceNewCmd(t *testing.T) {
 			"-lock-timeout=200s",
 			"-lock=false",
 			"-state=teststate",
+			"--",
 			"workspace-name",
 		}, nil, workspaceNewCmd)
 	})
@@ -77,6 +79,7 @@ func TestWorkspaceNewCmd(t *testing.T) {
 		assertCmd(t, []string{
 			"workspace", "new",
 			"-no-color",
+			"--",
 			"workspace-name",
 		}, map[string]string{
 			"TF_REATTACH_PROVIDERS": `{"registry.terraform.io/hashicorp/examplecloud":{"Protocol":"grpc","ProtocolVersion":6,"Pid":1234,"Test":true,"Addr":{"Network":"unix","String":"/fake_folder/T/plugin123"}}}`,

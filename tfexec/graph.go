@@ -59,12 +59,15 @@ func (tf *Terraform) graphCmd(ctx context.Context, opts ...GraphOption) (*exec.C
 
 	args := []string{"graph"}
 
+	// Non-option arguments must follow all options, separated by "--".
+	var positional []string
+
 	if c.plan != "" {
 		// plan was a positional argument prior to Terraform 0.15.0. Ensure proper use by checking version.
 		if err := tf.compatible(ctx, tf0_15_0, nil); err == nil {
 			args = append(args, "-plan="+c.plan)
 		} else {
-			args = append(args, c.plan)
+			positional = append(positional, c.plan)
 		}
 	}
 
@@ -82,6 +85,11 @@ func (tf *Terraform) graphCmd(ctx context.Context, opts ...GraphOption) (*exec.C
 			return nil, fmt.Errorf("-graph-type was first introduced in Terraform 0.8.0: %w", err)
 		}
 		args = append(args, "-type="+c.graphType)
+	}
+
+	if len(positional) > 0 {
+		args = append(args, "--")
+		args = append(args, positional...)
 	}
 
 	return tf.buildTerraformCmd(ctx, nil, args...), nil

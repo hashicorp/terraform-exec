@@ -129,7 +129,7 @@ func (tf *Terraform) importCmd(ctx context.Context, address, id string, opts ...
 	}
 
 	// required args, always pass
-	args = append(args, address, id)
+	args = append(args, "--", address, id)
 
 	mergeEnv := map[string]string{}
 	if c.reattachInfo != nil {

@@ -63,6 +63,7 @@ func TestDestroyCmd(t *testing.T) {
 			"-target=target2",
 			"-var", "var1=foo",
 			"-var", "var2=bar",
+			"--",
 			"destroydir",
 		}, nil, destroyCmd)
 	})
@@ -122,6 +123,7 @@ func TestDestroyJSONCmd(t *testing.T) {
 			"-var", "var1=foo",
 			"-var", "var2=bar",
 			"-json",
+			"--",
 			"destroydir",
 		}, nil, destroyCmd)
 	})

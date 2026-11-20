@@ -53,6 +53,7 @@ func TestQueryJSONCmd(t *testing.T) {
 			"-var", "android=paranoid",
 			"-var", "brain_size=planet",
 			"-json",
+			"--",
 			"earth",
 		}, nil, queryCmd)
 	})
